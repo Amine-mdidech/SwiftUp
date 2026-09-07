@@ -1,0 +1,10 @@
+[
+  {"rank": 1, "name": "Dana Okafor", "level": 9, "xp": 640, "isCurrentUser": false},
+  {"rank": 2, "name": "Tomas Lind", "level": 8, "xp": 505, "isCurrentUser": false},
+  {"rank": 3, "name": "You", "level": 7, "xp": 385, "isCurrentUser": true},
+  {"rank": 4, "name": "Priya Raman", "level": 7, "xp": 370, "isCurrentUser": false},
+  {"rank": 5, "name": "Sam Whitfield", "level": 6, "xp": 310, "isCurrentUser": false},
+  {"rank": 6, "name": "Jo Mensah", "level": 6, "xp": 240, "isCurrentUser": false},
+  {"rank": 7, "name": "Elif Kaya", "level": 5, "xp": 180, "isCurrentUser": false},
+  {"rank": 8, "name": "Ana Sorescu", "level": 5, "xp": 95, "isCurrentUser": false}
+]

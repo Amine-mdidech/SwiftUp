@@ -1,0 +1,70 @@
+[
+  {
+    "id": "q1", "topic": "Concurrency", "format": "multipleChoice",
+    "prompt": "A Task.detached block runs a piece of work. What does it not inherit?",
+    "codeSnippet": null,
+    "options": [
+      {"id": "A", "text": "The actor context, priority and task-local values of the caller"},
+      {"id": "B", "text": "Only the cancellation state of the parent task"},
+      {"id": "C", "text": "Nothing — a detached task inherits everything but runs concurrently"},
+      {"id": "D", "text": "Only the executor, but priority still propagates"}
+    ],
+    "correctOptionID": "A",
+    "explanation": "A detached task starts with a clean slate — no actor isolation, no inherited priority, no task-local values. Task { } inherits all three.",
+    "xp": 15
+  },
+  {
+    "id": "q2", "topic": "Memory · ARC", "format": "spotTheBug",
+    "prompt": "Spot the bug. Which line leaks?",
+    "codeSnippet": "// ImageLoader.swift\nfinal class Loader {\n    var onDone: (() -> Void)?\n    func load() {\n        client.fetch { data in\n            self.cache = data\n            self.onDone?()\n        }\n    }\n}",
+    "options": [
+      {"id": "A", "text": "Line 3 — the closure property should be weak"},
+      {"id": "B", "text": "Line 7 — calling onDone retains the caller"},
+      {"id": "C", "text": "Line 5 — the escaping closure captures self strongly"}
+    ],
+    "correctOptionID": "C",
+    "explanation": "The retain cycle forms where the escaping closure is created. [weak self] on line 5 breaks it; the property on line 3 is not the cycle.",
+    "xp": 15
+  },
+  {
+    "id": "q3", "topic": "SwiftUI state", "format": "trueFalse",
+    "prompt": "True or false: @State should only ever be used for value types privately owned by the view that declares it.",
+    "codeSnippet": null,
+    "options": [
+      {"id": "true", "text": "True"},
+      {"id": "false", "text": "False"}
+    ],
+    "correctOptionID": "true",
+    "explanation": "@State is for a view's own private, transient value-type storage. Anything shared or reference-typed belongs in @Observable model state instead.",
+    "xp": 15
+  },
+  {
+    "id": "q4", "topic": "SwiftUI state", "format": "fillInTheBlank",
+    "prompt": "Complete the line. The child must write back to the parent's value.",
+    "codeSnippet": "struct RowView: View {\n    ___ var isOn: Bool\n\n    var body: some View {\n        Toggle(\"Mute\", isOn: $isOn)\n    }\n}",
+    "options": [
+      {"id": "state", "text": "@State"},
+      {"id": "binding", "text": "@Binding"},
+      {"id": "bindable", "text": "@Bindable"},
+      {"id": "observable", "text": "@Observable"},
+      {"id": "environment", "text": "@Environment"}
+    ],
+    "correctOptionID": "binding",
+    "explanation": "@Binding gives the child read/write access to a value the parent owns — the blank needs $isOn to type-check, and only a binding can be prefixed with $ here.",
+    "xp": 15
+  },
+  {
+    "id": "q5", "topic": "Concurrency", "format": "multipleChoice",
+    "prompt": "You mark a class @MainActor. What is guaranteed about its methods?",
+    "codeSnippet": null,
+    "options": [
+      {"id": "A", "text": "They always run synchronously"},
+      {"id": "B", "text": "They run on the main thread, isolated from other actors"},
+      {"id": "C", "text": "They cannot be called from async code"},
+      {"id": "D", "text": "They run on a background queue for performance"}
+    ],
+    "correctOptionID": "B",
+    "explanation": "@MainActor isolates the type's methods and mutable state to the main actor, so they run on the main thread and can safely touch UI state.",
+    "xp": 15
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {"name": "Memory · ARC", "accuracyPercent": 41},
+  {"name": "Core Data / SwiftData", "accuracyPercent": 54},
+  {"name": "Testing", "accuracyPercent": 62},
+  {"name": "Networking", "accuracyPercent": 70},
+  {"name": "Architecture", "accuracyPercent": 74},
+  {"name": "SwiftUI state", "accuracyPercent": 78},
+  {"name": "UIKit", "accuracyPercent": 83},
+  {"name": "App lifecycle", "accuracyPercent": 86},
+  {"name": "Swift language", "accuracyPercent": 89},
+  {"name": "Concurrency", "accuracyPercent": 92},
+  {"name": "Combine", "accuracyPercent": 90},
+  {"name": "Xcode / tooling", "accuracyPercent": 95}
+]
