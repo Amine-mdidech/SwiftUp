@@ -1,0 +1,14 @@
+[
+  {"number": 1, "title": "Swift Novice", "xpThreshold": 0},
+  {"number": 2, "title": "Optional Handler", "xpThreshold": 150},
+  {"number": 3, "title": "Protocol Wrangler", "xpThreshold": 400},
+  {"number": 4, "title": "View Builder", "xpThreshold": 800},
+  {"number": 5, "title": "State Keeper", "xpThreshold": 1400},
+  {"number": 6, "title": "Retain Cycle Sleuth", "xpThreshold": 2200},
+  {"number": 7, "title": "Concurrency Compositor", "xpThreshold": 2700},
+  {"number": 8, "title": "SwiftUI Architect", "xpThreshold": 3700},
+  {"number": 9, "title": "Performance Surgeon", "xpThreshold": 5000},
+  {"number": 10, "title": "Systems Designer", "xpThreshold": 7000},
+  {"number": 11, "title": "Principal Reviewer", "xpThreshold": 9500},
+  {"number": 12, "title": "Platform Editor", "xpThreshold": 13000}
+]
