@@ -1,0 +1,48 @@
+name: SwiftUp
+options:
+  bundleIdPrefix: com.swiftup
+  deploymentTarget:
+    iOS: "17.0"
+targets:
+  SwiftUp:
+    type: application
+    platform: iOS
+    sources:
+      - path: SwiftUp
+    info:
+      path: Generated/SwiftUp-Info.plist
+      properties:
+        UILaunchScreen: {}
+        CFBundleDisplayName: SwiftUp
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.swiftup.dailyquiz
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: ""
+  SwiftUpTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SwiftUpTests
+    dependencies:
+      - target: SwiftUp
+    settings:
+      base:
+        SWIFT_VERSION: "5.0"
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  SwiftUp:
+    build:
+      targets:
+        SwiftUp: all
+        SwiftUpTests: [test]
+    test:
+      targets:
+        - SwiftUpTests
+    run:
+      config: Debug
