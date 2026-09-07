@@ -2479,8 +2479,10 @@ Claude-Session: https://claude.ai/code/session_013E5q55KoVehPSvKh3oo6bE"
 - Create: `SwiftUp/Features/Profile/AllLevelsView.swift`
 
 **Interfaces:**
-- Consumes: `ProfileRepository` (Task 9), `AchievementSeal`/`LockedSeal` (Task 5), `PlateNumeral`, `ThinProgressBar`, `RuledMasthead`
-- Produces: `ProfileHomeView()` (navigates to `MilestonesView`, `AllLevelsView`, and — via Task 16 — `AccuracyByTopicView`/`BadgesView`, and — via Task 17 — `SettingsView`) — this becomes the Record tab's `NavigationStack` root in Task 21.
+- Consumes: `ProfileRepository` (Task 9), `AchievementSeal`/`LockedSeal` (Task 5), `PlateNumeral`, `ThinProgressBar`, `RuledMasthead`, `AccuracyByTopicView` (Task 16), `BadgesView` (Task 16), `SettingsView` (Task 17)
+- Produces: `ProfileHomeView()` (navigates to `MilestonesView`, `AllLevelsView`, `AccuracyByTopicView`, `BadgesView`, `SettingsView`) — this becomes the Record tab's `NavigationStack` root in Task 21.
+
+> **Dispatch order note:** `ProfileHomeView` references types built in Tasks 16 and 17 (`AccuracyByTopicView`, `BadgesView`, `SettingsView`). Dispatch and complete **Task 16 and Task 17 before this task**, even though this task is numbered 15 — the plan's numbering reflects logical grouping, not build order. (Task 17 in turn depends on Task 18 — see the note there.)
 
 - [ ] **Step 1: `ProfileHomeView`**
 
@@ -2524,6 +2526,25 @@ struct ProfileHomeView: View {
                     statBlock("Accuracy") { Text("\(repo.profile.accuracyPercent)%").font(Theme.Fonts.heading(52)) }
                 }
                 .padding(.top, 26)
+
+                HStack {
+                    EyebrowLabel("Weakest topics")
+                    Spacer()
+                    NavigationLink("All topics →") { AccuracyByTopicView() }
+                        .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.accent700)
+                }
+                .padding(.top, 28)
+
+                VStack(spacing: 10) {
+                    ForEach(repo.topics.sorted { $0.accuracyPercent < $1.accuracyPercent }.prefix(2)) { topic in
+                        HStack(spacing: 12) {
+                            Text(topic.name).font(Theme.Fonts.body(13.5)).frame(width: 106, alignment: .leading)
+                            ThinProgressBar(fraction: Double(topic.accuracyPercent) / 100, fillColor: Theme.Colors.accent2, height: 7)
+                            Text("\(topic.accuracyPercent)").font(.system(size: 12, design: .monospaced)).foregroundStyle(Theme.Colors.neutral600)
+                        }
+                    }
+                }
+                .padding(.top, 12)
 
                 HStack {
                     EyebrowLabel("Seals earned")
@@ -2939,8 +2960,10 @@ Claude-Session: https://claude.ai/code/session_013E5q55KoVehPSvKh3oo6bE"
 - Create: `SwiftUp/Features/Settings/NotificationSettingsView.swift`
 
 **Interfaces:**
-- Consumes: `SegmentedPicker`, `SquareToggle`, `RuledRow`
-- Produces: `SettingsView()` (already linked from Task 15's `ProfileHomeView` toolbar), `NotificationSettingsView()`, and a link to `SupportView` (Task 18).
+- Consumes: `SegmentedPicker`, `SquareToggle`, `RuledRow`, `SupportView` (Task 18)
+- Produces: `SettingsView()` (linked from Task 15's `ProfileHomeView` toolbar — Task 15 must be dispatched after this task), `NotificationSettingsView()`, and a link to `SupportView` (Task 18).
+
+> **Dispatch order note:** `SettingsView` references `SupportView()` (Task 18). Dispatch and complete **Task 18 before this task**, despite the numbering. This task must in turn complete before Task 15 (see that task's note).
 
 - [ ] **Step 1: `SettingsView`**
 
