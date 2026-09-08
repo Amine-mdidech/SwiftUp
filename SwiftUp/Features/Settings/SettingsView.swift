@@ -5,6 +5,7 @@ struct SettingsView: View {
     @State private var cacheOffline = true
     @State private var showOnLeaderboards = true
     @State private var shareStats = false
+    @Environment(AuthRepository.self) private var authRepository
 
     var body: some View {
         ScrollView {
@@ -14,9 +15,10 @@ struct SettingsView: View {
                 EyebrowLabel("Account").padding(.top, 24)
                 VStack(spacing: 0) {
                     RuledRow(minHeight: 46) {
-                        Text("Signed in with Apple").font(Theme.Fonts.body(15))
+                        Text("Signed in as").font(Theme.Fonts.body(15))
                         Spacer()
-                        Text("maya@icloud.com").font(.system(size: 13.5)).foregroundStyle(Theme.Colors.neutral700)
+                        Text(authRepository.currentUser?.email ?? authRepository.currentUser?.displayName ?? "—")
+                            .font(.system(size: 13.5)).foregroundStyle(Theme.Colors.neutral700)
                     }
                     RuledRow(showBottomRule: true, minHeight: 46) {
                         Text("Support SwiftUp").font(Theme.Fonts.body(15))
@@ -70,7 +72,8 @@ struct SettingsView: View {
                 .padding(.top, 8)
 
                 HStack(spacing: 18) {
-                    Text("Sign out").font(.system(size: 14)).foregroundStyle(Theme.Colors.accent700)
+                    Button("Sign out") { authRepository.signOut() }
+                        .font(.system(size: 14)).foregroundStyle(Theme.Colors.accent700)
                     Text("Delete account").font(.system(size: 14)).foregroundStyle(Theme.Colors.accent2800)
                 }
                 .padding(.top, 20)
@@ -90,4 +93,5 @@ struct SettingsView: View {
 
 #Preview {
     NavigationStack { SettingsView() }
+        .environment(AuthRepository(isPreview: true, signedIn: true))
 }

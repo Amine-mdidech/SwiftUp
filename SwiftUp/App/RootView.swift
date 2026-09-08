@@ -7,19 +7,25 @@ struct RootView: View {
     private let profileRepository = ProfileRepository()
     private let interviewRepository = InterviewRepository()
     private let leaderboardRepository = LeaderboardRepository()
+    private let authRepository = AuthRepository()
 
     var body: some View {
         Group {
-            if hasCompletedOnboarding {
-                MainTabView()
+            if authRepository.isSignedIn {
+                if hasCompletedOnboarding {
+                    MainTabView()
+                } else {
+                    OnboardingFlowView(onComplete: { hasCompletedOnboarding = true })
+                }
             } else {
-                OnboardingFlowView(onComplete: { hasCompletedOnboarding = true })
+                AuthView()
             }
         }
         .environment(questionRepository)
         .environment(profileRepository)
         .environment(interviewRepository)
         .environment(leaderboardRepository)
+        .environment(authRepository)
     }
 }
 
