@@ -11,7 +11,7 @@ struct SegmentedPicker: View {
                     .font(.system(size: 13))
                     .padding(.vertical, 7)
                     .padding(.horizontal, 12)
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: .infinity, minHeight: 44)
                     .background(selection == option ? Theme.Colors.accent : Color.clear)
                     .foregroundStyle(selection == option ? Theme.Colors.bg : Theme.Colors.text)
                     .overlay(alignment: .leading) {
@@ -21,6 +21,7 @@ struct SegmentedPicker: View {
                     }
                     .contentShape(Rectangle())
                     .onTapGesture { selection = option }
+                    .accessibilityAddTraits(selection == option ? [.isButton, .isSelected] : .isButton)
             }
         }
         .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider, lineWidth: 1))
@@ -42,9 +43,14 @@ struct SquareToggle: View {
                     .frame(width: 20, height: 20)
                     .padding(3)
             }
+            .frame(width: 46, height: 44)
             .contentShape(Rectangle())
             .onTapGesture { isOn.toggle() }
             .animation(.easeInOut(duration: 0.15), value: isOn)
+            .accessibilityElement()
+            .accessibilityAddTraits(.isButton)
+            .accessibilityLabel("Toggle")
+            .accessibilityValue(isOn ? "On" : "Off")
     }
 }
 

@@ -64,14 +64,16 @@ struct SupportView: View {
                 EyebrowLabel(tag)
             }
             Text(detail).font(Theme.Fonts.body(13.5)).foregroundStyle(Theme.Colors.neutral700)
-            Button(buttonTitle) {}
-                .font(.system(size: 16))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 15)
-                .background(primary ? Theme.Colors.accent : Color.clear)
-                .foregroundStyle(primary ? Theme.Colors.bg : Theme.Colors.text)
-                .overlay(primary ? nil : RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
-                .padding(.top, 5)
+            Button {} label: {
+                Text(buttonTitle)
+                    .font(.system(size: 16))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+            }
+            .background(primary ? Theme.Colors.accent : Color.clear)
+            .foregroundStyle(primary ? Theme.Colors.bg : Theme.Colors.text)
+            .overlay(primary ? nil : RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+            .padding(.top, 5)
         }
         .padding(.top, 16)
         .overlay(Rectangle().fill(Theme.Colors.divider), alignment: .top)

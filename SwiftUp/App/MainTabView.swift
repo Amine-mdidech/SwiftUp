@@ -5,18 +5,17 @@ struct MainTabView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Group {
-                switch selectedTab {
-                case .today:
-                    TodayFlowView()
-                case .prep:
-                    NavigationStack { InterviewBankView() }
-                case .ranks:
-                    NavigationStack { LeaderboardView() }
-                case .record:
-                    NavigationStack { ProfileHomeView() }
-                }
+            TabView(selection: $selectedTab) {
+                TodayFlowView()
+                    .tag(AppTab.today)
+                NavigationStack { InterviewBankView() }
+                    .tag(AppTab.prep)
+                NavigationStack { LeaderboardView() }
+                    .tag(AppTab.ranks)
+                NavigationStack { ProfileHomeView() }
+                    .tag(AppTab.record)
             }
+            .toolbar(.hidden, for: .tabBar)
             CustomTabBar(selection: $selectedTab)
         }
     }

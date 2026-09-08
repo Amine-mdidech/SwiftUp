@@ -114,10 +114,12 @@ struct QuizQuestionView: View {
         let showAsWrong = answered && isSelected && !isCorrectOption
 
         HStack(alignment: .top, spacing: 12) {
-            Text(option.id.uppercased())
-                .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                .foregroundStyle(showAsCorrect ? Theme.Colors.accent700 : (showAsWrong ? Theme.Colors.accent2800 : Theme.Colors.neutral600))
-                .frame(width: 14, alignment: .leading)
+            if option.id.count == 1 {
+                Text(option.id.uppercased())
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(showAsCorrect ? Theme.Colors.accent700 : (showAsWrong ? Theme.Colors.accent2800 : Theme.Colors.neutral600))
+                    .frame(width: 14, alignment: .leading)
+            }
             Text(option.text)
                 .font(Theme.Fonts.body(15.5))
                 .foregroundStyle(Theme.Colors.text)
@@ -128,6 +130,8 @@ struct QuizQuestionView: View {
         .opacity(answered && !isSelected && !isCorrectOption ? 0.4 : 1)
         .overlay(Rectangle().fill(Theme.Colors.divider).frame(height: 1), alignment: .bottom)
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isButton)
         .onTapGesture {
             guard !answered else { return }
             session.selectOption(option.id)

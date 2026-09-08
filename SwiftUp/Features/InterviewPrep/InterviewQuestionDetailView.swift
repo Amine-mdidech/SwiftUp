@@ -51,10 +51,12 @@ struct InterviewQuestionDetailView: View {
                 .padding(.top, 10)
 
                 HStack(spacing: 12) {
-                    Button("Mark reviewed") {}
-                        .font(.system(size: 15.5))
-                        .frame(maxWidth: .infinity).padding(.vertical, 15)
-                        .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+                    Button {} label: {
+                        Text("Mark reviewed")
+                            .font(.system(size: 15.5))
+                            .frame(maxWidth: .infinity).padding(.vertical, 15)
+                    }
+                    .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
                     Button {
                         if let next = repo.nextQuestion(after: question) {
                             question = next
