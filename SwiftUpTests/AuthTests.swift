@@ -1,5 +1,4 @@
 import Testing
-import CryptoKit
 @testable import SwiftUp
 
 struct AuthTests {
@@ -34,13 +33,13 @@ struct AuthTests {
 }
 
 extension AuthTests {
-    @Test func previewModeSignedOutHasNoUser() {
+    @Test @MainActor func previewModeSignedOutHasNoUser() {
         let repo = AuthRepository(isPreview: true, signedIn: false)
         #expect(repo.isSignedIn == false)
         #expect(repo.currentUser == nil)
     }
 
-    @Test func previewModeSignedInHasPreviewUser() {
+    @Test @MainActor func previewModeSignedInHasPreviewUser() {
         let repo = AuthRepository(isPreview: true, signedIn: true)
         #expect(repo.isSignedIn == true)
         #expect(repo.currentUser?.uid == "preview-user")

@@ -27,4 +27,5 @@ struct MainTabView: View {
         .environment(ProfileRepository())
         .environment(InterviewRepository())
         .environment(LeaderboardRepository())
+        .environment(AuthRepository(isPreview: true, signedIn: true))
 }

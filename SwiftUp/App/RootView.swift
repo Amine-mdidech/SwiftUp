@@ -7,7 +7,7 @@ struct RootView: View {
     private let profileRepository = ProfileRepository()
     private let interviewRepository = InterviewRepository()
     private let leaderboardRepository = LeaderboardRepository()
-    private let authRepository = AuthRepository()
+    @State private var authRepository = AuthRepository()
 
     var body: some View {
         Group {

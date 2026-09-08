@@ -5,13 +5,18 @@ import AuthenticationServices
 import CryptoKit
 
 @Observable
-final class AuthRepository: NSObject {
+@MainActor
+final class AuthRepository {
     private(set) var isSignedIn: Bool
     private(set) var currentUser: AuthUser?
     var errorMessage: String?
 
     private let isPreview: Bool
-    private var authStateHandle: AuthStateDidChangeListenerHandle?
+    // Read in `deinit`, which is nonisolated even for a @MainActor class; this
+    // handle is only ever mutated on the main actor (in `init`), and isn't
+    // rendered by SwiftUI, so it's excluded from observation tracking.
+    @ObservationIgnored
+    nonisolated(unsafe) private var authStateHandle: AuthStateDidChangeListenerHandle?
 
     init(isPreview: Bool = false, signedIn: Bool = false) {
         self.isPreview = isPreview
@@ -19,9 +24,13 @@ final class AuthRepository: NSObject {
         self.currentUser = (isPreview && signedIn)
             ? AuthUser(uid: "preview-user", email: "preview@example.com", displayName: "Preview User")
             : nil
-        super.init()
 
         guard !isPreview else { return }
+
+        let restored = Auth.auth().currentUser
+        self.isSignedIn = restored != nil
+        self.currentUser = restored.map { AuthUser(uid: $0.uid, email: $0.email, displayName: $0.displayName) }
+
         authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             guard let self else { return }
             self.isSignedIn = user != nil
@@ -40,6 +49,7 @@ final class AuthRepository: NSObject {
     // MARK: - Email/password
 
     func signUp(email: String, password: String) async {
+        guard !isPreview else { return }
         errorMessage = nil
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
@@ -50,6 +60,7 @@ final class AuthRepository: NSObject {
     }
 
     func signIn(email: String, password: String) async {
+        guard !isPreview else { return }
         errorMessage = nil
         do {
             _ = try await Auth.auth().signIn(withEmail: email, password: password)
@@ -59,6 +70,7 @@ final class AuthRepository: NSObject {
     }
 
     func signOut() {
+        guard !isPreview else { return }
         do {
             try Auth.auth().signOut()
         } catch {
@@ -69,6 +81,7 @@ final class AuthRepository: NSObject {
     // MARK: - Sign in with Apple
 
     func handleAppleSignIn(result: Result<ASAuthorization, Error>, rawNonce: String) async {
+        guard !isPreview else { return }
         errorMessage = nil
         switch result {
         case .failure(let error):
@@ -126,7 +139,7 @@ final class AuthRepository: NSObject {
 
     // MARK: - Nonce (Apple Sign In replay protection)
 
-    static func randomNonceString(length: Int = 32) -> String {
+    nonisolated static func randomNonceString(length: Int = 32) -> String {
         precondition(length > 0)
         var randomBytes = [UInt8](repeating: 0, count: length)
         let status = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
@@ -136,7 +149,7 @@ final class AuthRepository: NSObject {
         return String(randomBytes.map { charset[Int($0) % charset.count] })
     }
 
-    static func sha256(_ input: String) -> String {
+    nonisolated static func sha256(_ input: String) -> String {
         let hashed = SHA256.hash(data: Data(input.utf8))
         return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
@@ -145,8 +158,11 @@ final class AuthRepository: NSObject {
 
     private static func friendlyMessage(for error: Error) -> String {
         let nsError = error as NSError
+        guard nsError.domain == AuthErrorDomain else {
+            return "Something went wrong. Please try again."
+        }
         switch AuthErrorCode(rawValue: nsError.code) {
-        case .wrongPassword, .invalidCredential:
+        case .wrongPassword, .invalidCredential, .userNotFound:
             return "Incorrect email or password."
         case .emailAlreadyInUse:
             return "An account already exists with that email."
@@ -156,6 +172,10 @@ final class AuthRepository: NSObject {
             return "No connection. Check your network and try again."
         case .weakPassword:
             return "Password must be at least 6 characters."
+        case .tooManyRequests:
+            return "Too many attempts. Try again later."
+        case .userDisabled:
+            return "This account has been disabled."
         default:
             return "Something went wrong. Please try again."
         }

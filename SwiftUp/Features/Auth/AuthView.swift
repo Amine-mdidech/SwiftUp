@@ -54,7 +54,10 @@ struct AuthView: View {
                     options: Mode.allCases.map(\.rawValue),
                     selection: Binding(
                         get: { mode.rawValue },
-                        set: { newValue in mode = Mode(rawValue: newValue) ?? .signIn }
+                        set: { newValue in
+                            mode = Mode(rawValue: newValue) ?? .signIn
+                            authRepository.errorMessage = nil
+                        }
                     )
                 )
                 .padding(.top, 20)
@@ -106,6 +109,7 @@ struct AuthView: View {
 
     private func submit() {
         validationMessage = nil
+        authRepository.errorMessage = nil
         guard AuthValidation.isValidEmail(email) else {
             validationMessage = "Enter a valid email address."
             return

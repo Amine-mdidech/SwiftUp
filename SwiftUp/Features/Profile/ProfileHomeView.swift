@@ -129,4 +129,5 @@ struct ProfileHomeView: View {
 #Preview {
     NavigationStack { ProfileHomeView() }
         .environment(ProfileRepository())
+        .environment(AuthRepository(isPreview: true, signedIn: true))
 }
