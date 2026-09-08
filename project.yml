@@ -3,6 +3,10 @@ options:
   bundleIdPrefix: com.swiftup
   deploymentTarget:
     iOS: "17.0"
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 11.0.0
 targets:
   SwiftUp:
     type: application
@@ -33,6 +37,13 @@ targets:
         DEVELOPMENT_TEAM: 5K3Q8T2G5A
         CODE_SIGNING_REQUIRED: YES
         CODE_SIGNING_ALLOWED: YES
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseCore
   SwiftUpTests:
     type: bundle.unit-test
     platform: iOS
