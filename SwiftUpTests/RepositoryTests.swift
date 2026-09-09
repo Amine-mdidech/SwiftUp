@@ -11,8 +11,8 @@ struct RepositoryTests {
         #expect(questions.count == 5)
     }
 
-    @Test func profileRepositoryLoadsProfileAndLevels() {
-        let repo = ProfileRepository(bundle: testBundle)
+    @Test func profileRepositoryLoadsBundledFallback() {
+        let repo = ProfileRepository.preview(bundle: testBundle)
         #expect(repo.profile.name == "Maya Reyes")
         #expect(repo.levels.count == 12)
         #expect(repo.achievements.count == 24)
