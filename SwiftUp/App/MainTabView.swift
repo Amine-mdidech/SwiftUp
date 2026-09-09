@@ -5,17 +5,21 @@ struct MainTabView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            TabView(selection: $selectedTab) {
+            ZStack {
                 TodayFlowView()
-                    .tag(AppTab.today)
+                    .opacity(selectedTab == .today ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .today)
                 NavigationStack { InterviewBankView() }
-                    .tag(AppTab.prep)
+                    .opacity(selectedTab == .prep ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .prep)
                 NavigationStack { LeaderboardView() }
-                    .tag(AppTab.ranks)
+                    .opacity(selectedTab == .ranks ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .ranks)
                 NavigationStack { ProfileHomeView() }
-                    .tag(AppTab.record)
+                    .opacity(selectedTab == .record ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .record)
             }
-            .toolbar(.hidden, for: .tabBar)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             CustomTabBar(selection: $selectedTab)
         }
     }
