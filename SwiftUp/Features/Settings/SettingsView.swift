@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var showOnLeaderboards = true
     @State private var shareStats = false
     @Environment(AuthRepository.self) private var authRepository
+    @Environment(QuestionRepository.self) private var questionRepository
 
     var body: some View {
         ScrollView {
@@ -45,9 +46,20 @@ struct SettingsView: View {
                 .padding(.top, 8)
 
                 EyebrowLabel("Difficulty").padding(.top, 22)
-                SegmentedPicker(options: ["Adaptive", "Junior", "Mid", "Senior"], selection: $difficulty)
+                SegmentedPicker(
+                    options: ["Adaptive", "Junior", "Mid", "Senior"],
+                    selection: Binding(
+                        get: { difficulty },
+                        set: { newValue in
+                            difficulty = newValue
+                            guard let uid = authRepository.currentUser?.uid else { return }
+                            let level = SkillLevel(rawValue: newValue)
+                            Task { await questionRepository.setLevelOverride(level, for: uid) }
+                        }
+                    )
+                )
                     .padding(.top, 10)
-                Text("Adaptive weights your next five toward topics under 60%.")
+                Text("Adaptive uses the level you set at onboarding. Junior/Mid/Senior overrides it for tomorrow's five.")
                     .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral700)
                     .padding(.top, 8)
 
@@ -83,6 +95,9 @@ struct SettingsView: View {
             .padding(24)
         }
         .background(Theme.Colors.bg)
+        .onAppear {
+            difficulty = questionRepository.levelOverride?.rawValue ?? "Adaptive"
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink("Notifications") { NotificationSettingsView() }
@@ -94,4 +109,5 @@ struct SettingsView: View {
 #Preview {
     NavigationStack { SettingsView() }
         .environment(AuthRepository(isPreview: true, signedIn: true))
+        .environment(QuestionRepository.preview())
 }
