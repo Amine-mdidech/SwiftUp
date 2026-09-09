@@ -23,6 +23,11 @@ totalQuestionsAnswered: number                      // all-time attempt count, i
                                                      // (distinct from answeredQuestionIDs, which tracks
                                                      // unique IDs for sub-project 4's spaced-repetition —
                                                      // a repeat-answer increments this but not that map)
+perfectDayCount: number                             // all-time count of days with correctCount == 5 —
+                                                     // separate from dailyCompletions (§2) because that
+                                                     // subcollection is only queried for the last 31 days
+                                                     // (enough for the 7-day/calendar-month achievements),
+                                                     // but "10 perfect days" (a06) is an all-time count
 streakDays: number
 freezesAvailable: number                            // 0-3, banked
 lastCompletedDate: string | null                    // "yyyy-MM-dd", local calendar day of last full completion
@@ -100,7 +105,7 @@ Finds the highest `xpThreshold <= totalXP` in `ladder` (sorted by `number`); `xp
 ```swift
 static func evaluate(catalog: [AchievementDefinition], stats: UserStats) -> [Achievement]
 ```
-`UserStats` bundles: `totalXP`, `streakDays`, `totalQuestionsAnswered`, `topicStats: [String: (correct: Int, total: Int)]`, `recentCompletions: [(date: String, correctCount: Int)]` (last 31 days — covers both the 7-day and calendar-month windows), `onboarded: Bool`. For each catalog entry, evaluates its `criterion` against `stats` to produce a `status` (`earned` once the threshold is met — `earnedDateDisplay` comes from `earnedAchievementIDs`'s stored timestamp, not recomputed; `inReach` if partial progress exists; `locked` otherwise) and `progressCurrent`/`progressTarget` where the criterion has a natural progress metric (streak/totalAnswered/topicMastery/perfectDays; perfectWeek/perfectMonth/onboarded/level/unbuildable report no progress, matching today's mock data's `null` progress on non-progress-bar achievements).
+`UserStats` bundles: `totalXP`, `streakDays`, `totalQuestionsAnswered`, `perfectDayCount`, `topicStats: [String: (correct: Int, total: Int)]`, `recentCompletions: [(date: String, correctCount: Int)]` (last 31 days — covers both the 7-day and calendar-month windows), `onboarded: Bool`. For each catalog entry, evaluates its `criterion` against `stats` to produce a `status` (`earned` once the threshold is met — `earnedDateDisplay` comes from `earnedAchievementIDs`'s stored timestamp, not recomputed; `inReach` if partial progress exists; `locked` otherwise) and `progressCurrent`/`progressTarget` where the criterion has a natural progress metric (streak/totalAnswered/topicMastery/perfectDays; perfectWeek/perfectMonth/onboarded/level/unbuildable report no progress, matching today's mock data's `null` progress on non-progress-bar achievements).
 
 ## 5. Completion flow
 
