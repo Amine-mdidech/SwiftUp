@@ -47,5 +47,5 @@ struct TodayFlowView: View {
 #Preview {
     TodayFlowView()
         .environment(ProfileRepository())
-        .environment(QuestionRepository())
+        .environment(QuestionRepository.preview())
 }

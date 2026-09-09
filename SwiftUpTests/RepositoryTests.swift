@@ -6,9 +6,9 @@ private final class TestBundleMarker {}
 private let testBundle = Bundle(for: TestBundleMarker.self)
 
 struct RepositoryTests {
-    @Test func questionRepositoryLoadsFiveQuestions() {
-        let repo = QuestionRepository(bundle: testBundle)
-        #expect(repo.todayQuestions.count == 5)
+    @Test func questionRepositoryBundledFallbackLoadsFiveQuestions() {
+        let questions = QuestionRepository.loadBundledFallback(bundle: testBundle)
+        #expect(questions.count == 5)
     }
 
     @Test func profileRepositoryLoadsProfileAndLevels() {

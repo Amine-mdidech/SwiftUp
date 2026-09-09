@@ -140,12 +140,12 @@ struct QuizQuestionView: View {
 }
 
 #Preview("Unanswered") {
-    let session = QuizSession(questions: QuestionRepository().todayQuestions)
+    let session = QuizSession(questions: QuestionRepository.preview().todayQuestions)
     return QuizQuestionView(session: session, onAdvance: {})
 }
 
 #Preview("Answered") {
-    let session = QuizSession(questions: QuestionRepository().todayQuestions)
+    let session = QuizSession(questions: QuestionRepository.preview().todayQuestions)
     session.selectOption("A")
     return QuizQuestionView(session: session, onAdvance: {})
 }

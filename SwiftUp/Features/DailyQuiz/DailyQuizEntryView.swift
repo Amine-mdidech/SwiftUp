@@ -63,5 +63,5 @@ struct DailyQuizEntryView: View {
 #Preview {
     DailyQuizEntryView(onBegin: {})
         .environment(ProfileRepository())
-        .environment(QuestionRepository())
+        .environment(QuestionRepository.preview())
 }

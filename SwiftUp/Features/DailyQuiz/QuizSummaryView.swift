@@ -44,6 +44,6 @@ struct QuizSummaryView: View {
 }
 
 #Preview {
-    let session = QuizSession(questions: QuestionRepository().todayQuestions)
+    let session = QuizSession(questions: QuestionRepository.preview().todayQuestions)
     return QuizSummaryView(session: session, onDone: {})
 }
