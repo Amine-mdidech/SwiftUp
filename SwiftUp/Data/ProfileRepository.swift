@@ -2,6 +2,7 @@ import Foundation
 import FirebaseFirestore
 
 @Observable
+@MainActor
 final class ProfileRepository {
     let levels: [LevelInfo]
     private let catalog: [AchievementDefinition]
@@ -45,7 +46,12 @@ final class ProfileRepository {
     }
 
     /// Fetches this user's real profile/XP/streak/topic/achievement state from Firestore.
-    /// Falls back to bundled content only if Firestore is unreachable (e.g. first launch, offline).
+    ///
+    /// On failure the repository keeps whatever state it already holds — the zeroed/empty profile
+    /// from `init` on a first-ever load, or the last successfully-loaded real data on a later
+    /// reload (better than flashing to zero on a transient error). It deliberately does NOT fall
+    /// back to the bundled `profile.json`/`topics.json` persona: that content is a mock and is
+    /// indistinguishable from real data to a signed-in user, so it is reserved for `preview()`.
     func load(for uid: String) async {
         isLoading = true
         defer { isLoading = false }
@@ -56,7 +62,7 @@ final class ProfileRepository {
             let recentCompletions = try await Self.fetchRecentCompletions(uid: uid)
             apply(snapshot: snapshot, recentCompletions: recentCompletions)
         } catch {
-            applyBundledFallback(bundle: .main)
+            // Intentionally left as-is — see doc comment above.
         }
     }
 
@@ -65,14 +71,22 @@ final class ProfileRepository {
     /// (no re-fetch round trip). Non-blocking on failure — the user is never blocked leaving the
     /// quiz screen; worst case this session's stats are lost and the next completion recomputes
     /// from whatever's actually stored.
+    ///
+    /// Idempotent per calendar day: a second completion on a day already recorded is a no-op.
+    /// Nothing in the UI stops a user replaying the same day's five questions, and without this
+    /// guard every replay re-added the full session delta to totalXP / totalQuestionsAnswered /
+    /// perfectDayCount / topicStats (only the streak was already same-day idempotent, inside
+    /// `StreakCalculator.apply`).
     func recordCompletion(_ session: QuizSession, for uid: String) async {
         guard !session.questions.isEmpty else { return }
         let userRef = Firestore.firestore().collection("users").document(uid)
 
         do {
             let snapshot = try await userRef.getDocument()
-            let existingRecent = try await Self.fetchRecentCompletions(uid: uid)
             let today = Self.todayString()
+            guard snapshot.get("lastCompletedDate") as? String != today else { return }
+
+            let existingRecent = try await Self.fetchRecentCompletions(uid: uid)
 
             var topicStats = Self.decodeTopicStats(snapshot)
             for question in session.questions {
@@ -112,6 +126,12 @@ final class ProfileRepository {
             let now = Date()
             for achievement in newlyEarned { earnedAt[achievement.id] = now }
 
+            // Nested (not dotted-path) keys, written with `setData(merge:)` rather than
+            // `updateData`: `updateData` fails the whole batch if `users/{uid}` doesn't exist yet,
+            // which is reachable when `AuthRepository.ensureUserDocument` never ran or silently
+            // failed. Merge-set creates the document if needed, leaves omitted fields untouched,
+            // and deep-merges nested maps — so `topicStats`/`earnedAchievementIDs` entries not
+            // written here survive, exactly as the dotted paths did.
             var userUpdates: [String: Any] = [
                 "totalXP": newTotalXP,
                 "totalQuestionsAnswered": newTotalAnswered,
@@ -120,17 +140,19 @@ final class ProfileRepository {
                 "freezesAvailable": streakResult.freezesAvailable,
                 "lastCompletedDate": today,
             ]
-            for (topic, value) in topicStats {
-                userUpdates["topicStats.\(topic).correct"] = value.correct
-                userUpdates["topicStats.\(topic).total"] = value.total
+            // Never write an empty map: merge-set treats `{}` as "overwrite this nested field".
+            if !topicStats.isEmpty {
+                userUpdates["topicStats"] = topicStats.mapValues { ["correct": $0.correct, "total": $0.total] }
             }
-            let nowTimestamp = Timestamp(date: now)
-            for achievement in newlyEarned {
-                userUpdates["earnedAchievementIDs.\(achievement.id)"] = nowTimestamp
+            if !newlyEarned.isEmpty {
+                let nowTimestamp = Timestamp(date: now)
+                userUpdates["earnedAchievementIDs"] = newlyEarned.reduce(into: [String: Timestamp]()) {
+                    $0[$1.id] = nowTimestamp
+                }
             }
 
             let batch = Firestore.firestore().batch()
-            batch.updateData(userUpdates, forDocument: userRef)
+            batch.setData(userUpdates, forDocument: userRef, merge: true)
             let dayRef = userRef.collection("dailyCompletions").document(today)
             batch.setData(["correctCount": session.correctCount, "xpEarned": session.totalXPEarned], forDocument: dayRef)
             try await batch.commit()
