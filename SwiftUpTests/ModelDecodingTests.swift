@@ -6,7 +6,7 @@ struct ModelDecodingTests {
     @Test func decodesMultipleChoiceQuestion() throws {
         let json = """
         {
-          "id": "q1", "topic": "Concurrency", "format": "multipleChoice",
+          "id": "q1", "topic": "Concurrency", "level": "Mid", "format": "multipleChoice",
           "prompt": "What does it not inherit?", "codeSnippet": null,
           "options": [{"id": "A", "text": "Actor context"}, {"id": "B", "text": "Cancellation"}],
           "correctOptionID": "A", "explanation": "Because.", "xp": 15

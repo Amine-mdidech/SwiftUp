@@ -12,6 +12,7 @@ struct QuestionOption: Codable, Identifiable, Hashable {
 struct Question: Codable, Identifiable {
     let id: String
     let topic: String
+    let level: SkillLevel
     let format: QuestionFormat
     let prompt: String
     let codeSnippet: String?

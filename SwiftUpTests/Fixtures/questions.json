@@ -1,6 +1,6 @@
 [
   {
-    "id": "q1", "topic": "Concurrency", "format": "multipleChoice",
+    "id": "q1", "topic": "Concurrency", "level": "Mid", "format": "multipleChoice",
     "prompt": "A Task.detached block runs a piece of work. What does it not inherit?",
     "codeSnippet": null,
     "options": [
@@ -14,7 +14,7 @@
     "xp": 15
   },
   {
-    "id": "q2", "topic": "Memory · ARC", "format": "spotTheBug",
+    "id": "q2", "topic": "Memory · ARC", "level": "Mid", "format": "spotTheBug",
     "prompt": "Spot the bug. Which line leaks?",
     "codeSnippet": "// ImageLoader.swift\nfinal class Loader {\n    var onDone: (() -> Void)?\n    func load() {\n        client.fetch { data in\n            self.cache = data\n            self.onDone?()\n        }\n    }\n}",
     "options": [
@@ -27,7 +27,7 @@
     "xp": 15
   },
   {
-    "id": "q3", "topic": "SwiftUI state", "format": "trueFalse",
+    "id": "q3", "topic": "SwiftUI state", "level": "Mid", "format": "trueFalse",
     "prompt": "True or false: @State should only ever be used for value types privately owned by the view that declares it.",
     "codeSnippet": null,
     "options": [
@@ -39,7 +39,7 @@
     "xp": 15
   },
   {
-    "id": "q4", "topic": "SwiftUI state", "format": "fillInTheBlank",
+    "id": "q4", "topic": "SwiftUI state", "level": "Mid", "format": "fillInTheBlank",
     "prompt": "Complete the line. The child must write back to the parent's value.",
     "codeSnippet": "struct RowView: View {\n    ___ var isOn: Bool\n\n    var body: some View {\n        Toggle(\"Mute\", isOn: $isOn)\n    }\n}",
     "options": [
@@ -54,7 +54,7 @@
     "xp": 15
   },
   {
-    "id": "q5", "topic": "Concurrency", "format": "multipleChoice",
+    "id": "q5", "topic": "Concurrency", "level": "Mid", "format": "multipleChoice",
     "prompt": "You mark a class @MainActor. What is guaranteed about its methods?",
     "codeSnippet": null,
     "options": [

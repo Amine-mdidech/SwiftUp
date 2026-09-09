@@ -4,7 +4,7 @@ import Testing
 private func makeQuestions() -> [Question] {
     (1...5).map { i in
         Question(
-            id: "q\(i)", topic: "Topic", format: .multipleChoice,
+            id: "q\(i)", topic: "Topic", level: .junior, format: .multipleChoice,
             prompt: "Prompt \(i)", codeSnippet: nil,
             options: [QuestionOption(id: "A", text: "A"), QuestionOption(id: "B", text: "B")],
             correctOptionID: "A", explanation: "Because.", xp: 15
