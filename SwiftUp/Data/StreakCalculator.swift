@@ -31,7 +31,12 @@ enum StreakCalculator {
         guard let startDate = dateFormatter.date(from: start), let endDate = dateFormatter.date(from: end) else {
             return nil
         }
-        return Calendar(identifier: .gregorian).dateComponents([.day], from: startDate, to: endDate).day
+        // The calendar doing the day arithmetic must sit in the same timezone the formatter parsed
+        // in (UTC). Left on the device's timezone, a DST transition makes the 24h between two
+        // consecutive UTC midnights read as 23h (gap 0) or 25h — miscounting real streak gaps.
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = dateFormatter.timeZone
+        return calendar.dateComponents([.day], from: startDate, to: endDate).day
     }
 
     private static let dateFormatter: DateFormatter = {

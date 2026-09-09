@@ -1,4 +1,5 @@
 import Testing
+import Foundation
 @testable import SwiftUp
 
 struct StreakCalculatorTests {
@@ -49,5 +50,64 @@ struct StreakCalculatorTests {
         let result = StreakCalculator.apply(lastCompletedDate: "2026-01-10", streakDays: 5, freezesAvailable: 1, today: "2026-01-14")
         #expect(result.streakDays == 1)
         #expect(result.freezesAvailable == 1) // not consumed
+    }
+
+    // MARK: - Timezone invariant (regression: daysBetween used an unpinned Calendar)
+
+    /// `daysBetween` parses `"yyyy-MM-dd"` with a UTC-pinned `DateFormatter`, so both operands are
+    /// UTC midnights. The `Calendar` that then measures the gap must be pinned to the *same*
+    /// timezone. Left on the device's timezone (the old bug), a DST-observing zone measures the 24h
+    /// between two consecutive UTC midnights as 23h of local wall clock and reports a 0-day gap —
+    /// so a genuine next-day completion is mistaken for a same-day repeat and the streak silently
+    /// stops growing, once a year, for everyone in that zone.
+    ///
+    /// Each pair below is two consecutive calendar days that the named zone's clock change makes a
+    /// device-local calendar miscount as 0 (verified empirically against tzdata; all are past
+    /// dates, so they are historical and stable). The list spans both hemispheres, the most
+    /// populated DST zones, and this project's own dev-machine zone, so the test genuinely fails
+    /// pre-fix on any machine set to one of them and passes everywhere post-fix.
+    @Test func consecutiveDaysAcrossADSTTransitionStillGrowTheStreak() {
+        let consecutiveDayPairsSpanningADSTTransition = [
+            ("America/New_York", "2025-11-02", "2025-11-03"),
+            ("Europe/Paris", "2025-10-26", "2025-10-27"),
+            ("Europe/London", "2025-10-26", "2025-10-27"),
+            ("Australia/Sydney", "2025-04-05", "2025-04-06"),
+            ("America/Santiago", "2025-04-06", "2025-04-07"),
+            ("Pacific/Auckland", "2025-04-05", "2025-04-06"),
+            ("Africa/Casablanca", "2025-02-23", "2025-02-24"),
+        ]
+        for (zone, yesterday, today) in consecutiveDayPairsSpanningADSTTransition {
+            let result = StreakCalculator.apply(
+                lastCompletedDate: yesterday, streakDays: 5, freezesAvailable: 0, today: today
+            )
+            #expect(result.streakDays == 6, "\(zone): \(yesterday) -> \(today) must read as a 1-day gap")
+        }
+    }
+
+    /// Machine-independent companion to the test above: it builds the *wrong* (device-local)
+    /// calendar explicitly rather than relying on the host machine's timezone, proves the hazard
+    /// is still live in current tzdata, and then asserts `StreakCalculator` does not behave that way.
+    @Test func dayGapArithmeticIgnoresTheDeviceTimeZone() throws {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        formatter.dateFormat = "yyyy-MM-dd"
+        let start = try #require(formatter.date(from: "2025-11-02"))
+        let end = try #require(formatter.date(from: "2025-11-05"))
+
+        // What the pre-fix code would have computed on a device set to America/New_York.
+        var deviceCalendar = Calendar(identifier: .gregorian)
+        deviceCalendar.timeZone = TimeZone(identifier: "America/New_York")!
+        #expect(deviceCalendar.dateComponents([.day], from: start, to: end).day == 2,
+                "tzdata sanity check: this pair must still be miscounted by a device-local calendar")
+
+        // A true 3-day gap: too wide for one freeze, so the streak resets and the freeze is kept.
+        // Under the miscounted 2-day gap it would instead have consumed the freeze and grown to 10.
+        let result = StreakCalculator.apply(
+            lastCompletedDate: "2025-11-02", streakDays: 9, freezesAvailable: 1, today: "2025-11-05"
+        )
+        #expect(result.streakDays == 1)
+        #expect(result.freezesAvailable == 1)
     }
 }
