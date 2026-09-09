@@ -3,6 +3,8 @@ import SwiftUI
 struct OnboardingFlowView: View {
     enum Step { case welcome, skill, topics }
 
+    @Environment(QuestionRepository.self) private var questionRepository
+    @Environment(AuthRepository.self) private var authRepository
     @State private var step: Step = .welcome
     let onComplete: () -> Void
 
@@ -11,7 +13,12 @@ struct OnboardingFlowView: View {
         case .welcome:
             WelcomeView(onContinue: { step = .skill })
         case .skill:
-            SkillAssessmentView(onContinue: { _ in step = .topics })
+            SkillAssessmentView(onContinue: { level in
+                if let uid = authRepository.currentUser?.uid {
+                    Task { await questionRepository.saveInitialSkillLevel(level, for: uid) }
+                }
+                step = .topics
+            })
         case .topics:
             TopicInterestsView(onFinish: onComplete)
         }
@@ -20,4 +27,6 @@ struct OnboardingFlowView: View {
 
 #Preview {
     OnboardingFlowView(onComplete: {})
+        .environment(QuestionRepository.preview())
+        .environment(AuthRepository(isPreview: true, signedIn: true))
 }
