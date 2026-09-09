@@ -1,7 +1,9 @@
 import Foundation
+import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 import AuthenticationServices
+import GoogleSignIn
 import CryptoKit
 
 @Observable
@@ -48,25 +50,70 @@ final class AuthRepository {
 
     // MARK: - Email/password
 
-    func signUp(email: String, password: String) async {
-        guard !isPreview else { return }
-        errorMessage = nil
-        do {
-            let result = try await Auth.auth().createUser(withEmail: email, password: password)
-            await ensureUserDocument(uid: result.user.uid, email: result.user.email, displayName: result.user.displayName)
-        } catch {
-            errorMessage = Self.friendlyMessage(for: error)
-        }
-    }
-
-    func signIn(email: String, password: String) async {
+    /// No separate sign-in/sign-up choice is shown to the user — this tries
+    /// signing in first, and silently creates the account on the one error
+    /// that means "no such user," so a single button covers both cases.
+    func continueWithEmail(email: String, password: String) async {
         guard !isPreview else { return }
         errorMessage = nil
         do {
             _ = try await Auth.auth().signIn(withEmail: email, password: password)
         } catch {
+            guard Self.isUserNotFound(error) else {
+                errorMessage = Self.friendlyMessage(for: error)
+                return
+            }
+            do {
+                let result = try await Auth.auth().createUser(withEmail: email, password: password)
+                await ensureUserDocument(uid: result.user.uid, email: result.user.email, displayName: result.user.displayName)
+            } catch {
+                errorMessage = Self.friendlyMessage(for: error)
+            }
+        }
+    }
+
+    private static func isUserNotFound(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        return nsError.domain == AuthErrorDomain && AuthErrorCode(rawValue: nsError.code) == .userNotFound
+    }
+
+    // MARK: - Sign in with Google
+
+    func signInWithGoogle() async {
+        guard !isPreview else { return }
+        errorMessage = nil
+        guard let presenter = Self.topViewController() else {
+            errorMessage = "Something went wrong. Please try again."
+            return
+        }
+        do {
+            let googleResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
+            guard let idToken = googleResult.user.idToken?.tokenString else {
+                errorMessage = "Something went wrong. Please try again."
+                return
+            }
+            let credential = GoogleAuthProvider.credential(
+                withIDToken: idToken,
+                accessToken: googleResult.user.accessToken.tokenString
+            )
+            let result = try await Auth.auth().signIn(with: credential)
+            await ensureUserDocument(uid: result.user.uid, email: result.user.email, displayName: result.user.displayName)
+        } catch {
+            if (error as? GIDSignInError)?.code == .canceled { return }
             errorMessage = Self.friendlyMessage(for: error)
         }
+    }
+
+    private static func topViewController() -> UIViewController? {
+        guard
+            let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
+            let root = scene.windows.first(where: \.isKeyWindow)?.rootViewController
+        else { return nil }
+        var top = root
+        while let presented = top.presentedViewController {
+            top = presented
+        }
+        return top
     }
 
     func signOut() {

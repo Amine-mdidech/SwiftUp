@@ -18,7 +18,9 @@ struct RootView: View {
                     OnboardingFlowView(onComplete: { hasCompletedOnboarding = true })
                 }
             } else {
-                AuthView()
+                NavigationStack {
+                    AuthView()
+                }
             }
         }
         .environment(questionRepository)

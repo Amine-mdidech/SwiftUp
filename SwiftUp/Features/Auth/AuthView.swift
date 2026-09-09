@@ -4,107 +4,148 @@ import AuthenticationServices
 struct AuthView: View {
     @Environment(AuthRepository.self) private var authRepository
 
-    @State private var mode: Mode = .signIn
+    @State private var showEmailFields = false
     @State private var email = ""
     @State private var password = ""
     @State private var currentNonce = ""
     @State private var isSubmitting = false
     @State private var validationMessage: String?
 
-    private enum Mode: String, CaseIterable {
-        case signIn = "Sign in"
-        case signUp = "Create account"
-    }
-
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 RuledMasthead(left: "SwiftUp", right: "Sign in")
 
-                VStack(alignment: .leading, spacing: 22) {
+                VStack(alignment: .leading, spacing: 16) {
                     Text("Track your\nprogress.")
-                        .font(Theme.Fonts.heading(38))
+                        .font(Theme.Fonts.heading(44))
                         .lineSpacing(-2)
-                    Text("Sign in to save your streak, XP, and rank across devices.")
+                    Text("Your streak, xp and standing follow you to any device. Answers stay on the device until you join a leaderboard.")
                         .font(Theme.Fonts.body(16))
                         .foregroundStyle(Theme.Colors.neutral800)
                 }
-                .padding(.top, 44)
+                .padding(.top, 38)
 
-                SignInWithAppleButton(.signIn) { request in
-                    let nonce = AuthRepository.randomNonceString()
-                    currentNonce = nonce
-                    request.requestedScopes = [.email, .fullName]
-                    request.nonce = AuthRepository.sha256(nonce)
-                } onCompletion: { result in
-                    Task { await authRepository.handleAppleSignIn(result: result, rawNonce: currentNonce) }
-                }
-                .signInWithAppleButtonStyle(.black)
-                .frame(height: 50)
-                .padding(.top, 36)
+                VStack(spacing: 11) {
+                    SignInWithAppleButton(.continue) { request in
+                        let nonce = AuthRepository.randomNonceString()
+                        currentNonce = nonce
+                        request.requestedScopes = [.email, .fullName]
+                        request.nonce = AuthRepository.sha256(nonce)
+                    } onCompletion: { result in
+                        Task { await authRepository.handleAppleSignIn(result: result, rawNonce: currentNonce) }
+                    }
+                    .signInWithAppleButtonStyle(.black)
+                    .frame(height: 54)
 
-                HStack(spacing: 12) {
-                    Rectangle().fill(Theme.Colors.divider).frame(height: 1)
-                    Text("or").font(.system(size: 12)).foregroundStyle(Theme.Colors.neutral700)
-                    Rectangle().fill(Theme.Colors.divider).frame(height: 1)
-                }
-                .padding(.top, 20)
-
-                SegmentedPicker(
-                    options: Mode.allCases.map(\.rawValue),
-                    selection: Binding(
-                        get: { mode.rawValue },
-                        set: { newValue in
-                            mode = Mode(rawValue: newValue) ?? .signIn
-                            authRepository.errorMessage = nil
+                    Button {
+                        Task { await authRepository.signInWithGoogle() }
+                    } label: {
+                        HStack(spacing: 10) {
+                            GoogleLogo()
+                            Text("Continue with Google")
+                                .font(Theme.Fonts.body(17))
                         }
-                    )
-                )
-                .padding(.top, 20)
+                        .frame(maxWidth: .infinity, minHeight: 54)
+                    }
+                    .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+                    .foregroundStyle(Theme.Colors.text)
 
-                VStack(spacing: 10) {
-                    TextField("Email", text: $email)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .padding(12)
-                        .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
-
-                    SecureField("Password", text: $password)
-                        .textContentType(mode == .signUp ? .newPassword : .password)
-                        .padding(12)
-                        .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { showEmailFields = true }
+                    } label: {
+                        Text("Continue with email")
+                            .font(Theme.Fonts.body(17))
+                            .frame(maxWidth: .infinity, minHeight: 54)
+                    }
+                    .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+                    .foregroundStyle(Theme.Colors.text)
+                    .opacity(showEmailFields ? 0.4 : 1)
+                    .disabled(showEmailFields)
                 }
-                .padding(.top, 16)
+                .padding(.top, 34)
 
-                if let validationMessage {
-                    Text(validationMessage)
-                        .font(.system(size: 12.5))
-                        .foregroundStyle(Theme.Colors.accent2800)
-                        .padding(.top, 8)
-                }
-                if let errorMessage = authRepository.errorMessage {
-                    Text(errorMessage)
-                        .font(.system(size: 12.5))
-                        .foregroundStyle(Theme.Colors.accent2800)
-                        .padding(.top, 8)
+                if showEmailFields {
+                    emailFields
                 }
 
-                Button(action: submit) {
-                    Text(isSubmitting ? "Please wait…" : mode.rawValue)
-                        .font(Theme.Fonts.heading(16))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
+                Text("New here? Any of these creates your account — there is no separate sign-up.")
+                    .font(Theme.Fonts.body(13))
+                    .foregroundStyle(Theme.Colors.neutral800)
+                    .padding(.top, 20)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Rectangle().fill(Theme.Colors.text).frame(height: 1)
+                    VStack(alignment: .leading, spacing: 10) {
+                        EyebrowLabel("Our promise")
+                        Text("No subscription. No unwanted ads. Nothing to cancel.")
+                            .font(Theme.Fonts.heading(22))
+                        Text("Everything is free. Support us only if you want to.")
+                            .font(Theme.Fonts.body(13.5))
+                            .foregroundStyle(Theme.Colors.neutral800)
+                    }
+                    .padding(.top, 16)
                 }
-                .background(Theme.Colors.accent)
-                .foregroundStyle(Theme.Colors.bg)
-                .disabled(isSubmitting)
-                .padding(.top, 16)
+                .padding(.top, 32)
+
+                NavigationLink {
+                    SupportView()
+                } label: {
+                    VStack(spacing: 14) {
+                        Rectangle().fill(Theme.Colors.divider).frame(height: 1)
+                        Text("No subscription and no unwanted ads — read the promise.")
+                            .font(.system(size: 12.5))
+                            .foregroundStyle(Theme.Colors.neutral800)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(.top, 22)
             }
             .padding(24)
         }
         .background(Theme.Colors.bg)
+    }
+
+    private var emailFields: some View {
+        VStack(spacing: 10) {
+            TextField("Email", text: $email)
+                .textContentType(.emailAddress)
+                .keyboardType(.emailAddress)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .padding(12)
+                .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+
+            SecureField("Password", text: $password)
+                .textContentType(.password)
+                .padding(12)
+                .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+
+            if let validationMessage {
+                Text(validationMessage)
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(Theme.Colors.accent2800)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if let errorMessage = authRepository.errorMessage {
+                Text(errorMessage)
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(Theme.Colors.accent2800)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            Button(action: submit) {
+                Text(isSubmitting ? "Please wait…" : "Continue")
+                    .font(Theme.Fonts.heading(16))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 15)
+            }
+            .background(Theme.Colors.accent)
+            .foregroundStyle(Theme.Colors.bg)
+            .disabled(isSubmitting)
+        }
+        .padding(.top, 14)
     }
 
     private func submit() {
@@ -120,16 +161,15 @@ struct AuthView: View {
         }
         isSubmitting = true
         Task {
-            switch mode {
-            case .signIn: await authRepository.signIn(email: email, password: password)
-            case .signUp: await authRepository.signUp(email: email, password: password)
-            }
+            await authRepository.continueWithEmail(email: email, password: password)
             isSubmitting = false
         }
     }
 }
 
 #Preview {
-    AuthView()
-        .environment(AuthRepository(isPreview: true))
+    NavigationStack {
+        AuthView()
+            .environment(AuthRepository(isPreview: true))
+    }
 }

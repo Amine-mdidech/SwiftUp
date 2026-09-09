@@ -7,6 +7,9 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     from: 11.0.0
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: 7.0.0
 targets:
   SwiftUp:
     type: application
@@ -20,6 +23,9 @@ targets:
         CFBundleDisplayName: SwiftUp
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - com.googleusercontent.apps.815470112228-jp18qpb16m9eh1ktuamap25edg2qe3ja
     entitlements:
       path: Generated/SwiftUp.entitlements
       properties:
@@ -44,6 +50,8 @@ targets:
         product: FirebaseFirestore
       - package: Firebase
         product: FirebaseCore
+      - package: GoogleSignIn
+        product: GoogleSignIn
   SwiftUpTests:
     type: bundle.unit-test
     platform: iOS
