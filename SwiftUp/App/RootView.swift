@@ -3,7 +3,7 @@ import SwiftUI
 struct RootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
-    private let questionRepository = QuestionRepository()
+    @State private var questionRepository = QuestionRepository()
     private let profileRepository = ProfileRepository()
     private let interviewRepository = InterviewRepository()
     private let leaderboardRepository = LeaderboardRepository()
