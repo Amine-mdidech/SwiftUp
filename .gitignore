@@ -5,3 +5,4 @@ DerivedData/
 .build/
 *.xcodeproj/
 Generated/
+scripts/serviceAccountKey.json
