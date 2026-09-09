@@ -45,4 +45,18 @@ struct ModelDecodingTests {
         let p = try JSONDecoder().decode(UserProfile.self, from: json)
         #expect(p.xpToNextLevel == 460)
     }
+
+    @Test func decodesAchievementDefinitionWithCriterion() throws {
+        let json = """
+        {
+          "id": "a03", "title": "Concurrency, mastered", "detail": "90% across 40 questions in one topic",
+          "sealKind": "topicMastery", "xpReward": 250,
+          "criterion": {"kind": "topicMastery", "topic": "Concurrency", "minAccuracy": 90, "minAnswered": 40, "count": null, "days": null}
+        }
+        """.data(using: .utf8)!
+        let d = try JSONDecoder().decode(AchievementDefinition.self, from: json)
+        #expect(d.criterion.kind == "topicMastery")
+        #expect(d.criterion.topic == "Concurrency")
+        #expect(d.criterion.minAccuracy == 90)
+    }
 }
