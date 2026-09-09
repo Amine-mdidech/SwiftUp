@@ -75,5 +75,5 @@ struct MilestonesView: View {
 
 #Preview {
     NavigationStack { MilestonesView() }
-        .environment(ProfileRepository())
+        .environment(ProfileRepository.preview())
 }

@@ -28,7 +28,7 @@ struct MainTabView: View {
 #Preview {
     MainTabView()
         .environment(QuestionRepository.preview())
-        .environment(ProfileRepository())
+        .environment(ProfileRepository.preview())
         .environment(InterviewRepository())
         .environment(LeaderboardRepository())
         .environment(AuthRepository(isPreview: true, signedIn: true))

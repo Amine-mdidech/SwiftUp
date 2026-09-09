@@ -67,5 +67,5 @@ struct BadgesView: View {
 
 #Preview {
     NavigationStack { BadgesView() }
-        .environment(ProfileRepository())
+        .environment(ProfileRepository.preview())
 }

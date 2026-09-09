@@ -63,5 +63,5 @@ struct AllLevelsView: View {
 
 #Preview {
     NavigationStack { AllLevelsView() }
-        .environment(ProfileRepository())
+        .environment(ProfileRepository.preview())
 }

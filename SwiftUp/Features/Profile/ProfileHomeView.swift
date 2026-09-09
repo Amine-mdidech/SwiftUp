@@ -4,6 +4,25 @@ struct ProfileHomeView: View {
     @Environment(ProfileRepository.self) private var repo
 
     var body: some View {
+        Group {
+            if repo.isLoading && repo.profile.name.isEmpty {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Theme.Colors.bg)
+            } else {
+                profileContent
+            }
+        }
+        .background(Theme.Colors.bg)
+        .navigationTitle("")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink("Settings") { SettingsView() }
+            }
+        }
+    }
+
+    private var profileContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 RuledMasthead(left: repo.profile.name, right: "Top 4% this week")
@@ -91,13 +110,6 @@ struct ProfileHomeView: View {
             }
             .padding(24)
         }
-        .background(Theme.Colors.bg)
-        .navigationTitle("")
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink("Settings") { SettingsView() }
-            }
-        }
     }
 
     @ViewBuilder
@@ -128,6 +140,6 @@ struct ProfileHomeView: View {
 
 #Preview {
     NavigationStack { ProfileHomeView() }
-        .environment(ProfileRepository())
+        .environment(ProfileRepository.preview())
         .environment(AuthRepository(isPreview: true, signedIn: true))
 }

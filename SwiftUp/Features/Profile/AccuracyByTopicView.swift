@@ -42,5 +42,5 @@ struct AccuracyByTopicView: View {
 
 #Preview {
     NavigationStack { AccuracyByTopicView() }
-        .environment(ProfileRepository())
+        .environment(ProfileRepository.preview())
 }

@@ -4,7 +4,7 @@ struct RootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     @State private var questionRepository = QuestionRepository()
-    private let profileRepository = ProfileRepository()
+    @State private var profileRepository = ProfileRepository()
     private let interviewRepository = InterviewRepository()
     private let leaderboardRepository = LeaderboardRepository()
     @State private var authRepository = AuthRepository()
