@@ -1,18 +1,5 @@
 import SwiftUI
 
-enum SkillLevel: String, CaseIterable, Identifiable {
-    case junior = "Junior", mid = "Mid", senior = "Senior"
-    var id: String { rawValue }
-
-    var blurb: String {
-        switch self {
-        case .junior: "Shipping with SwiftUI, still meeting the SDK. Under two years."
-        case .mid: "Comfortable in UIKit and SwiftUI, reaching for concurrency and architecture. Two to five years."
-        case .senior: "Leading work, designing systems, interviewing others. Five years and up."
-        }
-    }
-}
-
 struct SkillAssessmentView: View {
     @State private var selection: SkillLevel = .mid
     @State private var preparingForInterviews = "Yes"
