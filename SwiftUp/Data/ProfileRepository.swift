@@ -105,6 +105,9 @@ final class ProfileRepository {
                 freezesAvailable: previousFreezes, today: today
             )
 
+            let rawDisplayName = snapshot.get("displayName") as? String
+            let displayName = (rawDisplayName?.isEmpty == false) ? rawDisplayName! : "SwiftUp user"
+
             let newTotalXP = ((snapshot.get("totalXP") as? Int) ?? 0) + session.totalXPEarned
             let newTotalAnswered = ((snapshot.get("totalQuestionsAnswered") as? Int) ?? 0) + session.questions.count
             let isPerfectDay = session.correctCount == session.questions.count
@@ -155,11 +158,17 @@ final class ProfileRepository {
             batch.setData(userUpdates, forDocument: userRef, merge: true)
             let dayRef = userRef.collection("dailyCompletions").document(today)
             batch.setData(["correctCount": session.correctCount, "xpEarned": session.totalXPEarned], forDocument: dayRef)
+            let leaderboardRef = Firestore.firestore().collection("leaderboardEntries").document(uid)
+            batch.setData([
+                "displayName": displayName,
+                "totalXP": newTotalXP,
+                "updatedAt": FieldValue.serverTimestamp(),
+            ], forDocument: leaderboardRef, merge: true)
             try await batch.commit()
 
             let freezesAvailable = streakResult.freezesAvailable
             profile = Self.buildProfile(
-                displayName: snapshot.get("displayName") as? String,
+                displayName: displayName,
                 createdAt: snapshot.get("createdAt") as? Timestamp,
                 freezesAvailable: freezesAvailable, stats: stats, level: level
             )
