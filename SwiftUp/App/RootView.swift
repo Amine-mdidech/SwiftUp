@@ -2,16 +2,19 @@ import SwiftUI
 
 struct RootView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showSplash = true
 
     @State private var questionRepository = QuestionRepository()
     @State private var profileRepository = ProfileRepository()
     private let interviewRepository = InterviewRepository()
-    private let leaderboardRepository = LeaderboardRepository()
+    @State private var leaderboardRepository = LeaderboardRepository()
     @State private var authRepository = AuthRepository()
 
     var body: some View {
         Group {
-            if authRepository.isSignedIn {
+            if showSplash {
+                SplashView(onFinished: { showSplash = false })
+            } else if authRepository.isSignedIn {
                 if hasCompletedOnboarding {
                     MainTabView()
                 } else {

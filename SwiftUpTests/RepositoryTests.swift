@@ -32,9 +32,10 @@ struct RepositoryTests {
         }
     }
 
-    @Test func leaderboardRepositoryLoadsEntriesSortedByRank() {
-        let repo = LeaderboardRepository(bundle: testBundle)
-        #expect(repo.entries.count == 8)
-        #expect(repo.entries.first?.rank == 1)
+    @Test func leaderboardRepositoryPreviewLoadsEntriesSortedByRank() {
+        let repo = LeaderboardRepository.preview(bundle: testBundle)
+        #expect(repo.topEntries.count == 8)
+        #expect(repo.topEntries.first?.rank == 1)
+        #expect(repo.topEntries.first?.totalXP == 640)
     }
 }

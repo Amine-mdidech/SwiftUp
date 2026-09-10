@@ -1,10 +1,9 @@
 import Foundation
 
-struct LeaderboardEntry: Codable, Identifiable {
-    var id: String { name }
+struct LeaderboardEntry: Identifiable {
+    let uid: String
+    var id: String { uid }
+    let displayName: String
+    let totalXP: Int
     let rank: Int
-    let name: String
-    let level: Int
-    let xp: Int
-    let isCurrentUser: Bool
 }
