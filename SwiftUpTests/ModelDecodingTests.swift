@@ -46,6 +46,29 @@ struct ModelDecodingTests {
         #expect(p.xpToNextLevel == 460)
     }
 
+    @Test func decodesDailyQuizDocumentAndLooksUpByLevel() throws {
+        func question(_ id: String, level: String) -> String {
+            """
+            {"id": "\(id)", "topic": "Test", "level": "\(level)", "format": "multipleChoice",
+             "prompt": "P", "codeSnippet": null,
+             "options": [{"id": "A", "text": "A"}], "correctOptionID": "A", "explanation": "E", "xp": 10}
+            """
+        }
+        let json = """
+        {
+          "edition": 4,
+          "junior": [\(question("jr1", level: "Junior"))],
+          "mid": [\(question("mid1", level: "Mid"))],
+          "senior": [\(question("sr1", level: "Senior"))]
+        }
+        """.data(using: .utf8)!
+        let doc = try JSONDecoder().decode(DailyQuizDocument.self, from: json)
+        #expect(doc.edition == 4)
+        #expect(doc.questions(for: .junior).map(\.id) == ["jr1"])
+        #expect(doc.questions(for: .mid).map(\.id) == ["mid1"])
+        #expect(doc.questions(for: .senior).map(\.id) == ["sr1"])
+    }
+
     @Test func decodesAchievementDefinitionWithCriterion() throws {
         let json = """
         {

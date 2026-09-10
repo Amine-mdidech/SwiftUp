@@ -7,7 +7,7 @@ struct DailyQuizEntryView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            RuledMasthead(left: "Monday, September 7", right: "Edition 128")
+            RuledMasthead(left: DailyEdition.dateLabel(), right: editionLabel)
 
             VStack(alignment: .leading, spacing: 12) {
                 EyebrowLabel("The daily five", color: Theme.Colors.accent700)
@@ -57,6 +57,10 @@ struct DailyQuizEntryView: View {
     private var topicsHeadline: String {
         let topics = Array(Set(questionRepo.todayQuestions.map(\.topic))).sorted()
         return topics.joined(separator: ",\n") + "."
+    }
+
+    private var editionLabel: String {
+        questionRepo.editionNumber.map { "Edition \($0)" } ?? "Edition —"
     }
 }
 

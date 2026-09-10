@@ -4,6 +4,10 @@ import FirebaseFirestore
 @Observable
 final class QuestionRepository {
     private(set) var todayQuestions: [Question] = []
+    /// Today's edition number, read straight from `dailyQuizzes/{today}`. `nil` when that
+    /// document couldn't be fetched (offline, not yet seeded) and `todayQuestions` fell back to
+    /// the bundled set — there's no on-device number to show in that case.
+    private(set) var editionNumber: Int?
     private(set) var isLoading = false
     private(set) var levelOverride: SkillLevel?
 
@@ -13,6 +17,7 @@ final class QuestionRepository {
     static func preview(bundle: Bundle = .main) -> QuestionRepository {
         let repo = QuestionRepository()
         repo.todayQuestions = loadBundledFallback(bundle: bundle)
+        repo.editionNumber = 1
         return repo
     }
 
@@ -20,10 +25,13 @@ final class QuestionRepository {
         decodeJSONResource([Question].self, filename: "questions", bundle: bundle) ?? []
     }
 
-    /// Fetches today's five for `uid`: reads their skill level/override/answer-history from
-    /// Firestore, fetches that level's bank, promotes if it's exhausted, and runs
-    /// QuestionSelector. Falls back to the bundled set only if Firestore is unreachable with
-    /// nothing cached locally yet.
+    /// Fetches today's shared daily quiz for `uid`: reads their skill level/override/answer
+    /// history from Firestore, promotes them to the next level if their current level's full
+    /// question bank is exhausted, then reads today's edition — the same edition number and same
+    /// questions every user at that level sees today — from `dailyQuizzes/{today}`
+    /// (`DailyEdition.todayKey()`), authored server-side by `scripts/seed_daily_quizzes.py`.
+    /// Falls back to the bundled set only if that document is unreachable (offline, not yet
+    /// seeded) with nothing cached locally yet.
     func load(for uid: String) async {
         isLoading = true
         defer { isLoading = false }
@@ -46,30 +54,29 @@ final class QuestionRepository {
                 answered = map.mapValues { $0.dateValue() }
             }
         } catch {
-            // No user doc data available (offline, first launch) — proceed with defaults;
-            // the Firestore question fetch below will fall back to bundled JSON if it also fails.
+            // No user doc data available (offline, first launch) — proceed with defaults.
         }
 
         levelOverride = override
-        let effectiveLevel = override ?? storedLevel
+        var effectiveLevel = override ?? storedLevel
 
-        guard var bank = try? await fetchBank(level: effectiveLevel), !bank.isEmpty else {
+        // Promotion is best-effort: a failed bank fetch just skips the check rather than
+        // blocking today's quiz, which comes from `dailyQuizzes` regardless.
+        if let bank = try? await fetchBank(level: effectiveLevel), !bank.isEmpty,
+           QuestionSelector.shouldPromote(bank: bank, answered: answered), let next = effectiveLevel.next {
+            effectiveLevel = next
+            storedLevel = next
+            try? await userDoc.updateData(["skillLevel": next.rawValue])
+        }
+
+        guard let daily = try? await fetchDailyQuiz() else {
             todayQuestions = Self.loadBundledFallback()
+            editionNumber = nil
             return
         }
 
-        var selectionLevel = effectiveLevel
-        if QuestionSelector.shouldPromote(bank: bank, answered: answered), let next = effectiveLevel.next {
-            if let nextBank = try? await fetchBank(level: next), !nextBank.isEmpty {
-                bank = nextBank
-                selectionLevel = next
-                storedLevel = next
-                try? await userDoc.updateData(["skillLevel": next.rawValue])
-            }
-        }
-
-        let seed = QuestionSelector.todaySeed(uid: uid, level: selectionLevel)
-        todayQuestions = QuestionSelector.pickFive(bank: bank, answered: answered, seed: seed)
+        todayQuestions = daily.questions(for: effectiveLevel)
+        editionNumber = daily.edition
     }
 
     private func fetchBank(level: SkillLevel) async throws -> [Question] {
@@ -78,6 +85,12 @@ final class QuestionRepository {
             .whereField("level", isEqualTo: level.rawValue)
             .getDocuments()
         return snapshot.documents.compactMap { try? $0.data(as: Question.self) }
+    }
+
+    private func fetchDailyQuiz() async throws -> DailyQuizDocument {
+        try await Firestore.firestore()
+            .collection("dailyQuizzes").document(DailyEdition.todayKey())
+            .getDocument(as: DailyQuizDocument.self)
     }
 
     /// Called once, right after onboarding's skill assessment.

@@ -2,8 +2,8 @@ import Foundation
 
 enum StreakCalculator {
     /// `lastCompletedDate`/`today` are `"yyyy-MM-dd"` local-calendar-day strings (same format as
-    /// `QuestionSelector.todaySeed`'s date component). A freeze forgives exactly one missed day;
-    /// every 7th consecutive streak day grants one back, capped at 3 banked.
+    /// `DailyEdition.todayKey`). A freeze forgives exactly one missed day; every 7th consecutive
+    /// streak day grants one back, capped at 3 banked.
     static func apply(
         lastCompletedDate: String?, streakDays: Int, freezesAvailable: Int, today: String
     ) -> (streakDays: Int, freezesAvailable: Int) {
