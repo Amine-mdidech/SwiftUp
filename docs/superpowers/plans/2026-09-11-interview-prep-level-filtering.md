@@ -1,0 +1,940 @@
+# Interview Prep Level-Aware Content & Hosting Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Make the Interview Prep tab's Junior/Mid/Senior filter actually filter which questions a user sees, and move the question bank to Firestore (mirroring the `dailyQuizzes` pattern) so it can grow without an app release.
+
+**Architecture:** `InterviewQuestion` drops its hand-maintained `indexInCategory`/`totalInCategory` fields in favor of implicit array position. A new `InterviewCategoryContent` model holds one category's Junior/Mid/Senior question arrays, decoded either from a new `interviewBank/{slug}` Firestore collection (one document per category) or from a bundled JSON fallback. `InterviewRepository` becomes async-loading like `LeaderboardRepository`, and its navigation methods (`firstQuestion(in:level:)`, `nextQuestion(after:)`, `position(of:)`) stay level-scoped by construction — each question already carries its own `difficulty`, so navigation never needs a level threaded through it separately. `InterviewBankView` wires its existing (currently decorative) `levelFilter` into real per-category, per-level counts.
+
+**Tech Stack:** Swift 6 / SwiftUI, Firebase Firestore (`FirebaseFirestore` SDK, already a dependency), Swift Testing (`import Testing`), Python 3 + `firebase-admin` for the seed script (matches `scripts/seed_daily_quizzes.py`).
+
+**Spec:** `docs/superpowers/specs/2026-09-11-interview-prep-level-filtering-design.md`
+
+## Global Constraints
+
+- Firestore collection name is exactly `interviewBank`, one document per category, keyed by a slug (e.g. `architecture-patterns`), shaped `{name, junior: [...], mid: [...], senior: [...]}` (spec §2).
+- Firestore rule for `interviewBank` is read-only to signed-in users, no client writes — same pattern as `dailyQuizzes`: `allow read: if request.auth != null; allow write: if false;` (spec §2).
+- Level strings are exactly `"Junior"`, `"Mid"`, `"Senior"`, `"All"` — the same literals `InterviewBankView`'s `SegmentedPicker` already uses. No new enum is introduced this pass (spec §4, §10).
+- `InterviewQuestion` no longer stores `indexInCategory`/`totalInCategory` — position is always derived from where a question sits in its level's array (spec §4).
+- No `reviewedCount`/"Mark reviewed" wiring in this pass — real review tracking is explicitly deferred (spec §1).
+- Bundled fallback JSON is named `interview_bank.json` (replacing `interview_categories.json` + `interview_questions.json`) and is byte-identical between `SwiftUp/Resources/` and `SwiftUpTests/Fixtures/`, matching the existing convention for every other bundled resource pair in this repo.
+
+---
+
+## Task 1: Level-aware content model, repository, and UI
+
+This project's `.xcodeproj` uses explicit file references (no synchronized folder groups), and Swift compiles `SwiftUp` as a single module — so `InterviewBankView.swift` and `InterviewQuestionDetailView.swift` cannot be left on the old API surface while the model/repository change, or the whole target (and therefore `SwiftUpTests`, which does `@testable import SwiftUp`) stops compiling. All Swift-side pieces are one task for that reason; each **step** below is still a small, single action.
+
+**Files:**
+- Delete: `SwiftUp/Resources/interview_categories.json`, `SwiftUp/Resources/interview_questions.json`, `SwiftUpTests/Fixtures/interview_categories.json`, `SwiftUpTests/Fixtures/interview_questions.json`
+- Create: `SwiftUp/Resources/interview_bank.json`, `SwiftUpTests/Fixtures/interview_bank.json`
+- Modify: `SwiftUp.xcodeproj/project.pbxproj` (via the `xcodeproj` gem — do not hand-edit)
+- Modify: `SwiftUp/Models/InterviewQuestion.swift`
+- Modify: `SwiftUp/Models/InterviewCategory.swift` (keeps this filename; now defines `InterviewCategoryContent`)
+- Modify: `SwiftUp/Data/InterviewRepository.swift`
+- Modify: `SwiftUp/App/RootView.swift`
+- Modify: `SwiftUp/Features/InterviewPrep/InterviewBankView.swift`
+- Modify: `SwiftUp/Features/InterviewPrep/InterviewQuestionDetailView.swift`
+- Modify: `SwiftUpTests/RepositoryTests.swift`
+
+**Interfaces:**
+- Consumes: `decodeJSONResource<T: Decodable>(_:filename:bundle:)` (already defined at the bottom of `SwiftUp/Data/QuestionRepository.swift` — free function, no import needed beyond `Foundation`); `Theme.Colors.neutral400`/`neutral700` (`SwiftUp/DesignSystem/Theme.swift`); `RuledRow`, `EyebrowLabel`, `SegmentedPicker` (`SwiftUp/DesignSystem/Atoms.swift` / `InteractiveAtoms.swift`) — all unchanged.
+- Produces (used by Task 2's reviewer only for cross-checking content — Task 2 has no code dependency on this task): `InterviewCategoryContent { name, junior, mid, senior, func questions(for level: String) -> [InterviewQuestion] }`; `InterviewQuestion { id, category, difficulty, prompt, modelAnswer, talkingPoints, followUps, bookmarked }`; `InterviewRepository { categories, questions, isLoading, func load() async, static func preview(bundle:) -> InterviewRepository, static func loadBundledFallback(bundle:) -> [InterviewCategoryContent], func firstQuestion(in:level:) -> InterviewQuestion?, func nextQuestion(after:) -> InterviewQuestion?, func position(of:) -> (index: Int, total: Int)? }`.
+
+- [ ] **Step 1: Delete the obsolete bundled JSON files**
+
+```bash
+rm "SwiftUp/Resources/interview_categories.json" \
+   "SwiftUp/Resources/interview_questions.json" \
+   "SwiftUpTests/Fixtures/interview_categories.json" \
+   "SwiftUpTests/Fixtures/interview_questions.json"
+```
+
+- [ ] **Step 2: Create the new bundled resource `SwiftUp/Resources/interview_bank.json`**
+
+```json
+[
+  {
+    "name": "Swift fundamentals",
+    "junior": [
+      {
+        "id": "sf-j1",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What is the difference between a struct and a class in Swift?",
+        "modelAnswer": "Structs are value types — copied on assignment, no shared mutable state by default. Classes are reference types — assignment shares the same instance, which is what you want for identity-based models but a common source of surprise bugs when you didn't mean to share.",
+        "talkingPoints": [
+          "Value semantics make structs safer under concurrency by default.",
+          "Classes support inheritance; structs support protocol conformance and composition instead.",
+          "SwiftUI views are structs on purpose — cheap to recreate, no shared state to corrupt."
+        ],
+        "followUps": ["When would you reach for a class anyway?"],
+        "bookmarked": false
+      },
+      {
+        "id": "sf-j2",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What problem does the @Observable macro solve compared to ObservableObject?",
+        "modelAnswer": "ObservableObject requires every stored property you want to react to be marked @Published, and any SwiftUI view reading the object re-renders on any @Published change even if it only reads one property. @Observable tracks property access per-view at read time, so a view only re-renders when a property it actually read changes — less boilerplate and fewer unnecessary redraws.",
+        "talkingPoints": [
+          "No @Published needed — every stored property is observable by default.",
+          "Access tracking is per-view, not per-object, so unrelated property changes don't trigger a redraw.",
+          "Requires iOS 17+; ObservableObject is still the right call for earlier deployment targets."
+        ],
+        "followUps": ["How does SwiftUI know which properties a view actually read?"],
+        "bookmarked": false
+      }
+    ],
+    "mid": [],
+    "senior": []
+  },
+  {
+    "name": "Architecture patterns",
+    "junior": [],
+    "mid": [
+      {
+        "id": "ap-m1",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "How would you explain MVVM to a team that has only written view controllers?",
+        "modelAnswer": "Start from the pain: a view controller that owns formatting, networking and navigation cannot be tested or reused. MVVM moves that state into a view model the view observes, so the view describes state and the view model is testable without a screen.",
+        "talkingPoints": [
+          "The view model owns no UIKit or SwiftUI types — that is what makes it testable.",
+          "Bindings are the contract; in SwiftUI that is @Observable, not a framework.",
+          "Name the cost honestly: more files, and indirection a small screen may not need."
+        ],
+        "followUps": ["Where does navigation live?", "How do you test a view model that calls the network?"],
+        "bookmarked": true
+      }
+    ],
+    "senior": []
+  },
+  {
+    "name": "System design for iOS",
+    "junior": [],
+    "mid": [],
+    "senior": [
+      {
+        "id": "sd-s1",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design the caching layer for an image-heavy feed. What are the failure modes?",
+        "modelAnswer": "A two-tier cache: an in-memory LRU for what's on screen, a disk cache keyed by URL hash for what scrolled past. The failure modes are memory pressure evicting the wrong tier under load, and disk cache growing unbounded without a size cap and eviction policy.",
+        "talkingPoints": [
+          "Memory cache should respond to memory warnings, not just a fixed size cap.",
+          "Disk cache needs a background eviction pass, not eviction-on-write.",
+          "Cache keys must account for image size variants, or you serve the wrong resolution."
+        ],
+        "followUps": ["How do you avoid duplicate in-flight requests for the same image?"],
+        "bookmarked": false
+      }
+    ]
+  },
+  {
+    "name": "Performance & debugging",
+    "junior": [],
+    "mid": [
+      {
+        "id": "pd-m1",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "A list scrolls at 30fps instead of 60. Walk through how you'd find out why.",
+        "modelAnswer": "Profile first, guess never: Instruments' Time Profiler and Core Animation tool to see whether the bottleneck is CPU (view body work per row) or GPU (offscreen rendering, blending). Only after that do you know whether the fix is caching row content or removing a shadow/blur.",
+        "talkingPoints": [
+          "Cheap-looking modifiers like .shadow and rounded corners with clipping can force offscreen rendering.",
+          "Recomputing expensive view state in body on every scroll frame is a common self-inflicted cause.",
+          "Measure again after the fix — an unverified fix isn't a fix."
+        ],
+        "followUps": ["What's the difference between a CPU-bound and GPU-bound frame drop?"],
+        "bookmarked": false
+      }
+    ],
+    "senior": []
+  },
+  {
+    "name": "Behavioural",
+    "junior": [
+      {
+        "id": "bh-j1",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you disagreed with a code review comment.",
+        "modelAnswer": "Pick a real example with a concrete technical disagreement, state both positions plainly, and land on what actually happened — whether you were persuaded, you persuaded them, or you both learned the constraint was different than either assumed.",
+        "talkingPoints": [
+          "Specificity beats a polished-sounding generic answer.",
+          "Showing you changed your mind at least once reads better than always being right.",
+          "Keep it short — this is a door-opener for follow-up questions, not the whole interview."
+        ],
+        "followUps": ["How did you make sure the disagreement didn't become personal?"],
+        "bookmarked": false
+      }
+    ],
+    "mid": [],
+    "senior": []
+  }
+]
+```
+
+- [ ] **Step 3: Copy it to `SwiftUpTests/Fixtures/interview_bank.json`**
+
+```bash
+cp "SwiftUp/Resources/interview_bank.json" "SwiftUpTests/Fixtures/interview_bank.json"
+```
+
+- [ ] **Step 4: Register the new resource and remove the old ones in the Xcode project**
+
+The `xcodeproj` Ruby gem must be installed first (already verified working during planning): `gem install --user-install xcodeproj`. Run this from the repo root:
+
+```bash
+ruby -rxcodeproj -e '
+proj = Xcodeproj::Project.open("SwiftUp.xcodeproj")
+
+resources_group = proj.main_group.find_subpath("SwiftUp/Resources", false)
+fixtures_group  = proj.main_group.find_subpath("SwiftUpTests/Fixtures", false)
+swiftup_target  = proj.targets.find { |t| t.name == "SwiftUp" }
+tests_target    = proj.targets.find { |t| t.name == "SwiftUpTests" }
+
+swiftup_target.add_resources([resources_group.new_reference("interview_bank.json")])
+tests_target.add_resources([fixtures_group.new_reference("interview_bank.json")])
+
+[resources_group, fixtures_group].each do |g|
+  %w[interview_categories.json interview_questions.json].each do |name|
+    ref = g.files.find { |f| f.path == name }
+    ref.remove_from_project if ref
+  end
+end
+
+proj.save
+puts "OK"
+'
+```
+
+- [ ] **Step 5: Verify the project file is still structurally valid**
+
+```bash
+plutil -lint "SwiftUp.xcodeproj/project.pbxproj"
+```
+Expected: `... OK`
+
+- [ ] **Step 6: Replace `SwiftUp/Models/InterviewQuestion.swift`**
+
+```swift
+import Foundation
+
+struct InterviewQuestion: Codable, Identifiable {
+    let id: String
+    let category: String
+    let difficulty: String
+    let prompt: String
+    let modelAnswer: String
+    let talkingPoints: [String]
+    let followUps: [String]
+    let bookmarked: Bool
+}
+```
+
+- [ ] **Step 7: Replace `SwiftUp/Models/InterviewCategory.swift`**
+
+```swift
+import Foundation
+
+/// One interview-prep category's full content: its Junior/Mid/Senior question lists, decoded
+/// either from an `interviewBank/{slug}` Firestore document or from the bundled fallback.
+struct InterviewCategoryContent: Codable, Identifiable {
+    var id: String { name }
+    let name: String
+    let junior: [InterviewQuestion]
+    let mid: [InterviewQuestion]
+    let senior: [InterviewQuestion]
+
+    /// `level` is one of `InterviewBankView`'s picker values: "Junior", "Mid", "Senior", or "All".
+    /// "All" (or any other value) concatenates Junior-first, so `.first` naturally ties toward the
+    /// lowest level that has content, and `.count` naturally sums across all three.
+    func questions(for level: String) -> [InterviewQuestion] {
+        switch level {
+        case "Junior": return junior
+        case "Mid": return mid
+        case "Senior": return senior
+        default: return junior + mid + senior
+        }
+    }
+}
+```
+
+- [ ] **Step 8: Rewrite `SwiftUp/Data/InterviewRepository.swift`**
+
+```swift
+import Foundation
+import FirebaseFirestore
+
+@Observable
+final class InterviewRepository {
+    private(set) var categories: [InterviewCategoryContent] = []
+    private(set) var isLoading = false
+
+    init() {}
+
+    /// Flattened view of every question across every category/level — used by the bank screen's
+    /// header counts ("N questions", "Bookmarks · N").
+    var questions: [InterviewQuestion] {
+        categories.flatMap { $0.junior + $0.mid + $0.senior }
+    }
+
+    /// Synchronously loads bundled fallback content — safe for #Preview, never touches Firestore.
+    static func preview(bundle: Bundle = .main) -> InterviewRepository {
+        let repo = InterviewRepository()
+        repo.categories = loadBundledFallback(bundle: bundle)
+        return repo
+    }
+
+    static func loadBundledFallback(bundle: Bundle = .main) -> [InterviewCategoryContent] {
+        decodeJSONResource([InterviewCategoryContent].self, filename: "interview_bank", bundle: bundle) ?? []
+    }
+
+    /// Fetches the shared, public interview question bank from `interviewBank` — one document per
+    /// category, authored via `scripts/seed_interview_bank.py`. Not gated on `uid`: this content
+    /// is the same for every signed-in user. Falls back to the bundled set only if the fetch
+    /// itself fails (offline, not yet seeded) — same degrade path as `dailyQuizzes`.
+    func load() async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            let snapshot = try await Firestore.firestore().collection("interviewBank").getDocuments()
+            categories = snapshot.documents.compactMap { try? $0.data(as: InterviewCategoryContent.self) }
+        } catch {
+            categories = Self.loadBundledFallback()
+        }
+    }
+
+    /// The first question at `level` in `categoryName`. `nil` if the category doesn't exist, or
+    /// has no questions at that level (or at all, for "All").
+    func firstQuestion(in categoryName: String, level: String) -> InterviewQuestion? {
+        categories.first { $0.name == categoryName }?.questions(for: level).first
+    }
+
+    /// Walks forward within `current`'s own category and level — the level is inferred from
+    /// `current.difficulty`, so no separate level parameter is needed; every question already
+    /// carries its own level. Wraps to the next category (in `categories` order) that has at
+    /// least one question at that same level, skipping any category with none. With nowhere left
+    /// to go, wraps back to the start of `current`'s own level list — a self-loop when that list
+    /// has exactly one question, matching this method's pre-existing end-of-bank behavior.
+    func nextQuestion(after current: InterviewQuestion) -> InterviewQuestion? {
+        guard let categoryIndex = categories.firstIndex(where: { $0.name == current.category }) else { return nil }
+        let sameLevel = categories[categoryIndex].questions(for: current.difficulty)
+        if let idx = sameLevel.firstIndex(where: { $0.id == current.id }), idx + 1 < sameLevel.count {
+            return sameLevel[idx + 1]
+        }
+        for offset in (categoryIndex + 1)..<categories.count {
+            if let next = categories[offset].questions(for: current.difficulty).first {
+                return next
+            }
+        }
+        return sameLevel.first
+    }
+
+    /// 1-based position of `question` within its own category+level list, and that list's total
+    /// count — what `InterviewQuestionDetailView` shows as "Question X of Y".
+    func position(of question: InterviewQuestion) -> (index: Int, total: Int)? {
+        guard let category = categories.first(where: { $0.name == question.category }) else { return nil }
+        let levelQuestions = category.questions(for: question.difficulty)
+        guard let idx = levelQuestions.firstIndex(where: { $0.id == question.id }) else { return nil }
+        return (index: idx + 1, total: levelQuestions.count)
+    }
+}
+```
+
+- [ ] **Step 9: Update `SwiftUp/App/RootView.swift`**
+
+Change (this repository is now mutated post-init by `.task { await repo.load() }`, same reasoning `LeaderboardRepository` already documents in this file):
+```swift
+    private let interviewRepository = InterviewRepository()
+```
+to:
+```swift
+    @State private var interviewRepository = InterviewRepository()
+```
+
+- [ ] **Step 10: Update `SwiftUp/Features/InterviewPrep/InterviewBankView.swift`**
+
+Replace the whole file:
+
+```swift
+import SwiftUI
+
+struct InterviewBankView: View {
+    @Environment(InterviewRepository.self) private var repo
+    @State private var levelFilter = "All"
+    @State private var searchText = ""
+
+    /// Junior/mid/senior take the design's own press-plate progression (pink, yellow, black)
+    /// instead of the default accent, so the level filter itself recolors the screen.
+    private var levelAccent: Color {
+        switch levelFilter {
+        case "Junior": Theme.Colors.accent2
+        case "Mid": Theme.Colors.processYellow
+        case "Senior": Theme.Colors.text
+        default: Theme.Colors.accent
+        }
+    }
+
+    private var levelAccentForeground: Color {
+        levelFilter == "Mid" ? Theme.Colors.text : Theme.Colors.bg
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .lastTextBaseline) {
+                    EyebrowLabel("Interview prep")
+                    Spacer()
+                    Text("Bookmarks · \(repo.questions.filter(\.bookmarked).count)")
+                        .font(.system(size: 13)).foregroundStyle(Theme.Colors.accent700)
+                }
+
+                Text("The question\nbank").font(Theme.Fonts.heading(32)).padding(.top, 8)
+                Text("\(repo.questions.count) questions with model answers, talking points and the follow-ups they usually attract.")
+                    .font(Theme.Fonts.body(14)).foregroundStyle(Theme.Colors.neutral800)
+                    .padding(.top, 12)
+
+                TextField("Search the bank", text: $searchText)
+                    .padding(.horizontal, 10).padding(.vertical, 10)
+                    .background(Theme.Colors.surface)
+                    .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+                    .padding(.top, 18)
+
+                SegmentedPicker(
+                    options: ["All", "Junior", "Mid", "Senior"], selection: $levelFilter,
+                    selectedFill: levelAccent, selectedForeground: levelAccentForeground
+                )
+                    .padding(.top, 12)
+
+                VStack(spacing: 0) {
+                    ForEach(Array(repo.categories.enumerated()), id: \.element.id) { index, category in
+                        categoryRow(category, isLast: index == repo.categories.count - 1)
+                    }
+                }
+                .padding(.top, 22)
+
+                Spacer(minLength: 20)
+            }
+            .padding(24)
+        }
+        .background(Theme.Colors.bg)
+        .task {
+            await repo.load()
+        }
+    }
+
+    @ViewBuilder
+    private func categoryRow(_ category: InterviewCategoryContent, isLast: Bool) -> some View {
+        let count = category.questions(for: levelFilter).count
+        if count > 0 {
+            NavigationLink {
+                if let first = repo.firstQuestion(in: category.name, level: levelFilter) {
+                    InterviewQuestionDetailView(question: first)
+                }
+            } label: {
+                RuledRow(showBottomRule: isLast, minHeight: 56) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(category.name).font(Theme.Fonts.heading(16.5))
+                        Text(countLabel(for: count))
+                            .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral700)
+                    }
+                    Spacer()
+                }
+            }
+            .buttonStyle(.plain)
+        } else {
+            RuledRow(showBottomRule: isLast, minHeight: 56) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(category.name).font(Theme.Fonts.heading(16.5))
+                        .foregroundStyle(Theme.Colors.neutral400)
+                    Text(emptyLabel(for: levelFilter))
+                        .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral400)
+                }
+                Spacer()
+            }
+        }
+    }
+
+    private func countLabel(for count: Int) -> String {
+        count == 1 ? "1 question" : "\(count) questions"
+    }
+
+    private func emptyLabel(for level: String) -> String {
+        level == "All" ? "No questions yet" : "No \(level) questions yet"
+    }
+}
+
+#Preview {
+    NavigationStack { InterviewBankView() }
+        .environment(InterviewRepository.preview())
+}
+```
+
+Note what was removed versus the current file: the `reviewedCount`/`totalCount`-driven `progressColor(for:)` helper and the per-row `ThinProgressBar` are gone (spec §6 — `reviewedCount` was fake mock data with no relationship to real review state, out of scope this pass to make real). The doc comment that used to justify `progressColor(for:)`'s tiering goes with it.
+
+- [ ] **Step 11: Update `SwiftUp/Features/InterviewPrep/InterviewQuestionDetailView.swift`**
+
+Replace this block:
+```swift
+                HStack(spacing: 8) {
+                    Text(question.difficulty)
+                        .font(.system(size: 11))
+                        .padding(.horizontal, 10).padding(.vertical, 3)
+                        .background(Theme.Colors.accent100).foregroundStyle(Theme.Colors.accent800)
+                    EyebrowLabel("Question \(question.indexInCategory) of \(question.totalInCategory)")
+                }
+                .padding(.top, 12)
+```
+with:
+```swift
+                HStack(spacing: 8) {
+                    Text(question.difficulty)
+                        .font(.system(size: 11))
+                        .padding(.horizontal, 10).padding(.vertical, 3)
+                        .background(Theme.Colors.accent100).foregroundStyle(Theme.Colors.accent800)
+                    if let position = repo.position(of: question) {
+                        EyebrowLabel("Question \(position.index) of \(position.total)")
+                    }
+                }
+                .padding(.top, 12)
+```
+
+Replace the `#Preview` block at the bottom:
+```swift
+#Preview {
+    NavigationStack {
+        InterviewQuestionDetailView(question: InterviewRepository().questions[0])
+    }
+    .environment(InterviewRepository())
+}
+```
+with:
+```swift
+#Preview {
+    let repo = InterviewRepository.preview()
+    return NavigationStack {
+        InterviewQuestionDetailView(question: repo.questions[0])
+    }
+    .environment(repo)
+}
+```
+
+Nothing else in this file changes — `repo.nextQuestion(after: question)` already matches the rewritten `InterviewRepository`'s signature.
+
+- [ ] **Step 12: Replace the interview section of `SwiftUpTests/RepositoryTests.swift`**
+
+Replace this test:
+```swift
+    @Test func interviewRepositoryFindsFirstAndNextQuestion() {
+        let repo = InterviewRepository(bundle: testBundle)
+        #expect(repo.categories.count == 5)
+        let first = repo.firstQuestion(in: "Swift fundamentals")
+        #expect(first?.id == "iq02")
+        if let first {
+            #expect(repo.nextQuestion(after: first) != nil)
+        }
+    }
+```
+with:
+```swift
+    @Test func interviewRepositoryLoadsCategoriesFromBundledFallback() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        #expect(repo.categories.count == 5)
+        #expect(repo.questions.count == 6)
+    }
+
+    @Test func interviewRepositoryFirstQuestionRespectsLevel() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        #expect(repo.firstQuestion(in: "Swift fundamentals", level: "Junior")?.id == "sf-j1")
+        #expect(repo.firstQuestion(in: "Swift fundamentals", level: "Mid") == nil)
+    }
+
+    @Test func interviewRepositoryFirstQuestionAllTiesTowardLowestNonEmptyLevel() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        // "Architecture patterns" has no Junior content, only Mid.
+        #expect(repo.firstQuestion(in: "Architecture patterns", level: "All")?.id == "ap-m1")
+    }
+
+    @Test func interviewRepositoryNextQuestionStaysWithinSameCategoryAndLevel() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        let first = repo.firstQuestion(in: "Swift fundamentals", level: "Junior")
+        #expect(first?.id == "sf-j1")
+        let next = first.flatMap(repo.nextQuestion(after:))
+        #expect(next?.id == "sf-j2")
+    }
+
+    @Test func interviewRepositoryNextQuestionSkipsCategoriesEmptyAtThatLevel() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        // Junior questions only exist in "Swift fundamentals" (2) and "Behavioural" (1); the
+        // three categories in between have no Junior content and must be skipped when wrapping.
+        let sfJ2 = repo.firstQuestion(in: "Swift fundamentals", level: "Junior")
+            .flatMap(repo.nextQuestion(after:))
+        #expect(sfJ2?.id == "sf-j2")
+        let wrapped = sfJ2.flatMap(repo.nextQuestion(after:))
+        #expect(wrapped?.id == "bh-j1")
+    }
+
+    @Test func interviewRepositoryNextQuestionSelfLoopsAtTheEndOfTheLastLevelCategory() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        let bhJ1 = repo.firstQuestion(in: "Behavioural", level: "Junior")
+        #expect(bhJ1?.id == "bh-j1")
+        #expect(bhJ1.flatMap(repo.nextQuestion(after:))?.id == "bh-j1")
+    }
+
+    @Test func interviewRepositoryPositionReflectsLevelScopedRank() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        let sfJ2 = repo.firstQuestion(in: "Swift fundamentals", level: "Junior")
+            .flatMap(repo.nextQuestion(after:))
+        let position = sfJ2.flatMap(repo.position(of:))
+        #expect(position?.index == 2)
+        #expect(position?.total == 2)
+    }
+```
+
+- [ ] **Step 13: Run the interview repository tests**
+
+```bash
+xcodebuild test -scheme SwiftUp -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -only-testing:SwiftUpTests/RepositoryTests 2>&1 | tail -40
+```
+Expected: all `interviewRepository*` tests report `Test Case ... passed`, and the run ends `** TEST SUCCEEDED **`.
+
+- [ ] **Step 14: Build the full app target**
+
+```bash
+xcodebuild -scheme SwiftUp -destination 'generic/platform=iOS Simulator' build 2>&1 | tail -20
+```
+Expected: `** BUILD SUCCEEDED **`.
+
+- [ ] **Step 15: Commit**
+
+```bash
+git add SwiftUp/Resources/interview_bank.json SwiftUpTests/Fixtures/interview_bank.json \
+  SwiftUp.xcodeproj/project.pbxproj SwiftUp/Models/InterviewQuestion.swift \
+  SwiftUp/Models/InterviewCategory.swift SwiftUp/Data/InterviewRepository.swift \
+  SwiftUp/App/RootView.swift SwiftUp/Features/InterviewPrep/InterviewBankView.swift \
+  SwiftUp/Features/InterviewPrep/InterviewQuestionDetailView.swift SwiftUpTests/RepositoryTests.swift
+git status
+git add SwiftUp/Resources/interview_categories.json SwiftUp/Resources/interview_questions.json \
+  SwiftUpTests/Fixtures/interview_categories.json SwiftUpTests/Fixtures/interview_questions.json 2>/dev/null || true
+git commit -m "$(cat <<'EOF'
+Make interview prep level filter actually filter content
+
+InterviewBankView's Junior/Mid/Senior picker only recolored the screen
+before this; InterviewRepository now holds real per-level question
+arrays per category (Firestore-backed, mirroring dailyQuizzes) and the
+bank/detail screens navigate strictly within the selected level.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JSf2hp5EhCPa8hMFKkCiWh
+EOF
+)"
+```
+(The second `git add` picks up the `rm` from Step 1 as staged deletions — `git status` in between the two adds is there so whoever runs this can see exactly what's staged before committing; if it already shows the deletions staged from an earlier broad add, the second command is a harmless no-op.)
+
+---
+
+## Task 2: Firestore hosting for the interview bank
+
+Independent of Task 1 — touches no Swift code, so it can be done before, after, or by someone else in parallel. Delivers the mechanism for shipping real content without an app release (spec §3).
+
+**Files:**
+- Modify: `firestore.rules`
+- Create: `scripts/interview-bank.json`
+- Create: `scripts/seed_interview_bank.py`
+
+**Interfaces:**
+- Consumes: `scripts/seed_daily_quizzes.py`'s structure/conventions (reference only — read, don't import); `firebase_admin`/`firebase_admin.firestore` (already a dependency of that script, per its own docstring setup instructions).
+- Produces: the `interviewBank` Firestore collection, once someone with `scripts/serviceAccountKey.json` runs this script against the real project — out of scope to actually run here (needs live credentials this plan doesn't have).
+
+- [ ] **Step 1: Add the `interviewBank` rule to `firestore.rules`**
+
+Insert this block inside `service cloud.firestore { match /databases/{database}/documents { ... } }`, alongside the existing `dailyQuizzes` block (same read-only-to-signed-in-users, no-client-writes shape):
+
+```
+    match /interviewBank/{categorySlug} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+```
+
+The full file after this change:
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      match /dailyCompletions/{date} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+    match /questions/{questionId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /dailyQuizzes/{date} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /interviewBank/{categorySlug} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /leaderboardEntries/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+
+- [ ] **Step 2: Create `scripts/interview-bank.json`**
+
+Same content as `SwiftUp/Resources/interview_bank.json` (Task 1, Step 2), with one `"slug"` key added per category — the seed script uses it as the Firestore document id, kept separate from `"name"` so the display string can be edited later without changing the document's key:
+
+```json
+[
+  {
+    "slug": "swift-fundamentals",
+    "name": "Swift fundamentals",
+    "junior": [
+      {
+        "id": "sf-j1",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What is the difference between a struct and a class in Swift?",
+        "modelAnswer": "Structs are value types — copied on assignment, no shared mutable state by default. Classes are reference types — assignment shares the same instance, which is what you want for identity-based models but a common source of surprise bugs when you didn't mean to share.",
+        "talkingPoints": [
+          "Value semantics make structs safer under concurrency by default.",
+          "Classes support inheritance; structs support protocol conformance and composition instead.",
+          "SwiftUI views are structs on purpose — cheap to recreate, no shared state to corrupt."
+        ],
+        "followUps": ["When would you reach for a class anyway?"],
+        "bookmarked": false
+      },
+      {
+        "id": "sf-j2",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What problem does the @Observable macro solve compared to ObservableObject?",
+        "modelAnswer": "ObservableObject requires every stored property you want to react to be marked @Published, and any SwiftUI view reading the object re-renders on any @Published change even if it only reads one property. @Observable tracks property access per-view at read time, so a view only re-renders when a property it actually read changes — less boilerplate and fewer unnecessary redraws.",
+        "talkingPoints": [
+          "No @Published needed — every stored property is observable by default.",
+          "Access tracking is per-view, not per-object, so unrelated property changes don't trigger a redraw.",
+          "Requires iOS 17+; ObservableObject is still the right call for earlier deployment targets."
+        ],
+        "followUps": ["How does SwiftUI know which properties a view actually read?"],
+        "bookmarked": false
+      }
+    ],
+    "mid": [],
+    "senior": []
+  },
+  {
+    "slug": "architecture-patterns",
+    "name": "Architecture patterns",
+    "junior": [],
+    "mid": [
+      {
+        "id": "ap-m1",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "How would you explain MVVM to a team that has only written view controllers?",
+        "modelAnswer": "Start from the pain: a view controller that owns formatting, networking and navigation cannot be tested or reused. MVVM moves that state into a view model the view observes, so the view describes state and the view model is testable without a screen.",
+        "talkingPoints": [
+          "The view model owns no UIKit or SwiftUI types — that is what makes it testable.",
+          "Bindings are the contract; in SwiftUI that is @Observable, not a framework.",
+          "Name the cost honestly: more files, and indirection a small screen may not need."
+        ],
+        "followUps": ["Where does navigation live?", "How do you test a view model that calls the network?"],
+        "bookmarked": true
+      }
+    ],
+    "senior": []
+  },
+  {
+    "slug": "system-design-for-ios",
+    "name": "System design for iOS",
+    "junior": [],
+    "mid": [],
+    "senior": [
+      {
+        "id": "sd-s1",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design the caching layer for an image-heavy feed. What are the failure modes?",
+        "modelAnswer": "A two-tier cache: an in-memory LRU for what's on screen, a disk cache keyed by URL hash for what scrolled past. The failure modes are memory pressure evicting the wrong tier under load, and disk cache growing unbounded without a size cap and eviction policy.",
+        "talkingPoints": [
+          "Memory cache should respond to memory warnings, not just a fixed size cap.",
+          "Disk cache needs a background eviction pass, not eviction-on-write.",
+          "Cache keys must account for image size variants, or you serve the wrong resolution."
+        ],
+        "followUps": ["How do you avoid duplicate in-flight requests for the same image?"],
+        "bookmarked": false
+      }
+    ]
+  },
+  {
+    "slug": "performance-debugging",
+    "name": "Performance & debugging",
+    "junior": [],
+    "mid": [
+      {
+        "id": "pd-m1",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "A list scrolls at 30fps instead of 60. Walk through how you'd find out why.",
+        "modelAnswer": "Profile first, guess never: Instruments' Time Profiler and Core Animation tool to see whether the bottleneck is CPU (view body work per row) or GPU (offscreen rendering, blending). Only after that do you know whether the fix is caching row content or removing a shadow/blur.",
+        "talkingPoints": [
+          "Cheap-looking modifiers like .shadow and rounded corners with clipping can force offscreen rendering.",
+          "Recomputing expensive view state in body on every scroll frame is a common self-inflicted cause.",
+          "Measure again after the fix — an unverified fix isn't a fix."
+        ],
+        "followUps": ["What's the difference between a CPU-bound and GPU-bound frame drop?"],
+        "bookmarked": false
+      }
+    ],
+    "senior": []
+  },
+  {
+    "slug": "behavioural",
+    "name": "Behavioural",
+    "junior": [
+      {
+        "id": "bh-j1",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you disagreed with a code review comment.",
+        "modelAnswer": "Pick a real example with a concrete technical disagreement, state both positions plainly, and land on what actually happened — whether you were persuaded, you persuaded them, or you both learned the constraint was different than either assumed.",
+        "talkingPoints": [
+          "Specificity beats a polished-sounding generic answer.",
+          "Showing you changed your mind at least once reads better than always being right.",
+          "Keep it short — this is a door-opener for follow-up questions, not the whole interview."
+        ],
+        "followUps": ["How did you make sure the disagreement didn't become personal?"],
+        "bookmarked": false
+      }
+    ],
+    "mid": [],
+    "senior": []
+  }
+]
+```
+
+- [ ] **Step 3: Create `scripts/seed_interview_bank.py`**
+
+```python
+#!/usr/bin/env python3
+"""
+Seeds the `interviewBank` collection in Firestore: one document per interview-prep
+category, each holding its Junior/Mid/Senior question lists, from
+scripts/interview-bank.json.
+
+Every signed-in user reads the same shared, public bank — this script is how new
+content ships without an app release.
+
+Setup: same as seed_daily_quizzes.py — needs scripts/serviceAccountKey.json
+(Firebase console -> Project settings -> Service accounts -> Generate new
+private key). That file is gitignored; never commit it.
+
+Usage:
+  python3 scripts/seed_interview_bank.py
+
+Safe to re-run: each category's document is fully overwritten with whatever is
+currently in interview-bank.json.
+"""
+import json
+import sys
+from pathlib import Path
+
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+KEY_PATH = SCRIPT_DIR / "serviceAccountKey.json"
+BANK_PATH = SCRIPT_DIR / "interview-bank.json"
+
+LEVELS = ["junior", "mid", "senior"]
+
+
+def main() -> int:
+    if not KEY_PATH.exists():
+        print(f"Missing {KEY_PATH}.", file=sys.stderr)
+        print("Download it from Firebase console -> Project settings -> "
+              "Service accounts -> Generate new private key.", file=sys.stderr)
+        return 1
+
+    with open(BANK_PATH) as f:
+        bank = json.load(f)
+
+    for category in bank:
+        missing = [key for key in ("slug", "name", *LEVELS) if key not in category]
+        if missing:
+            print(f"Category {category.get('name', '?')!r} is missing {missing}", file=sys.stderr)
+            return 1
+
+    cred = credentials.Certificate(str(KEY_PATH))
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+
+    batch = db.batch()
+    for category in bank:
+        doc = {"name": category["name"], **{level: category[level] for level in LEVELS}}
+        doc_ref = db.collection("interviewBank").document(category["slug"])
+        batch.set(doc_ref, doc)
+    batch.commit()
+
+    print(f"Seeded {len(bank)} interview-prep categories into Firestore.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+```
+
+- [ ] **Step 4: Verify the seed script's syntax**
+
+```bash
+python3 -m py_compile scripts/seed_interview_bank.py && echo OK
+```
+Expected: `OK`
+
+- [ ] **Step 5: Verify `interview-bank.json` is valid JSON with every category carrying a `slug`**
+
+```bash
+python3 -c "
+import json
+bank = json.load(open('scripts/interview-bank.json'))
+assert len(bank) == 5, f'expected 5 categories, got {len(bank)}'
+assert all('slug' in c for c in bank), 'every category needs a slug'
+print('OK', len(bank), 'categories')
+"
+```
+Expected: `OK 5 categories`
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add firestore.rules scripts/interview-bank.json scripts/seed_interview_bank.py
+git commit -m "$(cat <<'EOF'
+Add Firestore hosting for the interview prep question bank
+
+New interviewBank collection (one doc per category, Junior/Mid/Senior
+arrays), read-only to signed-in users like dailyQuizzes, plus a seed
+script so content can grow without an app release.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01JSf2hp5EhCPa8hMFKkCiWh
+EOF
+)"
+```
+
+---
+
+## After both tasks
+
+Real content still needs to be authored into `scripts/interview-bank.json` and pushed with `python3 scripts/seed_interview_bank.py` (needs `scripts/serviceAccountKey.json`, not available in this environment) before the Firestore path serves anything beyond what Task 1's bundled fallback already provides on-device. Until that script is run, the app works correctly end-to-end off the bundled fallback (Task 1's `load()` catches the fetch failure against an empty/nonexistent collection and falls back) — this is expected, not a bug.
