@@ -21,6 +21,23 @@ struct InterviewBankView: View {
     }
 
     var body: some View {
+        Group {
+            if repo.isLoading && repo.categories.isEmpty {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                bankContent
+            }
+        }
+        .background(Theme.Colors.bg)
+        .task {
+            if repo.categories.isEmpty {
+                await repo.load()
+            }
+        }
+    }
+
+    private var bankContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .lastTextBaseline) {
@@ -57,10 +74,6 @@ struct InterviewBankView: View {
                 Spacer(minLength: 20)
             }
             .padding(24)
-        }
-        .background(Theme.Colors.bg)
-        .task {
-            await repo.load()
         }
     }
 

@@ -15,7 +15,9 @@ Usage:
   python3 scripts/seed_interview_bank.py
 
 Safe to re-run: each category's document is fully overwritten with whatever is
-currently in interview-bank.json.
+currently in interview-bank.json. Removing a category from this file does NOT
+delete its Firestore document — that must be done by hand (Firestore console,
+or `db.collection('interviewBank').document(slug).delete()`).
 """
 import json
 import sys
@@ -41,11 +43,43 @@ def main() -> int:
     with open(BANK_PATH) as f:
         bank = json.load(f)
 
+    seen_slugs = set()
+    seen_question_ids = set()
     for category in bank:
-        missing = [key for key in ("slug", "name", *LEVELS) if key not in category]
+        missing = [key for key in ("slug", "name", "order", *LEVELS) if key not in category]
         if missing:
             print(f"Category {category.get('name', '?')!r} is missing {missing}", file=sys.stderr)
             return 1
+
+        slug = category["slug"]
+        if slug in seen_slugs:
+            print(f"Duplicate slug {slug!r} (category {category['name']!r})", file=sys.stderr)
+            return 1
+        seen_slugs.add(slug)
+
+        for level in LEVELS:
+            expected_difficulty = level.capitalize()
+            for question in category[level]:
+                qid = question.get("id", "?")
+                if question.get("difficulty") != expected_difficulty:
+                    print(
+                        f"Question {qid!r} in category {category['name']!r} is listed under "
+                        f"{level!r} but has difficulty {question.get('difficulty')!r} "
+                        f"(expected {expected_difficulty!r})",
+                        file=sys.stderr,
+                    )
+                    return 1
+                if question.get("category") != category["name"]:
+                    print(
+                        f"Question {qid!r} in category {category['name']!r} has category "
+                        f"{question.get('category')!r} (expected {category['name']!r})",
+                        file=sys.stderr,
+                    )
+                    return 1
+                if qid in seen_question_ids:
+                    print(f"Duplicate question id {qid!r} (category {category['name']!r})", file=sys.stderr)
+                    return 1
+                seen_question_ids.add(qid)
 
     cred = credentials.Certificate(str(KEY_PATH))
     firebase_admin.initialize_app(cred)
@@ -53,7 +87,7 @@ def main() -> int:
 
     batch = db.batch()
     for category in bank:
-        doc = {"name": category["name"], **{level: category[level] for level in LEVELS}}
+        doc = {"name": category["name"], "order": category["order"], **{level: category[level] for level in LEVELS}}
         doc_ref = db.collection("interviewBank").document(category["slug"])
         batch.set(doc_ref, doc)
     batch.commit()

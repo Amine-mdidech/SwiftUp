@@ -1,5 +1,6 @@
 [
   {
+    "order": 0,
     "slug": "swift-fundamentals",
     "name": "Swift fundamentals",
     "junior": [
@@ -36,6 +37,7 @@
     "senior": []
   },
   {
+    "order": 1,
     "slug": "architecture-patterns",
     "name": "Architecture patterns",
     "junior": [],
@@ -58,6 +60,7 @@
     "senior": []
   },
   {
+    "order": 2,
     "slug": "system-design-for-ios",
     "name": "System design for iOS",
     "junior": [],
@@ -80,6 +83,7 @@
     ]
   },
   {
+    "order": 3,
     "slug": "performance-debugging",
     "name": "Performance & debugging",
     "junior": [],
@@ -102,6 +106,7 @@
     "senior": []
   },
   {
+    "order": 4,
     "slug": "behavioural",
     "name": "Behavioural",
     "junior": [

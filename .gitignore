@@ -6,3 +6,4 @@ DerivedData/
 *.xcodeproj/
 Generated/
 scripts/serviceAccountKey.json
+__pycache__/

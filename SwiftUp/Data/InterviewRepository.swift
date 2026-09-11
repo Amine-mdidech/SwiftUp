@@ -27,17 +27,30 @@ final class InterviewRepository {
 
     /// Fetches the shared, public interview question bank from `interviewBank` — one document per
     /// category, authored via `scripts/seed_interview_bank.py`. Not gated on `uid`: this content
-    /// is the same for every signed-in user. Falls back to the bundled set only if the fetch
-    /// itself fails (offline, not yet seeded) — same degrade path as `dailyQuizzes`.
+    /// is the same for every signed-in user. Falls back to the bundled set if the fetch itself
+    /// fails (offline) or succeeds with nothing usable (not yet seeded) — same degrade path as
+    /// `dailyQuizzes`.
     func load() async {
         isLoading = true
         defer { isLoading = false }
+        let decoded: [InterviewCategoryContent]
         do {
-            let snapshot = try await Firestore.firestore().collection("interviewBank").getDocuments()
-            categories = snapshot.documents.compactMap { try? $0.data(as: InterviewCategoryContent.self) }
+            let snapshot = try await Firestore.firestore().collection("interviewBank")
+                .order(by: "order")
+                .getDocuments()
+            decoded = snapshot.documents.compactMap { try? $0.data(as: InterviewCategoryContent.self) }
         } catch {
-            categories = Self.loadBundledFallback()
+            decoded = []
         }
+        categories = Self.resolve(decoded: decoded)
+    }
+
+    /// Falls back to bundled content whenever the fetch produced nothing usable — whether because
+    /// the request itself failed, or because it succeeded against an empty/not-yet-seeded
+    /// collection (Firestore's `getDocuments()` does not throw in that case, so "decoded is empty"
+    /// has to be treated as a fallback trigger in its own right, not just the `catch` path).
+    static func resolve(decoded: [InterviewCategoryContent], bundle: Bundle = .main) -> [InterviewCategoryContent] {
+        decoded.isEmpty ? loadBundledFallback(bundle: bundle) : decoded
     }
 
     /// The first question at `level` in `categoryName`. `nil` if the category doesn't exist, or

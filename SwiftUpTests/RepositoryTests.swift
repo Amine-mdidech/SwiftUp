@@ -66,6 +66,17 @@ struct RepositoryTests {
         #expect(bhJ1.flatMap(repo.nextQuestion(after:))?.id == "bh-j1")
     }
 
+    @Test func interviewRepositoryResolveFallsBackToBundledWhenDecodedIsEmpty() {
+        let resolved = InterviewRepository.resolve(decoded: [], bundle: testBundle)
+        #expect(resolved.count == 5)
+    }
+
+    @Test func interviewRepositoryResolveKeepsDecodedWhenNonEmpty() {
+        let fixture = InterviewRepository.loadBundledFallback(bundle: testBundle)
+        let resolved = InterviewRepository.resolve(decoded: fixture, bundle: testBundle)
+        #expect(resolved.count == fixture.count)
+    }
+
     @Test func interviewRepositoryPositionReflectsLevelScopedRank() {
         let repo = InterviewRepository.preview(bundle: testBundle)
         let sfJ2 = repo.firstQuestion(in: "Swift fundamentals", level: "Junior")
