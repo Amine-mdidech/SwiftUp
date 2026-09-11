@@ -5,6 +5,21 @@ struct InterviewBankView: View {
     @State private var levelFilter = "All"
     @State private var searchText = ""
 
+    /// Junior/mid/senior take the design's own press-plate progression (pink, yellow, black)
+    /// instead of the default accent, so the level filter itself recolors the screen.
+    private var levelAccent: Color {
+        switch levelFilter {
+        case "Junior": Theme.Colors.accent2
+        case "Mid": Theme.Colors.processYellow
+        case "Senior": Theme.Colors.text
+        default: Theme.Colors.accent
+        }
+    }
+
+    private var levelAccentForeground: Color {
+        levelFilter == "Mid" ? Theme.Colors.text : Theme.Colors.bg
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
@@ -26,31 +41,15 @@ struct InterviewBankView: View {
                     .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
                     .padding(.top, 18)
 
-                SegmentedPicker(options: ["All", "Junior", "Mid", "Senior"], selection: $levelFilter)
+                SegmentedPicker(
+                    options: ["All", "Junior", "Mid", "Senior"], selection: $levelFilter,
+                    selectedFill: levelAccent, selectedForeground: levelAccentForeground
+                )
                     .padding(.top, 12)
 
                 VStack(spacing: 0) {
                     ForEach(Array(repo.categories.enumerated()), id: \.element.id) { index, category in
-                        NavigationLink {
-                            if let first = repo.firstQuestion(in: category.name) {
-                                InterviewQuestionDetailView(question: first)
-                            }
-                        } label: {
-                            RuledRow(showBottomRule: index == repo.categories.count - 1, minHeight: 56) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(category.name).font(Theme.Fonts.heading(16.5))
-                                    Text("\(category.reviewedCount) of \(category.totalCount) reviewed")
-                                        .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral700)
-                                }
-                                Spacer()
-                                ThinProgressBar(
-                                    fraction: Double(category.reviewedCount) / Double(max(1, category.totalCount)),
-                                    fillColor: category.reviewedCount == 0 ? Theme.Colors.neutral200 : Theme.Colors.accent
-                                )
-                                .frame(width: 64)
-                            }
-                        }
-                        .buttonStyle(.plain)
+                        categoryRow(category, isLast: index == repo.categories.count - 1)
                     }
                 }
                 .padding(.top, 22)
@@ -60,10 +59,53 @@ struct InterviewBankView: View {
             .padding(24)
         }
         .background(Theme.Colors.bg)
+        .task {
+            await repo.load()
+        }
+    }
+
+    @ViewBuilder
+    private func categoryRow(_ category: InterviewCategoryContent, isLast: Bool) -> some View {
+        let count = category.questions(for: levelFilter).count
+        if count > 0 {
+            NavigationLink {
+                if let first = repo.firstQuestion(in: category.name, level: levelFilter) {
+                    InterviewQuestionDetailView(question: first)
+                }
+            } label: {
+                RuledRow(showBottomRule: isLast, minHeight: 56) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(category.name).font(Theme.Fonts.heading(16.5))
+                        Text(countLabel(for: count))
+                            .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral700)
+                    }
+                    Spacer()
+                }
+            }
+            .buttonStyle(.plain)
+        } else {
+            RuledRow(showBottomRule: isLast, minHeight: 56) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(category.name).font(Theme.Fonts.heading(16.5))
+                        .foregroundStyle(Theme.Colors.neutral400)
+                    Text(emptyLabel(for: levelFilter))
+                        .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral400)
+                }
+                Spacer()
+            }
+        }
+    }
+
+    private func countLabel(for count: Int) -> String {
+        count == 1 ? "1 question" : "\(count) questions"
+    }
+
+    private func emptyLabel(for level: String) -> String {
+        level == "All" ? "No questions yet" : "No \(level) questions yet"
     }
 }
 
 #Preview {
     NavigationStack { InterviewBankView() }
-        .environment(InterviewRepository())
+        .environment(InterviewRepository.preview())
 }

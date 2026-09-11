@@ -6,7 +6,7 @@ struct RootView: View {
 
     @State private var questionRepository = QuestionRepository()
     @State private var profileRepository = ProfileRepository()
-    private let interviewRepository = InterviewRepository()
+    @State private var interviewRepository = InterviewRepository()
     @State private var leaderboardRepository = LeaderboardRepository()
     @State private var authRepository = AuthRepository()
 

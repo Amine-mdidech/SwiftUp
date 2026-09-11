@@ -3,6 +3,10 @@ import SwiftUI
 struct SegmentedPicker: View {
     let options: [String]
     @Binding var selection: String
+    /// Fill/foreground for the selected segment. Defaults to the standard accent styling; callers
+    /// like `InterviewBankView` override these to have the picker itself carry a per-value color.
+    var selectedFill: Color = Theme.Colors.accent
+    var selectedForeground: Color = Theme.Colors.bg
 
     var body: some View {
         HStack(spacing: 0) {
@@ -12,8 +16,8 @@ struct SegmentedPicker: View {
                     .padding(.vertical, 7)
                     .padding(.horizontal, 12)
                     .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(selection == option ? Theme.Colors.accent : Color.clear)
-                    .foregroundStyle(selection == option ? Theme.Colors.bg : Theme.Colors.text)
+                    .background(selection == option ? selectedFill : Color.clear)
+                    .foregroundStyle(selection == option ? selectedForeground : Theme.Colors.text)
                     .overlay(alignment: .leading) {
                         if option != options.first {
                             Rectangle().fill(Theme.Colors.divider).frame(width: 1)

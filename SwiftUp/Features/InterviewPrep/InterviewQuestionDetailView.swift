@@ -19,7 +19,9 @@ struct InterviewQuestionDetailView: View {
                         .font(.system(size: 11))
                         .padding(.horizontal, 10).padding(.vertical, 3)
                         .background(Theme.Colors.accent100).foregroundStyle(Theme.Colors.accent800)
-                    EyebrowLabel("Question \(question.indexInCategory) of \(question.totalInCategory)")
+                    if let position = repo.position(of: question) {
+                        EyebrowLabel("Question \(position.index) of \(position.total)")
+                    }
                 }
                 .padding(.top, 12)
 
@@ -78,8 +80,9 @@ struct InterviewQuestionDetailView: View {
 }
 
 #Preview {
-    NavigationStack {
-        InterviewQuestionDetailView(question: InterviewRepository().questions[0])
+    let repo = InterviewRepository.preview()
+    return NavigationStack {
+        InterviewQuestionDetailView(question: repo.questions[0])
     }
-    .environment(InterviewRepository())
+    .environment(repo)
 }

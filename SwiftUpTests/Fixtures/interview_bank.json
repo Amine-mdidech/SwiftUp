@@ -1,0 +1,121 @@
+[
+  {
+    "name": "Swift fundamentals",
+    "junior": [
+      {
+        "id": "sf-j1",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What is the difference between a struct and a class in Swift?",
+        "modelAnswer": "Structs are value types — copied on assignment, no shared mutable state by default. Classes are reference types — assignment shares the same instance, which is what you want for identity-based models but a common source of surprise bugs when you didn't mean to share.",
+        "talkingPoints": [
+          "Value semantics make structs safer under concurrency by default.",
+          "Classes support inheritance; structs support protocol conformance and composition instead.",
+          "SwiftUI views are structs on purpose — cheap to recreate, no shared state to corrupt."
+        ],
+        "followUps": ["When would you reach for a class anyway?"],
+        "bookmarked": false
+      },
+      {
+        "id": "sf-j2",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What problem does the @Observable macro solve compared to ObservableObject?",
+        "modelAnswer": "ObservableObject requires every stored property you want to react to be marked @Published, and any SwiftUI view reading the object re-renders on any @Published change even if it only reads one property. @Observable tracks property access per-view at read time, so a view only re-renders when a property it actually read changes — less boilerplate and fewer unnecessary redraws.",
+        "talkingPoints": [
+          "No @Published needed — every stored property is observable by default.",
+          "Access tracking is per-view, not per-object, so unrelated property changes don't trigger a redraw.",
+          "Requires iOS 17+; ObservableObject is still the right call for earlier deployment targets."
+        ],
+        "followUps": ["How does SwiftUI know which properties a view actually read?"],
+        "bookmarked": false
+      }
+    ],
+    "mid": [],
+    "senior": []
+  },
+  {
+    "name": "Architecture patterns",
+    "junior": [],
+    "mid": [
+      {
+        "id": "ap-m1",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "How would you explain MVVM to a team that has only written view controllers?",
+        "modelAnswer": "Start from the pain: a view controller that owns formatting, networking and navigation cannot be tested or reused. MVVM moves that state into a view model the view observes, so the view describes state and the view model is testable without a screen.",
+        "talkingPoints": [
+          "The view model owns no UIKit or SwiftUI types — that is what makes it testable.",
+          "Bindings are the contract; in SwiftUI that is @Observable, not a framework.",
+          "Name the cost honestly: more files, and indirection a small screen may not need."
+        ],
+        "followUps": ["Where does navigation live?", "How do you test a view model that calls the network?"],
+        "bookmarked": true
+      }
+    ],
+    "senior": []
+  },
+  {
+    "name": "System design for iOS",
+    "junior": [],
+    "mid": [],
+    "senior": [
+      {
+        "id": "sd-s1",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design the caching layer for an image-heavy feed. What are the failure modes?",
+        "modelAnswer": "A two-tier cache: an in-memory LRU for what's on screen, a disk cache keyed by URL hash for what scrolled past. The failure modes are memory pressure evicting the wrong tier under load, and disk cache growing unbounded without a size cap and eviction policy.",
+        "talkingPoints": [
+          "Memory cache should respond to memory warnings, not just a fixed size cap.",
+          "Disk cache needs a background eviction pass, not eviction-on-write.",
+          "Cache keys must account for image size variants, or you serve the wrong resolution."
+        ],
+        "followUps": ["How do you avoid duplicate in-flight requests for the same image?"],
+        "bookmarked": false
+      }
+    ]
+  },
+  {
+    "name": "Performance & debugging",
+    "junior": [],
+    "mid": [
+      {
+        "id": "pd-m1",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "A list scrolls at 30fps instead of 60. Walk through how you'd find out why.",
+        "modelAnswer": "Profile first, guess never: Instruments' Time Profiler and Core Animation tool to see whether the bottleneck is CPU (view body work per row) or GPU (offscreen rendering, blending). Only after that do you know whether the fix is caching row content or removing a shadow/blur.",
+        "talkingPoints": [
+          "Cheap-looking modifiers like .shadow and rounded corners with clipping can force offscreen rendering.",
+          "Recomputing expensive view state in body on every scroll frame is a common self-inflicted cause.",
+          "Measure again after the fix — an unverified fix isn't a fix."
+        ],
+        "followUps": ["What's the difference between a CPU-bound and GPU-bound frame drop?"],
+        "bookmarked": false
+      }
+    ],
+    "senior": []
+  },
+  {
+    "name": "Behavioural",
+    "junior": [
+      {
+        "id": "bh-j1",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you disagreed with a code review comment.",
+        "modelAnswer": "Pick a real example with a concrete technical disagreement, state both positions plainly, and land on what actually happened — whether you were persuaded, you persuaded them, or you both learned the constraint was different than either assumed.",
+        "talkingPoints": [
+          "Specificity beats a polished-sounding generic answer.",
+          "Showing you changed your mind at least once reads better than always being right.",
+          "Keep it short — this is a door-opener for follow-up questions, not the whole interview."
+        ],
+        "followUps": ["How did you make sure the disagreement didn't become personal?"],
+        "bookmarked": false
+      }
+    ],
+    "mid": [],
+    "senior": []
+  }
+]
