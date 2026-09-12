@@ -92,6 +92,25 @@ struct RepositoryTests {
         #expect(repo.isBookmarked(repo.questions[0]) == false)
     }
 
+    @Test func flashcardReviewStateDecodesFromJSON() throws {
+        let json = Data("""
+        {"rating":"nailed","dueDate":"2026-09-16","reviewCount":2}
+        """.utf8)
+        let decoded = try JSONDecoder().decode(FlashcardReviewState.self, from: json)
+        #expect(decoded.rating == .nailed)
+        #expect(decoded.dueDate == "2026-09-16")
+        #expect(decoded.reviewCount == 2)
+    }
+
+    @Test func dueDateAddsFourDaysForNailedAndOneDayOtherwise() {
+        var components = DateComponents()
+        components.year = 2026; components.month = 9; components.day = 12
+        let fixedDate = Calendar.current.date(from: components)!
+        #expect(InterviewRepository.dueDate(for: .nailed, from: fixedDate) == "2026-09-16")
+        #expect(InterviewRepository.dueDate(for: .shaky, from: fixedDate) == "2026-09-13")
+        #expect(InterviewRepository.dueDate(for: .missed, from: fixedDate) == "2026-09-13")
+    }
+
     @Test func leaderboardRepositoryPreviewLoadsEntriesSortedByRank() {
         let repo = LeaderboardRepository.preview(bundle: testBundle)
         #expect(repo.topEntries.count == 8)

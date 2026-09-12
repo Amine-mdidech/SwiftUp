@@ -89,6 +89,14 @@ final class InterviewRepository {
         return (index: idx + 1, total: levelQuestions.count)
     }
 
+    /// Nailed cards come back in 4 days; Missed/Shaky come back tomorrow. Pure and static so it's
+    /// directly unit-testable without touching Firestore.
+    static func dueDate(for rating: FlashcardRating, from date: Date = Date()) -> String {
+        let daysUntilDue = rating == .nailed ? 4 : 1
+        let due = Calendar.current.date(byAdding: .day, value: daysUntilDue, to: date) ?? date
+        return DailyEdition.todayKey(for: due)
+    }
+
     /// Fetches this user's real per-question state (bookmarks; flashcard review state joins this
     /// method in a later pass). Non-blocking on failure — keeps whatever state is already held
     /// rather than flashing to empty on a transient error, same shape as
