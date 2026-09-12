@@ -117,6 +117,16 @@ struct ProfileHomeView: View {
                 }
                 .padding(.top, 12)
 
+                HStack {
+                    EyebrowLabel("Sixteen weeks")
+                    Spacer()
+                    EyebrowLabel("Freezes \(repo.profile.freezesAvailable) of \(repo.profile.freezesTotal)")
+                }
+                .padding(.top, 28)
+
+                StreakCalendarGrid(days: repo.streakCalendarDays)
+                    .padding(.top, 12)
+
                 Spacer(minLength: 20)
             }
             .padding(24)
