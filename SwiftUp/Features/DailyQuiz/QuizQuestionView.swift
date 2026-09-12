@@ -114,12 +114,13 @@ struct QuizQuestionView: View {
         let showAsWrong = answered && isSelected && !isCorrectOption
 
         HStack(alignment: .top, spacing: 12) {
-            if option.id.count == 1 {
-                Text(option.id.uppercased())
-                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                    .foregroundStyle(showAsCorrect ? Theme.Colors.accent700 : (showAsWrong ? Theme.Colors.accent2800 : Theme.Colors.neutral600))
-                    .frame(width: 14, alignment: .leading)
-            }
+            // Reserve the gutter for every row, even when the format's option ids aren't
+            // letters (trueFalse: "true"/"false", fillInTheBlank: word ids) — otherwise those
+            // rows lose the 14pt indent and their text no longer lines up with lettered options.
+            Text(option.id.count == 1 ? option.id.uppercased() : "")
+                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .foregroundStyle(showAsCorrect ? Theme.Colors.accent700 : (showAsWrong ? Theme.Colors.accent2800 : Theme.Colors.neutral600))
+                .frame(width: 14, alignment: .leading)
             Text(option.text)
                 .font(Theme.Fonts.body(15.5))
                 .foregroundStyle(Theme.Colors.text)
