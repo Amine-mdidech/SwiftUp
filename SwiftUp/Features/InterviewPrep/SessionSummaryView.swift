@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SessionSummaryView: View {
     let session: FlashcardSession
+    var isSessionActive: Binding<Bool>
 
     var body: some View {
         ScrollView {
@@ -28,7 +29,8 @@ struct SessionSummaryView: View {
                         ForEach(Array(session.cardsToReview.enumerated()), id: \.element.id) { index, card in
                             NavigationLink {
                                 InterviewQuestionDetailView(
-                                    question: card, reviewQueue: session.cardsToReview, indexInQueue: index
+                                    question: card, reviewQueue: session.cardsToReview, indexInQueue: index,
+                                    ratings: session.ratings, isSessionActive: isSessionActive
                                 )
                             } label: {
                                 RuledRow(showBottomRule: index == session.cardsToReview.count - 1, minHeight: 0) {
@@ -49,12 +51,15 @@ struct SessionSummaryView: View {
                 }
 
                 HStack(spacing: 12) {
-                    Button("Back to bank") {}
+                    Button("Back to bank") { isSessionActive.wrappedValue = false }
                         .frame(maxWidth: .infinity).padding(.vertical, 15)
                         .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
                     if let first = session.cardsToReview.first {
                         NavigationLink {
-                            InterviewQuestionDetailView(question: first, reviewQueue: session.cardsToReview, indexInQueue: 0)
+                            InterviewQuestionDetailView(
+                                question: first, reviewQueue: session.cardsToReview, indexInQueue: 0,
+                                ratings: session.ratings, isSessionActive: isSessionActive
+                            )
                         } label: {
                             Text("Review now").font(.system(size: 15.5))
                                 .frame(maxWidth: .infinity).padding(.vertical, 15)
@@ -97,5 +102,5 @@ struct SessionSummaryView: View {
         deck: InterviewRepository.preview().sessionDeck(in: "Architecture patterns", level: "Mid")
     )
     session.rate(.nailed)
-    return NavigationStack { SessionSummaryView(session: session) }
+    return NavigationStack { SessionSummaryView(session: session, isSessionActive: .constant(true)) }
 }

@@ -28,21 +28,9 @@ struct RepositoryTests {
         #expect(repo.questions.count == 6)
     }
 
-    @Test func interviewRepositoryFirstQuestionRespectsLevel() {
-        let repo = InterviewRepository.preview(bundle: testBundle)
-        #expect(repo.firstQuestion(in: "Swift fundamentals", level: "Junior")?.id == "sf-j1")
-        #expect(repo.firstQuestion(in: "Swift fundamentals", level: "Mid") == nil)
-    }
-
-    @Test func interviewRepositoryFirstQuestionAllTiesTowardLowestNonEmptyLevel() {
-        let repo = InterviewRepository.preview(bundle: testBundle)
-        // "Architecture patterns" has no Junior content, only Mid.
-        #expect(repo.firstQuestion(in: "Architecture patterns", level: "All")?.id == "ap-m1")
-    }
-
     @Test func interviewRepositoryNextQuestionStaysWithinSameCategoryAndLevel() {
         let repo = InterviewRepository.preview(bundle: testBundle)
-        let first = repo.firstQuestion(in: "Swift fundamentals", level: "Junior")
+        let first = repo.sessionDeck(in: "Swift fundamentals", level: "Junior").first
         #expect(first?.id == "sf-j1")
         let next = first.flatMap(repo.nextQuestion(after:))
         #expect(next?.id == "sf-j2")
@@ -52,7 +40,7 @@ struct RepositoryTests {
         let repo = InterviewRepository.preview(bundle: testBundle)
         // Junior questions only exist in "Swift fundamentals" (2) and "Behavioural" (1); the
         // three categories in between have no Junior content and must be skipped when wrapping.
-        let sfJ2 = repo.firstQuestion(in: "Swift fundamentals", level: "Junior")
+        let sfJ2 = repo.sessionDeck(in: "Swift fundamentals", level: "Junior").first
             .flatMap(repo.nextQuestion(after:))
         #expect(sfJ2?.id == "sf-j2")
         let wrapped = sfJ2.flatMap(repo.nextQuestion(after:))
@@ -61,7 +49,7 @@ struct RepositoryTests {
 
     @Test func interviewRepositoryNextQuestionSelfLoopsAtTheEndOfTheLastLevelCategory() {
         let repo = InterviewRepository.preview(bundle: testBundle)
-        let bhJ1 = repo.firstQuestion(in: "Behavioural", level: "Junior")
+        let bhJ1 = repo.sessionDeck(in: "Behavioural", level: "Junior").first
         #expect(bhJ1?.id == "bh-j1")
         #expect(bhJ1.flatMap(repo.nextQuestion(after:))?.id == "bh-j1")
     }
@@ -79,7 +67,7 @@ struct RepositoryTests {
 
     @Test func interviewRepositoryPositionReflectsLevelScopedRank() {
         let repo = InterviewRepository.preview(bundle: testBundle)
-        let sfJ2 = repo.firstQuestion(in: "Swift fundamentals", level: "Junior")
+        let sfJ2 = repo.sessionDeck(in: "Swift fundamentals", level: "Junior").first
             .flatMap(repo.nextQuestion(after:))
         let position = sfJ2.flatMap(repo.position(of:))
         #expect(position?.index == 2)

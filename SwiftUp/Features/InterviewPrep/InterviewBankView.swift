@@ -5,6 +5,9 @@ struct InterviewBankView: View {
     @Environment(AuthRepository.self) private var authRepo
     @State private var levelFilter = "All"
     @State private var searchText = ""
+    @State private var isSessionActive = false
+    @State private var activeCategory = ""
+    @State private var activeLevel = ""
 
     /// Junior/mid/senior take the design's own press-plate progression (pink, yellow, black)
     /// instead of the default accent, so the level filter itself recolors the screen.
@@ -80,14 +83,19 @@ struct InterviewBankView: View {
             }
             .padding(24)
         }
+        .navigationDestination(isPresented: $isSessionActive) {
+            FlashcardSessionView(category: activeCategory, level: activeLevel, repo: repo, isSessionActive: $isSessionActive)
+        }
     }
 
     @ViewBuilder
     private func categoryRow(_ category: InterviewCategoryContent, isLast: Bool) -> some View {
         let questions = category.questions(for: levelFilter)
         if !questions.isEmpty {
-            NavigationLink {
-                FlashcardSessionView(category: category.name, level: levelFilter, repo: repo)
+            Button {
+                activeCategory = category.name
+                activeLevel = levelFilter
+                isSessionActive = true
             } label: {
                 RuledRow(showBottomRule: isLast, minHeight: 56) {
                     VStack(alignment: .leading, spacing: 4) {

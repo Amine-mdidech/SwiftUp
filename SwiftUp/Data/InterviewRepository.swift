@@ -55,12 +55,6 @@ final class InterviewRepository {
         decoded.isEmpty ? loadBundledFallback(bundle: bundle) : decoded
     }
 
-    /// The first question at `level` in `categoryName`. `nil` if the category doesn't exist, or
-    /// has no questions at that level (or at all, for "All").
-    func firstQuestion(in categoryName: String, level: String) -> InterviewQuestion? {
-        categories.first { $0.name == categoryName }?.questions(for: level).first
-    }
-
     /// First `deckSize` questions at `level` in `categoryName`, in that level's existing content
     /// order (no shuffling — a session deck is stable and deterministic). Fewer than `deckSize` if
     /// the category has less. A category+level combo with zero questions can't be navigated into in

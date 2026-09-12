@@ -5,9 +5,11 @@ struct FlashcardSessionView: View {
     @Environment(AuthRepository.self) private var authRepo
     @State private var session: FlashcardSession
     @State private var pushSummary = false
+    var isSessionActive: Binding<Bool>
 
-    init(category: String, level: String, repo: InterviewRepository) {
+    init(category: String, level: String, repo: InterviewRepository, isSessionActive: Binding<Bool>) {
         _session = State(initialValue: FlashcardSession(category: category, deck: repo.sessionDeck(in: category, level: level)))
+        self.isSessionActive = isSessionActive
     }
 
     var body: some View {
@@ -26,7 +28,7 @@ struct FlashcardSessionView: View {
         }
         .background(Theme.Colors.bg)
         .navigationDestination(isPresented: $pushSummary) {
-            SessionSummaryView(session: session)
+            SessionSummaryView(session: session, isSessionActive: isSessionActive)
         }
         .onChange(of: session.isComplete) { _, isComplete in
             guard isComplete else { return }
@@ -137,7 +139,7 @@ struct FlashcardSessionView: View {
 #Preview {
     let repo = InterviewRepository.preview()
     return NavigationStack {
-        FlashcardSessionView(category: "Swift fundamentals", level: "Junior", repo: repo)
+        FlashcardSessionView(category: "Swift fundamentals", level: "Junior", repo: repo, isSessionActive: .constant(true))
     }
     .environment(repo)
     .environment(AuthRepository(isPreview: true, signedIn: true))

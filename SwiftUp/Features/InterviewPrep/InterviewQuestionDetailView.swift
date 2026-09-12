@@ -3,14 +3,30 @@ import SwiftUI
 struct InterviewQuestionDetailView: View {
     @Environment(InterviewRepository.self) private var repo
     @Environment(AuthRepository.self) private var authRepo
-    @Environment(\.dismiss) private var dismiss
     @State var question: InterviewQuestion
     var reviewQueue: [InterviewQuestion]? = nil
     var indexInQueue: Int = 0
+    /// The ratings the user actually picked during the session that produced `reviewQueue`, keyed
+    /// by question id — read in preference to `repo.reviewState`, which reflects the persisted
+    /// server-side batch write. That write is fired-and-forgotten by `FlashcardSessionView` and is
+    /// not guaranteed to have landed by the time this screen is reached, so relying on it alone can
+    /// silently mislabel the rating shown here and let "Card again" double-write the same document.
+    var ratings: [String: FlashcardRating] = [:]
+    /// Bound to the flag that presents the whole session flow (`InterviewBankView`'s
+    /// `isSessionActive`), so the terminal "Next review" on the last queued card collapses the
+    /// entire pushed chain back to the bank in one step — a single-level `dismiss()` only pops back
+    /// to `SessionSummaryView`, not the bank, since this view sits three pushes deep.
+    var isSessionActive: Binding<Bool> = .constant(true)
     /// Tracks how far "Next review" has advanced past the initial `indexInQueue` — `indexInQueue`
     /// itself is a `var` parameter, not `@State`, so re-reading it after the first tap would always
     /// recompute the same "next" position instead of continuing to advance.
     @State private var currentQueueIndex: Int?
+
+    /// The rating to show/act on for `question` — prefers the in-memory session data (always
+    /// correct immediately) over the possibly-not-yet-persisted Firestore-backed `repo.reviewState`.
+    private var currentRating: FlashcardRating? {
+        ratings[question.id] ?? repo.reviewState[question.id]?.rating
+    }
 
     var body: some View {
         ScrollView {
@@ -28,7 +44,7 @@ struct InterviewQuestionDetailView: View {
                 }
 
                 HStack(spacing: 8) {
-                    if let rating = repo.reviewState[question.id]?.rating {
+                    if let rating = currentRating {
                         Text(rating == .missed ? "Missed" : "Shaky")
                             .font(.system(size: 11))
                             .padding(.horizontal, 10).padding(.vertical, 3)
@@ -91,7 +107,7 @@ struct InterviewQuestionDetailView: View {
         HStack(spacing: 12) {
             Button {
                 guard let uid = authRepo.currentUser?.uid else { return }
-                let existingRating = repo.reviewState[question.id]?.rating ?? .shaky
+                let existingRating = currentRating ?? .shaky
                 Task { await repo.recordSession([question.id: existingRating], for: uid) }
             } label: {
                 Text("Card again").font(.system(size: 15.5))
@@ -105,7 +121,7 @@ struct InterviewQuestionDetailView: View {
                 if nextIndex < queue.count {
                     question = queue[nextIndex]
                 } else {
-                    dismiss()
+                    isSessionActive.wrappedValue = false
                 }
             } label: {
                 Text("Next review").font(.system(size: 15.5))
