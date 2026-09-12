@@ -97,7 +97,13 @@ final class AuthRepository {
                 accessToken: googleResult.user.accessToken.tokenString
             )
             let result = try await Auth.auth().signIn(with: credential)
-            await ensureUserDocument(uid: result.user.uid, email: result.user.email, displayName: result.user.displayName)
+            // `result.user.displayName` is FirebaseAuth's own cached copy — it's only populated when
+            // a brand-new Firebase account is first created from this credential, not refreshed on
+            // later sign-ins to an existing account. `googleResult.user.profile?.name` is the
+            // GoogleSignIn SDK's own result for *this* sign-in, fresh from Google every time,
+            // regardless of what Firebase cached — preferred here for exactly that reason.
+            let displayName = googleResult.user.profile?.name ?? result.user.displayName
+            await ensureUserDocument(uid: result.user.uid, email: result.user.email, displayName: displayName)
         } catch {
             if (error as? GIDSignInError)?.code == .canceled { return }
             errorMessage = Self.friendlyMessage(for: error)
