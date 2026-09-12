@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ProfileHomeView: View {
     @Environment(ProfileRepository.self) private var repo
+    @Environment(LeaderboardRepository.self) private var leaderboardRepo
+    @Environment(AuthRepository.self) private var authRepo
 
     var body: some View {
         Group {
@@ -20,12 +22,21 @@ struct ProfileHomeView: View {
                 NavigationLink("Settings") { SettingsView() }
             }
         }
+        .task {
+            guard let uid = authRepo.currentUser?.uid else { return }
+            await leaderboardRepo.load(for: uid)
+        }
+    }
+
+    private var mastheadRank: String {
+        guard let percentile = leaderboardRepo.myPercentile else { return "Not yet ranked" }
+        return "Top \(percentile)% all-time"
     }
 
     private var profileContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                RuledMasthead(left: repo.profile.name, right: "Top 4% this week")
+                RuledMasthead(left: repo.profile.name, right: mastheadRank)
 
                 HStack(alignment: .top, spacing: 16) {
                     Circle().fill(Theme.Colors.neutral200)
@@ -141,5 +152,6 @@ struct ProfileHomeView: View {
 #Preview {
     NavigationStack { ProfileHomeView() }
         .environment(ProfileRepository.preview())
+        .environment(LeaderboardRepository.preview())
         .environment(AuthRepository(isPreview: true, signedIn: true))
 }
