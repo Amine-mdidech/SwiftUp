@@ -91,11 +91,7 @@ struct InterviewBankView: View {
                 isSessionActive = true
             } label: {
                 RuledRow(showBottomRule: isLast, minHeight: 56) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(category.name).font(Theme.Fonts.heading(16.5))
-                        Text(reviewedLabel(for: questions))
-                            .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral700)
-                    }
+                    Text(category.name).font(Theme.Fonts.heading(16.5))
                     Spacer()
                 }
             }
@@ -111,11 +107,6 @@ struct InterviewBankView: View {
                 Spacer()
             }
         }
-    }
-
-    private func reviewedLabel(for questions: [InterviewQuestion]) -> String {
-        let reviewed = questions.filter(repo.hasBeenReviewed).count
-        return "\(reviewed) of \(questions.count) reviewed"
     }
 
     private func emptyLabel(for level: String) -> String {
