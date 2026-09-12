@@ -6,6 +6,7 @@ final class InterviewRepository {
     private(set) var categories: [InterviewCategoryContent] = []
     private(set) var isLoading = false
     private(set) var bookmarkedIDs: Set<String> = []
+    private(set) var reviewState: [String: FlashcardReviewState] = [:]
 
     init() {}
 
@@ -107,15 +108,20 @@ final class InterviewRepository {
         return DailyEdition.todayKey(for: due)
     }
 
-    /// Fetches this user's real per-question state (bookmarks; flashcard review state joins this
-    /// method in a later pass). Non-blocking on failure — keeps whatever state is already held
-    /// rather than flashing to empty on a transient error, same shape as
-    /// `ProfileRepository.load(for:)`.
+    /// Fetches this user's real per-question state (bookmarks and flashcard review state).
+    /// Non-blocking on failure — keeps whatever state is already held rather than flashing to
+    /// empty on a transient error, same shape as `ProfileRepository.load(for:)`.
     func loadUserState(for uid: String) async {
+        async let bookmarkDocs = Firestore.firestore()
+            .collection("users").document(uid).collection("bookmarks").getDocuments()
+        async let reviewDocs = Firestore.firestore()
+            .collection("users").document(uid).collection("flashcardReviews").getDocuments()
         do {
-            let bookmarkDocs = try await Firestore.firestore()
-                .collection("users").document(uid).collection("bookmarks").getDocuments()
-            bookmarkedIDs = Set(bookmarkDocs.documents.map(\.documentID))
+            let (bookmarks, reviews) = try await (bookmarkDocs, reviewDocs)
+            bookmarkedIDs = Set(bookmarks.documents.map(\.documentID))
+            reviewState = Dictionary(uniqueKeysWithValues: reviews.documents.compactMap { doc in
+                (try? doc.data(as: FlashcardReviewState.self)).map { (doc.documentID, $0) }
+            })
         } catch {
             // Non-blocking — see doc comment above.
         }
@@ -140,4 +146,38 @@ final class InterviewRepository {
     }
 
     func isBookmarked(_ question: InterviewQuestion) -> Bool { bookmarkedIDs.contains(question.id) }
+
+    /// Persists a finished flashcard session's ratings in one batch, then reflects the result
+    /// locally immediately (no re-fetch) — same pattern as `ProfileRepository.recordCompletion`.
+    /// Also used for a single-card "Card again" re-rate (a one-entry `ratings` dictionary).
+    func recordSession(_ ratings: [String: FlashcardRating], for uid: String) async {
+        guard !ratings.isEmpty else { return }
+        let batch = Firestore.firestore().batch()
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        let now = Date()
+        for (questionID, rating) in ratings {
+            let ref = userRef.collection("flashcardReviews").document(questionID)
+            batch.setData([
+                "rating": rating.rawValue,
+                "dueDate": Self.dueDate(for: rating, from: now),
+                "lastReviewedAt": FieldValue.serverTimestamp(),
+                "reviewCount": FieldValue.increment(Int64(1)),
+            ], forDocument: ref, merge: true)
+        }
+        do {
+            try await batch.commit()
+            for (questionID, rating) in ratings {
+                let previousCount = reviewState[questionID]?.reviewCount ?? 0
+                reviewState[questionID] = FlashcardReviewState(
+                    rating: rating, dueDate: Self.dueDate(for: rating, from: now), reviewCount: previousCount + 1
+                )
+            }
+        } catch {
+            // Non-blocking — a failed write is invisible to the user; worst case this session's
+            // ratings are lost and the next session's batch recomputes from whatever's stored.
+        }
+    }
+
+    /// Whether this question has ever been rated — what the bank screen's "N of M reviewed" means.
+    func hasBeenReviewed(_ question: InterviewQuestion) -> Bool { reviewState[question.id] != nil }
 }

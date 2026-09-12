@@ -109,6 +109,12 @@ struct RepositoryTests {
         #expect(repo.sessionDeck(in: "Nope", level: "All").isEmpty)
     }
 
+    @Test func interviewRepositoryStartsWithNoReviewState() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        #expect(repo.reviewState.isEmpty)
+        #expect(repo.hasBeenReviewed(repo.questions[0]) == false)
+    }
+
     @Test func flashcardReviewStateDecodesFromJSON() throws {
         let json = Data("""
         {"rating":"nailed","dueDate":"2026-09-16","reviewCount":2}
