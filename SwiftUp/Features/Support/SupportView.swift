@@ -18,7 +18,7 @@ struct SupportView: View {
 
                 VStack(spacing: 0) {
                     ForEach(Array(promises.enumerated()), id: \.offset) { index, text in
-                        RuledRow(showBottomRule: index == promises.count - 1, minHeight: 40) {
+                        RuledRow(showBottomRule: index == promises.count - 1, minHeight: 40, alignment: .top) {
                             Text(String(format: "%02d", index + 1))
                                 .font(.system(size: 14, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(Theme.Colors.accent700)

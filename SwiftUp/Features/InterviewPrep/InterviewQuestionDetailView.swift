@@ -70,7 +70,7 @@ struct InterviewQuestionDetailView: View {
                 EyebrowLabel("Talking points").padding(.top, 22)
                 VStack(spacing: 0) {
                     ForEach(Array(question.talkingPoints.enumerated()), id: \.offset) { index, point in
-                        RuledRow(showBottomRule: index == question.talkingPoints.count - 1, minHeight: 0) {
+                        RuledRow(showBottomRule: index == question.talkingPoints.count - 1, minHeight: 0, alignment: .top) {
                             Text(String(format: "%02d", index + 1))
                                 .font(.system(size: 13, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(Theme.Colors.accent700)

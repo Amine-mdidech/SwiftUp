@@ -102,7 +102,7 @@ struct FlashcardSessionView: View {
                 EyebrowLabel("Talking points")
                 VStack(spacing: 0) {
                     ForEach(Array(card.talkingPoints.enumerated()), id: \.offset) { index, point in
-                        RuledRow(showBottomRule: index == card.talkingPoints.count - 1, minHeight: 0) {
+                        RuledRow(showBottomRule: index == card.talkingPoints.count - 1, minHeight: 0, alignment: .top) {
                             Text(String(format: "%02d", index + 1))
                                 .font(.system(size: 13, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(Theme.Colors.accent700)

@@ -39,6 +39,11 @@ struct RuledRow<Content: View>: View {
     var showTopRule: Bool = true
     var showBottomRule: Bool = false
     var minHeight: CGFloat = 46
+    /// Vertical alignment of the row's content HStack. Defaults to `.center`, which is wrong for a
+    /// short leading marker (a numeral, an arrow) next to text that can wrap to multiple lines — the
+    /// marker ends up centered against the whole wrapped block instead of sitting next to its first
+    /// line. Pass `.top` for that shape of row.
+    var alignment: VerticalAlignment = .center
     @ViewBuilder var content: () -> Content
 
     var body: some View {
@@ -46,7 +51,7 @@ struct RuledRow<Content: View>: View {
             if showTopRule {
                 Rectangle().fill(Theme.Colors.divider).frame(height: 1)
             }
-            HStack(spacing: 12) { content() }
+            HStack(alignment: alignment, spacing: 12) { content() }
                 .frame(minHeight: minHeight)
             if showBottomRule {
                 Rectangle().fill(Theme.Colors.divider).frame(height: 1)
