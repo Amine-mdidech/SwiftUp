@@ -11,6 +11,7 @@ final class ProfileRepository {
     private(set) var topics: [TopicAccuracy] = []
     private(set) var achievements: [Achievement] = []
     private(set) var isLoading = false
+    private(set) var streakDayRecords: [String: StreakDayState] = [:]
 
     init(bundle: Bundle = .main) {
         levels = decodeJSONResource([LevelInfo].self, filename: "levels", bundle: bundle) ?? []
@@ -58,9 +59,12 @@ final class ProfileRepository {
 
         let userRef = Firestore.firestore().collection("users").document(uid)
         do {
-            let snapshot = try await userRef.getDocument()
-            let recentCompletions = try await Self.fetchRecentCompletions(uid: uid)
-            apply(snapshot: snapshot, recentCompletions: recentCompletions)
+            async let snapshot = userRef.getDocument()
+            async let recentCompletions = Self.fetchRecentCompletions(uid: uid)
+            async let streakDayRecords = Self.fetchStreakDayRecords(uid: uid)
+            let (resolvedSnapshot, resolvedRecent, resolvedStreakDays) = try await (snapshot, recentCompletions, streakDayRecords)
+            self.streakDayRecords = resolvedStreakDays
+            apply(snapshot: resolvedSnapshot, recentCompletions: resolvedRecent)
         } catch {
             // Intentionally left as-is — see doc comment above.
         }
@@ -158,6 +162,10 @@ final class ProfileRepository {
             batch.setData(userUpdates, forDocument: userRef, merge: true)
             let dayRef = userRef.collection("dailyCompletions").document(today)
             batch.setData(["correctCount": session.correctCount, "xpEarned": session.totalXPEarned], forDocument: dayRef)
+            if let frozenDate = streakResult.frozenDate {
+                let frozenRef = userRef.collection("dailyCompletions").document(frozenDate)
+                batch.setData(["frozen": true], forDocument: frozenRef)
+            }
             let leaderboardRef = Firestore.firestore().collection("leaderboardEntries").document(uid)
             batch.setData([
                 "displayName": displayName,
@@ -174,6 +182,10 @@ final class ProfileRepository {
             )
             topics = topicStats.map { TopicAccuracy(name: $0.key, accuracyPercent: Self.accuracy($0.value)) }.sorted { $0.name < $1.name }
             achievements = AchievementEngine.evaluate(catalog: catalog, stats: stats, earnedAt: earnedAt)
+            streakDayRecords[today] = .done
+            if let frozenDate = streakResult.frozenDate {
+                streakDayRecords[frozenDate] = .freeze
+            }
         } catch {
             // Non-blocking — see doc comment above.
         }
@@ -268,6 +280,22 @@ final class ProfileRepository {
         }
     }
 
+    private static func fetchStreakDayRecords(uid: String) async throws -> [String: StreakDayState] {
+        let today = todayString()
+        guard let startDate = StreakCalculator.dateOffset(-111, from: today) else { return [:] }
+        let snapshot = try await Firestore.firestore()
+            .collection("users").document(uid).collection("dailyCompletions")
+            .whereField(FieldPath.documentID(), isGreaterThanOrEqualTo: startDate)
+            .getDocuments()
+        return snapshot.documents.reduce(into: [:]) { result, doc in
+            if doc.get("correctCount") != nil {
+                result[doc.documentID] = .done
+            } else if doc.get("frozen") as? Bool == true {
+                result[doc.documentID] = .freeze
+            }
+        }
+    }
+
     private static func todayString(_ date: Date = Date()) -> String {
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
@@ -280,4 +308,18 @@ final class ProfileRepository {
     var earnedAchievements: [Achievement] { achievements.filter { $0.status == .earned } }
     var inReachAchievements: [Achievement] { achievements.filter { $0.status == .inReach } }
     var lockedAchievements: [Achievement] { achievements.filter { $0.status == .locked } }
+
+    /// The last 112 calendar days as an ordered grid input — oldest first, today last. Factored out
+    /// as a static, pure function (rather than inline in a computed property reading `self`) so it's
+    /// directly unit-testable without touching Firestore or this class's `private(set)` state.
+    static func buildCalendarDays(from records: [String: StreakDayState], today: String) -> [StreakDayState] {
+        (0..<112).compactMap { offset -> StreakDayState? in
+            guard let date = StreakCalculator.dateOffset(-(111 - offset), from: today) else { return nil }
+            return records[date] ?? .missed
+        }
+    }
+
+    var streakCalendarDays: [StreakDayState] {
+        Self.buildCalendarDays(from: streakDayRecords, today: Self.todayString())
+    }
 }

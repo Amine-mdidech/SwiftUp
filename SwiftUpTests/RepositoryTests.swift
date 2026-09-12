@@ -128,4 +128,19 @@ struct RepositoryTests {
         #expect(repo.topEntries.first?.rank == 1)
         #expect(repo.topEntries.first?.totalXP == 640)
     }
+
+    @MainActor
+    @Test func profileRepositoryBuildsCalendarDaysOldestFirstWithGapsAsMissed() {
+        let records: [String: StreakDayState] = [
+            "2026-01-08": .done,
+            "2026-01-09": .freeze,
+            // 2026-01-10 has no entry — must read as .missed
+        ]
+        let days = ProfileRepository.buildCalendarDays(from: records, today: "2026-01-10")
+        #expect(days.count == 112)
+        #expect(days[109] == .done)   // 2026-01-08: 2 days before today, index 111-2
+        #expect(days[110] == .freeze) // 2026-01-09: 1 day before today
+        #expect(days[111] == .missed) // 2026-01-10: today, not yet completed
+        #expect(days[0] == .missed)   // 111 days before today: no record, absent, .missed
+    }
 }
