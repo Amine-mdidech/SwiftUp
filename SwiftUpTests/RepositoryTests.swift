@@ -92,6 +92,23 @@ struct RepositoryTests {
         #expect(repo.isBookmarked(repo.questions[0]) == false)
     }
 
+    @Test func sessionDeckTakesFirstNQuestionsAtLevel() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        let deck = repo.sessionDeck(in: "Swift fundamentals", level: "Junior", deckSize: 1)
+        #expect(deck.map(\.id) == ["sf-j1"])
+    }
+
+    @Test func sessionDeckReturnsFewerThanDeckSizeWhenCategoryHasLess() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        let deck = repo.sessionDeck(in: "Swift fundamentals", level: "Junior", deckSize: 10)
+        #expect(deck.count == 2)
+    }
+
+    @Test func sessionDeckReturnsEmptyForUnknownCategory() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        #expect(repo.sessionDeck(in: "Nope", level: "All").isEmpty)
+    }
+
     @Test func flashcardReviewStateDecodesFromJSON() throws {
         let json = Data("""
         {"rating":"nailed","dueDate":"2026-09-16","reviewCount":2}

@@ -60,6 +60,16 @@ final class InterviewRepository {
         categories.first { $0.name == categoryName }?.questions(for: level).first
     }
 
+    /// First `deckSize` questions at `level` in `categoryName`, in that level's existing content
+    /// order (no shuffling — a session deck is stable and deterministic). Fewer than `deckSize` if
+    /// the category has less. A category+level combo with zero questions can't be navigated into in
+    /// the first place (`InterviewBankView`'s disabled-row handling), so this returning `[]` is
+    /// only reachable for a bad `categoryName`.
+    func sessionDeck(in categoryName: String, level: String, deckSize: Int = 10) -> [InterviewQuestion] {
+        guard let category = categories.first(where: { $0.name == categoryName }) else { return [] }
+        return Array(category.questions(for: level).prefix(deckSize))
+    }
+
     /// Walks forward within `current`'s own category and level — the level is inferred from
     /// `current.difficulty`, so no separate level parameter is needed; every question already
     /// carries its own level. Wraps to the next category (in `categories` order) that has at
