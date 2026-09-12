@@ -47,7 +47,14 @@ struct RuledRow<Content: View>: View {
     @ViewBuilder var content: () -> Content
 
     var body: some View {
-        VStack(spacing: 0) {
+        // `.leading`, not the VStack default `.center`: the divider Rectangles are full-width, but
+        // the content HStack only stretches to full width when something inside it (a `Spacer()`)
+        // forces that — otherwise it sizes to its own content and gets centered under the dividers
+        // instead of left-aligned. Every other call site has a trailing `Spacer()`, so this was
+        // invisible until a row (talking points) had none: each row's HStack then centers by a
+        // different amount depending on how much its own text wrapped, producing inconsistent left
+        // edges from row to row.
+        VStack(alignment: .leading, spacing: 0) {
             if showTopRule {
                 Rectangle().fill(Theme.Colors.divider).frame(height: 1)
             }
