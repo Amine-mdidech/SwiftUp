@@ -166,21 +166,34 @@ final class AuthRepository {
 
     // MARK: - Firestore
 
+    /// Creates the user doc on first sign-in, and on every sign-in after that, backfills
+    /// `email`/`displayName` if the provider just supplied a value this time and the doc doesn't
+    /// already have one. Previously this returned immediately once the doc existed, so a name
+    /// missed on account creation (e.g. a transient issue reading it from the provider) could never
+    /// be recovered — even by an Apple/Google account, whose provider reliably supplies a name on
+    /// every sign-in. Never clobbers an existing value with `nil`: Apple only shares the user's name
+    /// on the very first authorization, so every later Apple sign-in must not overwrite whatever
+    /// name a previous sign-in already stored.
     private func ensureUserDocument(uid: String, email: String?, displayName: String?) async {
         let doc = Firestore.firestore().collection("users").document(uid)
         do {
             let snapshot = try await doc.getDocument()
-            guard !snapshot.exists else { return }
-            var data: [String: Any] = [
-                "uid": uid,
-                "createdAt": FieldValue.serverTimestamp()
-            ]
-            data["email"] = email
-            data["displayName"] = displayName
-            try await doc.setData(data)
+            var data: [String: Any] = [:]
+            if !snapshot.exists {
+                data["uid"] = uid
+                data["createdAt"] = FieldValue.serverTimestamp()
+            }
+            if (snapshot.get("email") as? String)?.isEmpty != false, let email, !email.isEmpty {
+                data["email"] = email
+            }
+            if (snapshot.get("displayName") as? String)?.isEmpty != false, let displayName, !displayName.isEmpty {
+                data["displayName"] = displayName
+            }
+            guard !data.isEmpty else { return }
+            try await doc.setData(data, merge: true)
         } catch {
             // Non-blocking: isSignedIn reflects Firebase Auth state only (spec §6).
-            // The doc gets created lazily the next time this runs, e.g. next launch.
+            // The doc gets created/backfilled lazily the next time this runs, e.g. next launch.
         }
     }
 
