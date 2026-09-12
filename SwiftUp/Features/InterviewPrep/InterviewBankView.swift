@@ -2,6 +2,7 @@ import SwiftUI
 
 struct InterviewBankView: View {
     @Environment(InterviewRepository.self) private var repo
+    @Environment(AuthRepository.self) private var authRepo
     @State private var levelFilter = "All"
     @State private var searchText = ""
 
@@ -31,8 +32,12 @@ struct InterviewBankView: View {
         }
         .background(Theme.Colors.bg)
         .task {
-            if repo.categories.isEmpty {
-                await repo.load()
+            async let content: Void = repo.categories.isEmpty ? repo.load() : ()
+            if let uid = authRepo.currentUser?.uid {
+                async let userState: Void = repo.loadUserState(for: uid)
+                _ = await (content, userState)
+            } else {
+                _ = await content
             }
         }
     }
@@ -79,17 +84,15 @@ struct InterviewBankView: View {
 
     @ViewBuilder
     private func categoryRow(_ category: InterviewCategoryContent, isLast: Bool) -> some View {
-        let count = category.questions(for: levelFilter).count
-        if count > 0 {
+        let questions = category.questions(for: levelFilter)
+        if !questions.isEmpty {
             NavigationLink {
-                if let first = repo.firstQuestion(in: category.name, level: levelFilter) {
-                    InterviewQuestionDetailView(question: first)
-                }
+                FlashcardSessionView(category: category.name, level: levelFilter, repo: repo)
             } label: {
                 RuledRow(showBottomRule: isLast, minHeight: 56) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(category.name).font(Theme.Fonts.heading(16.5))
-                        Text(countLabel(for: count))
+                        Text(reviewedLabel(for: questions))
                             .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral700)
                     }
                     Spacer()
@@ -109,8 +112,9 @@ struct InterviewBankView: View {
         }
     }
 
-    private func countLabel(for count: Int) -> String {
-        count == 1 ? "1 question" : "\(count) questions"
+    private func reviewedLabel(for questions: [InterviewQuestion]) -> String {
+        let reviewed = questions.filter(repo.hasBeenReviewed).count
+        return "\(reviewed) of \(questions.count) reviewed"
     }
 
     private func emptyLabel(for level: String) -> String {
