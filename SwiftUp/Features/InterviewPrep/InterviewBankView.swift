@@ -4,7 +4,6 @@ struct InterviewBankView: View {
     @Environment(InterviewRepository.self) private var repo
     @Environment(AuthRepository.self) private var authRepo
     @State private var levelFilter = "All"
-    @State private var searchText = ""
     @State private var isSessionActive = false
     @State private var activeCategory = ""
     @State private var activeLevel = ""
@@ -60,17 +59,11 @@ struct InterviewBankView: View {
                     .font(Theme.Fonts.body(14)).foregroundStyle(Theme.Colors.neutral800)
                     .padding(.top, 12)
 
-                TextField("Search the bank", text: $searchText)
-                    .padding(.horizontal, 10).padding(.vertical, 10)
-                    .background(Theme.Colors.surface)
-                    .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
-                    .padding(.top, 18)
-
                 SegmentedPicker(
                     options: ["All", "Junior", "Mid", "Senior"], selection: $levelFilter,
                     selectedFill: levelAccent, selectedForeground: levelAccentForeground
                 )
-                    .padding(.top, 12)
+                    .padding(.top, 18)
 
                 VStack(spacing: 0) {
                     ForEach(Array(repo.categories.enumerated()), id: \.element.id) { index, category in
