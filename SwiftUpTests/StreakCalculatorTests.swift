@@ -110,4 +110,41 @@ struct StreakCalculatorTests {
         #expect(result.streakDays == 1)
         #expect(result.freezesAvailable == 1)
     }
+
+    // MARK: - dateOffset
+
+    @Test func dateOffsetMovesBackwardAndForward() {
+        #expect(StreakCalculator.dateOffset(-1, from: "2026-01-10") == "2026-01-09")
+        #expect(StreakCalculator.dateOffset(1, from: "2026-01-10") == "2026-01-11")
+        #expect(StreakCalculator.dateOffset(0, from: "2026-01-10") == "2026-01-10")
+    }
+
+    @Test func dateOffsetCrossesMonthAndYearBoundaries() {
+        #expect(StreakCalculator.dateOffset(-1, from: "2026-01-01") == "2025-12-31")
+        #expect(StreakCalculator.dateOffset(-111, from: "2026-01-01") == "2025-09-12")
+    }
+
+    // MARK: - frozenDate
+
+    @Test func frozenDateIsNilWhenStreakJustGrows() {
+        let result = StreakCalculator.apply(lastCompletedDate: "2026-01-10", streakDays: 5, freezesAvailable: 0, today: "2026-01-11")
+        #expect(result.frozenDate == nil)
+    }
+
+    @Test func frozenDateIsTheDayBeforeTodayWhenAFreezeIsConsumed() {
+        let result = StreakCalculator.apply(lastCompletedDate: "2026-01-10", streakDays: 5, freezesAvailable: 1, today: "2026-01-12")
+        #expect(result.streakDays == 6)
+        #expect(result.freezesAvailable == 0)
+        #expect(result.frozenDate == "2026-01-11")
+    }
+
+    @Test func frozenDateIsNilWhenTheGapIsTooWideToForgive() {
+        let result = StreakCalculator.apply(lastCompletedDate: "2026-01-10", streakDays: 5, freezesAvailable: 1, today: "2026-01-14")
+        #expect(result.frozenDate == nil)
+    }
+
+    @Test func frozenDateIsNilOnFirstEverCompletion() {
+        let result = StreakCalculator.apply(lastCompletedDate: nil, streakDays: 0, freezesAvailable: 0, today: "2026-01-10")
+        #expect(result.frozenDate == nil)
+    }
 }
