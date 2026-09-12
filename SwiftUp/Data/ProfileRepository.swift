@@ -58,15 +58,21 @@ final class ProfileRepository {
         defer { isLoading = false }
 
         let userRef = Firestore.firestore().collection("users").document(uid)
+        // Started before the `do` block and awaited after it, independently of `snapshot`/
+        // `recentCompletions`: a failure here must not abort loading the rest of the profile (see
+        // doc comment on `streakDayRecords`'s declaration) — it's the one fetch on this screen with
+        // no bearing on `profile`/`topics`/`achievements`.
+        async let streakDayRecordsResult = Self.fetchStreakDayRecords(uid: uid)
         do {
             async let snapshot = userRef.getDocument()
             async let recentCompletions = Self.fetchRecentCompletions(uid: uid)
-            async let streakDayRecords = Self.fetchStreakDayRecords(uid: uid)
-            let (resolvedSnapshot, resolvedRecent, resolvedStreakDays) = try await (snapshot, recentCompletions, streakDayRecords)
-            self.streakDayRecords = resolvedStreakDays
+            let (resolvedSnapshot, resolvedRecent) = try await (snapshot, recentCompletions)
             apply(snapshot: resolvedSnapshot, recentCompletions: resolvedRecent)
         } catch {
             // Intentionally left as-is — see doc comment above.
+        }
+        if let resolvedStreakDays = try? await streakDayRecordsResult {
+            streakDayRecords = resolvedStreakDays
         }
     }
 
@@ -164,7 +170,7 @@ final class ProfileRepository {
             batch.setData(["correctCount": session.correctCount, "xpEarned": session.totalXPEarned], forDocument: dayRef)
             if let frozenDate = streakResult.frozenDate {
                 let frozenRef = userRef.collection("dailyCompletions").document(frozenDate)
-                batch.setData(["frozen": true], forDocument: frozenRef)
+                batch.setData(["frozen": true], forDocument: frozenRef, merge: true)
             }
             let leaderboardRef = Firestore.firestore().collection("leaderboardEntries").document(uid)
             batch.setData([
@@ -288,7 +294,7 @@ final class ProfileRepository {
             .whereField(FieldPath.documentID(), isGreaterThanOrEqualTo: startDate)
             .getDocuments()
         return snapshot.documents.reduce(into: [:]) { result, doc in
-            if doc.get("correctCount") != nil {
+            if (doc.get("correctCount") as? Int) != nil {
                 result[doc.documentID] = .done
             } else if doc.get("frozen") as? Bool == true {
                 result[doc.documentID] = .freeze

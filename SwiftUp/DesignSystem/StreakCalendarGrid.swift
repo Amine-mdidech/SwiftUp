@@ -8,7 +8,7 @@ struct StreakCalendarGrid: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .top, spacing: 3) {
                 ForEach(0..<16, id: \.self) { week in
-                    VStack(spacing: 3) {
+                    VStack(alignment: .center, spacing: 3) {
                         ForEach(0..<7, id: \.self) { day in
                             let index = week * 7 + day
                             Rectangle()

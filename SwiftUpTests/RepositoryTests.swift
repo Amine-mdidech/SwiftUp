@@ -143,4 +143,22 @@ struct RepositoryTests {
         #expect(days[111] == .missed) // 2026-01-10: today, not yet completed
         #expect(days[0] == .missed)   // 111 days before today: no record, absent, .missed
     }
+
+    @MainActor
+    @Test func profileRepositoryBuildsCalendarDaysIgnoresRecordsOutsideTheWindow() {
+        let records: [String: StreakDayState] = [
+            "2025-09-20": .freeze, // one day before the window's oldest day (2025-09-21) — must be ignored
+        ]
+        let days = ProfileRepository.buildCalendarDays(from: records, today: "2026-01-10")
+        #expect(days.count == 112)
+        #expect(days[0] == .missed) // the window's oldest day (2025-09-21) has no entry of its own
+        #expect(!days.contains(.freeze)) // the out-of-window record must not leak into any slot
+    }
+
+    @MainActor
+    @Test func profileRepositoryBuildsCalendarDaysAllMissedForABrandNewUser() {
+        let days = ProfileRepository.buildCalendarDays(from: [:], today: "2026-01-10")
+        #expect(days.count == 112)
+        #expect(days.allSatisfy { $0 == .missed })
+    }
 }
