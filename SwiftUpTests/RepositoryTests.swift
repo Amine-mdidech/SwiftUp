@@ -86,6 +86,12 @@ struct RepositoryTests {
         #expect(position?.total == 2)
     }
 
+    @Test func interviewRepositoryStartsWithNoBookmarks() {
+        let repo = InterviewRepository.preview(bundle: testBundle)
+        #expect(repo.bookmarkedIDs.isEmpty)
+        #expect(repo.isBookmarked(repo.questions[0]) == false)
+    }
+
     @Test func leaderboardRepositoryPreviewLoadsEntriesSortedByRank() {
         let repo = LeaderboardRepository.preview(bundle: testBundle)
         #expect(repo.topEntries.count == 8)

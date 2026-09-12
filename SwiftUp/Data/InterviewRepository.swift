@@ -5,6 +5,7 @@ import FirebaseFirestore
 final class InterviewRepository {
     private(set) var categories: [InterviewCategoryContent] = []
     private(set) var isLoading = false
+    private(set) var bookmarkedIDs: Set<String> = []
 
     init() {}
 
@@ -87,4 +88,38 @@ final class InterviewRepository {
         guard let idx = levelQuestions.firstIndex(where: { $0.id == question.id }) else { return nil }
         return (index: idx + 1, total: levelQuestions.count)
     }
+
+    /// Fetches this user's real per-question state (bookmarks; flashcard review state joins this
+    /// method in a later pass). Non-blocking on failure — keeps whatever state is already held
+    /// rather than flashing to empty on a transient error, same shape as
+    /// `ProfileRepository.load(for:)`.
+    func loadUserState(for uid: String) async {
+        do {
+            let bookmarkDocs = try await Firestore.firestore()
+                .collection("users").document(uid).collection("bookmarks").getDocuments()
+            bookmarkedIDs = Set(bookmarkDocs.documents.map(\.documentID))
+        } catch {
+            // Non-blocking — see doc comment above.
+        }
+    }
+
+    /// Creates or deletes `bookmarks/{questionId}` and updates local state immediately
+    /// (optimistic — the star responds instantly, matching the rest of this screen).
+    func toggleBookmark(_ question: InterviewQuestion, for uid: String) async {
+        let wasBookmarked = bookmarkedIDs.contains(question.id)
+        if wasBookmarked { bookmarkedIDs.remove(question.id) } else { bookmarkedIDs.insert(question.id) }
+        let ref = Firestore.firestore().collection("users").document(uid).collection("bookmarks").document(question.id)
+        do {
+            if wasBookmarked {
+                try await ref.delete()
+            } else {
+                try await ref.setData(["bookmarked": true])
+            }
+        } catch {
+            // Revert the optimistic update on failure.
+            if wasBookmarked { bookmarkedIDs.insert(question.id) } else { bookmarkedIDs.remove(question.id) }
+        }
+    }
+
+    func isBookmarked(_ question: InterviewQuestion) -> Bool { bookmarkedIDs.contains(question.id) }
 }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct InterviewQuestionDetailView: View {
     @Environment(InterviewRepository.self) private var repo
+    @Environment(AuthRepository.self) private var authRepo
     @State var question: InterviewQuestion
 
     var body: some View {
@@ -10,8 +11,13 @@ struct InterviewQuestionDetailView: View {
                 HStack {
                     Text("← \(question.category)").font(Theme.Fonts.body(15)).foregroundStyle(Theme.Colors.accent700)
                     Spacer()
-                    Text(question.bookmarked ? "★ Bookmarked" : "☆ Bookmark")
-                        .font(.system(size: 13)).foregroundStyle(Theme.Colors.accent700)
+                    Button {
+                        guard let uid = authRepo.currentUser?.uid else { return }
+                        Task { await repo.toggleBookmark(question, for: uid) }
+                    } label: {
+                        Text(repo.isBookmarked(question) ? "★ Bookmarked" : "☆ Bookmark")
+                            .font(.system(size: 13)).foregroundStyle(Theme.Colors.accent700)
+                    }
                 }
 
                 HStack(spacing: 8) {
@@ -85,4 +91,5 @@ struct InterviewQuestionDetailView: View {
         InterviewQuestionDetailView(question: repo.questions[0])
     }
     .environment(repo)
+    .environment(AuthRepository(isPreview: true, signedIn: true))
 }

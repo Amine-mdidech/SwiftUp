@@ -13,8 +13,7 @@
           "Classes support inheritance; structs support protocol conformance and composition instead.",
           "SwiftUI views are structs on purpose — cheap to recreate, no shared state to corrupt."
         ],
-        "followUps": ["When would you reach for a class anyway?"],
-        "bookmarked": false
+        "followUps": ["When would you reach for a class anyway?"]
       },
       {
         "id": "sf-j2",
@@ -27,8 +26,7 @@
           "Access tracking is per-view, not per-object, so unrelated property changes don't trigger a redraw.",
           "Requires iOS 17+; ObservableObject is still the right call for earlier deployment targets."
         ],
-        "followUps": ["How does SwiftUI know which properties a view actually read?"],
-        "bookmarked": false
+        "followUps": ["How does SwiftUI know which properties a view actually read?"]
       }
     ],
     "mid": [],
@@ -49,8 +47,7 @@
           "Bindings are the contract; in SwiftUI that is @Observable, not a framework.",
           "Name the cost honestly: more files, and indirection a small screen may not need."
         ],
-        "followUps": ["Where does navigation live?", "How do you test a view model that calls the network?"],
-        "bookmarked": true
+        "followUps": ["Where does navigation live?", "How do you test a view model that calls the network?"]
       }
     ],
     "senior": []
@@ -71,8 +68,7 @@
           "Disk cache needs a background eviction pass, not eviction-on-write.",
           "Cache keys must account for image size variants, or you serve the wrong resolution."
         ],
-        "followUps": ["How do you avoid duplicate in-flight requests for the same image?"],
-        "bookmarked": false
+        "followUps": ["How do you avoid duplicate in-flight requests for the same image?"]
       }
     ]
   },
@@ -91,8 +87,7 @@
           "Recomputing expensive view state in body on every scroll frame is a common self-inflicted cause.",
           "Measure again after the fix — an unverified fix isn't a fix."
         ],
-        "followUps": ["What's the difference between a CPU-bound and GPU-bound frame drop?"],
-        "bookmarked": false
+        "followUps": ["What's the difference between a CPU-bound and GPU-bound frame drop?"]
       }
     ],
     "senior": []
@@ -111,8 +106,7 @@
           "Showing you changed your mind at least once reads better than always being right.",
           "Keep it short — this is a door-opener for follow-up questions, not the whole interview."
         ],
-        "followUps": ["How did you make sure the disagreement didn't become personal?"],
-        "bookmarked": false
+        "followUps": ["How did you make sure the disagreement didn't become personal?"]
       }
     ],
     "mid": [],

@@ -43,7 +43,7 @@ struct InterviewBankView: View {
                 HStack(alignment: .lastTextBaseline) {
                     EyebrowLabel("Interview prep")
                     Spacer()
-                    Text("Bookmarks · \(repo.questions.filter(\.bookmarked).count)")
+                    Text("Bookmarks · \(repo.questions.filter(repo.isBookmarked).count)")
                         .font(.system(size: 13)).foregroundStyle(Theme.Colors.accent700)
                 }
 

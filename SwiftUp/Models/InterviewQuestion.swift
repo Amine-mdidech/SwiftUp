@@ -8,5 +8,4 @@ struct InterviewQuestion: Codable, Identifiable {
     let modelAnswer: String
     let talkingPoints: [String]
     let followUps: [String]
-    let bookmarked: Bool
 }
