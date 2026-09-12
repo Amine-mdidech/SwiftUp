@@ -111,7 +111,7 @@ struct ProfileHomeView: View {
                 .padding(.top, 28)
 
                 VStack(spacing: 14) {
-                    ForEach(repo.inReachAchievements) { a in
+                    ForEach(repo.inReachAchievements.prefix(2)) { a in
                         milestoneRow(a)
                     }
                 }
