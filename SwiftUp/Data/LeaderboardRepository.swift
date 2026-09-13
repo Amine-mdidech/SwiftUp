@@ -62,9 +62,20 @@ final class LeaderboardRepository {
         myPercentile = nil
         guard
             let mySnapshot = try? await entriesRef.document(uid).getDocument(),
-            let myDisplayName = mySnapshot.get("displayName") as? String,
+            var myDisplayName = mySnapshot.get("displayName") as? String,
             let myXP = mySnapshot.get("totalXP") as? Int
         else { return }
+
+        // `leaderboardEntries/{uid}.displayName` is a denormalized copy that only gets rewritten
+        // when a daily quiz completes (or at sign-in, best-effort) — it can lag behind the name on
+        // `users/{uid}` by a session or more, especially right after a name is first captured or
+        // corrected, since that write and this read both fire concurrently at app launch with no
+        // guaranteed order. Prefer the live value here so the signed-in user always sees their
+        // current name in the one row that's actually theirs, independent of that race.
+        if let usersSnapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument(),
+           let freshDisplayName = usersSnapshot.get("displayName") as? String, !freshDisplayName.isEmpty {
+            myDisplayName = freshDisplayName
+        }
 
         guard
             let ahead = try? await entriesRef.whereField("totalXP", isGreaterThan: myXP).count.getAggregation(source: .server),
