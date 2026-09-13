@@ -25,7 +25,7 @@ struct RepositoryTests {
     @Test func interviewRepositoryLoadsCategoriesFromBundledFallback() {
         let repo = InterviewRepository.preview(bundle: testBundle)
         #expect(repo.categories.count == 5)
-        #expect(repo.questions.count == 6)
+        #expect(repo.questions.count == 150)
     }
 
     @Test func interviewRepositoryNextQuestionStaysWithinSameCategoryAndLevel() {
@@ -36,22 +36,24 @@ struct RepositoryTests {
         #expect(next?.id == "sf-j2")
     }
 
-    @Test func interviewRepositoryNextQuestionSkipsCategoriesEmptyAtThatLevel() {
+    @Test func interviewRepositoryNextQuestionWrapsToTheNextCategoryAtTheSameLevel() {
         let repo = InterviewRepository.preview(bundle: testBundle)
-        // Junior questions only exist in "Swift fundamentals" (2) and "Behavioural" (1); the
-        // three categories in between have no Junior content and must be skipped when wrapping.
-        let sfJ2 = repo.sessionDeck(in: "Swift fundamentals", level: "Junior").first
-            .flatMap(repo.nextQuestion(after:))
-        #expect(sfJ2?.id == "sf-j2")
-        let wrapped = sfJ2.flatMap(repo.nextQuestion(after:))
-        #expect(wrapped?.id == "bh-j1")
+        // "Swift fundamentals" is followed by "Architecture patterns" in category order; walking
+        // past the last Junior question in the first category must land on the first Junior
+        // question of the next one.
+        let lastInSwiftFundamentals = repo.sessionDeck(in: "Swift fundamentals", level: "Junior", deckSize: 10).last
+        #expect(lastInSwiftFundamentals?.id == "sf-j10")
+        let wrapped = lastInSwiftFundamentals.flatMap(repo.nextQuestion(after:))
+        #expect(wrapped?.id == "ap-j1")
     }
 
     @Test func interviewRepositoryNextQuestionSelfLoopsAtTheEndOfTheLastLevelCategory() {
         let repo = InterviewRepository.preview(bundle: testBundle)
-        let bhJ1 = repo.sessionDeck(in: "Behavioural", level: "Junior").first
-        #expect(bhJ1?.id == "bh-j1")
-        #expect(bhJ1.flatMap(repo.nextQuestion(after:))?.id == "bh-j1")
+        // "Behavioural" is the last category in order — walking past its own last Junior question
+        // must wrap back to its own first, not fall off the end of the whole bank.
+        let bhJ10 = repo.sessionDeck(in: "Behavioural", level: "Junior", deckSize: 10).last
+        #expect(bhJ10?.id == "bh-j10")
+        #expect(bhJ10.flatMap(repo.nextQuestion(after:))?.id == "bh-j1")
     }
 
     @Test func interviewRepositoryResolveFallsBackToBundledWhenDecodedIsEmpty() {
@@ -67,11 +69,11 @@ struct RepositoryTests {
 
     @Test func interviewRepositoryPositionReflectsLevelScopedRank() {
         let repo = InterviewRepository.preview(bundle: testBundle)
-        let sfJ2 = repo.sessionDeck(in: "Swift fundamentals", level: "Junior").first
-            .flatMap(repo.nextQuestion(after:))
-        let position = sfJ2.flatMap(repo.position(of:))
+        let sfJ2 = repo.sessionDeck(in: "Swift fundamentals", level: "Junior", deckSize: 10)[1]
+        #expect(sfJ2.id == "sf-j2")
+        let position = repo.position(of: sfJ2)
         #expect(position?.index == 2)
-        #expect(position?.total == 2)
+        #expect(position?.total == 10)
     }
 
     @Test func interviewRepositoryStartsWithNoBookmarks() {
@@ -88,8 +90,8 @@ struct RepositoryTests {
 
     @Test func sessionDeckReturnsFewerThanDeckSizeWhenCategoryHasLess() {
         let repo = InterviewRepository.preview(bundle: testBundle)
-        let deck = repo.sessionDeck(in: "Swift fundamentals", level: "Junior", deckSize: 10)
-        #expect(deck.count == 2)
+        let deck = repo.sessionDeck(in: "Swift fundamentals", level: "Junior", deckSize: 15)
+        #expect(deck.count == 10)
     }
 
     @Test func sessionDeckReturnsEmptyForUnknownCategory() {

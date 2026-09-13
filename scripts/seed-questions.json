@@ -1,40 +1,3286 @@
 [
-  {"id":"jr01","topic":"Swift language","level":"Junior","format":"multipleChoice","codeSnippet":null,"prompt":"What's the key difference between `let` and `var` in Swift?","options":[{"id":"A","text":"let declares a constant; var declares a variable that can be reassigned"},{"id":"B","text":"let is for classes, var is for structs"},{"id":"C","text":"They're identical; it's a style choice"},{"id":"D","text":"var is faster at runtime"}],"correctOptionID":"A","explanation":"let binds a name to a value once; reassigning it is a compile error. var allows reassignment.","xp":15},
-  {"id":"jr02","topic":"Swift language","level":"Junior","format":"trueFalse","codeSnippet":null,"prompt":"Force-unwrapping a nil Optional with `!` crashes the app at runtime.","options":[{"id":"true","text":"True"},{"id":"false","text":"False"}],"correctOptionID":"true","explanation":"Force-unwrapping nil traps immediately — there's no recoverable error, the process terminates.","xp":15},
-  {"id":"jr03","topic":"Memory · ARC","level":"Junior","format":"multipleChoice","codeSnippet":null,"prompt":"What does ARC automatically manage for class instances?","options":[{"id":"A","text":"Retain counts, deallocating an instance once nothing references it"},{"id":"B","text":"Struct copying"},{"id":"C","text":"Thread scheduling"},{"id":"D","text":"View layout"}],"correctOptionID":"A","explanation":"Automatic Reference Counting tracks strong references to class instances and deallocates them once the count hits zero.","xp":15},
-  {"id":"jr04","topic":"SwiftUI state","level":"Junior","format":"fillInTheBlank","codeSnippet":"struct CounterView: View {\n    @____ private var count = 0\n\n    var body: some View {\n        Button(\"Count: \\(count)\") { count += 1 }\n    }\n}","prompt":"Complete the line. This view owns and mutates its own local value.","options":[{"id":"state","text":"State"},{"id":"binding","text":"Binding"},{"id":"observable","text":"Observable"},{"id":"environment","text":"Environment"}],"correctOptionID":"state","explanation":"@State is for value-type state a view owns locally; @Binding would be for a value passed in from a parent.","xp":15},
-  {"id":"jr05","topic":"Swift language","level":"Junior","format":"multipleChoice","codeSnippet":null,"prompt":"You need a collection that guarantees no duplicate elements and doesn't preserve insertion order. Which do you use?","options":[{"id":"A","text":"Array"},{"id":"B","text":"Set"},{"id":"C","text":"Dictionary"},{"id":"D","text":"Tuple"}],"correctOptionID":"B","explanation":"Set enforces uniqueness and is unordered; Array preserves order but allows duplicates.","xp":15},
-  {"id":"jr06","topic":"App lifecycle","level":"Junior","format":"multipleChoice","codeSnippet":null,"prompt":"In a SwiftUI App, where does one-time setup code (like configuring a third-party SDK) typically go?","options":[{"id":"A","text":"The App struct's init()"},{"id":"B","text":"Inside every View's body"},{"id":"C","text":"AppDelegate's viewDidLoad"},{"id":"D","text":"A Preview macro"}],"correctOptionID":"A","explanation":"init() on the App struct runs once at launch, before any Scene/View is built — the standard place for app-wide setup like Firebase configuration.","xp":15},
-  {"id":"jr07","topic":"Memory · ARC","level":"Junior","format":"spotTheBug","codeSnippet":"final class ImageLoader {\n    var onComplete: (() -> Void)?\n    func start() {\n        network.fetch { result in\n            self.image = result\n            self.onComplete?()\n        }\n    }\n}","prompt":"Spot the bug. Which line risks a retain cycle?","options":[{"id":"A","text":"Line 2 — the closure property declaration"},{"id":"B","text":"Line 4 — the escaping closure capturing self strongly"},{"id":"C","text":"Line 5 — assigning to self.image"}],"correctOptionID":"B","explanation":"The escaping closure passed to fetch captures self strongly by default; if ImageLoader is also retained by network, that's a cycle. [weak self] on line 4 breaks it.","xp":15},
-  {"id":"jr08","topic":"Networking","level":"Junior","format":"multipleChoice","codeSnippet":null,"prompt":"What's the simplest way to make a GET request and decode JSON with URLSession in modern Swift?","options":[{"id":"A","text":"URLSession.shared.data(from:) with async/await, then JSONDecoder"},{"id":"B","text":"NSURLConnection synchronously on the main thread"},{"id":"C","text":"Directly parsing raw bytes with String(data:encoding:)"},{"id":"D","text":"CFNetwork's low-level socket API"}],"correctOptionID":"A","explanation":"URLSession's async data(from:) returns (Data, URLResponse); feeding the Data into JSONDecoder is the standard modern pattern.","xp":15},
-  {"id":"jr09","topic":"Testing","level":"Junior","format":"trueFalse","codeSnippet":null,"prompt":"In Swift Testing, a test function is marked with the @Test attribute rather than needing to start with \"test\" in its name.","options":[{"id":"true","text":"True"},{"id":"false","text":"False"}],"correctOptionID":"true","explanation":"Swift Testing (unlike XCTest) uses the @Test macro to identify tests — naming conventions aren't required.","xp":15},
-  {"id":"jr10","topic":"Xcode · tooling","level":"Junior","format":"multipleChoice","codeSnippet":null,"prompt":"What's a breakpoint used for?","options":[{"id":"A","text":"Pausing program execution at a specific line to inspect state"},{"id":"B","text":"Marking a line for later refactoring"},{"id":"C","text":"Splitting a file into two targets"},{"id":"D","text":"Formatting code automatically"}],"correctOptionID":"A","explanation":"A breakpoint halts execution at that line so you can inspect variables, the call stack, and step through code.","xp":15},
-  {"id":"jr11","topic":"Swift language","level":"Junior","format":"multipleChoice","codeSnippet":null,"prompt":"What does conforming a type to Codable actually give you?","options":[{"id":"A","text":"Both Encodable and Decodable — the ability to convert to/from formats like JSON"},{"id":"B","text":"Automatic Equatable conformance"},{"id":"C","text":"Thread-safety guarantees"},{"id":"D","text":"A default initializer with no parameters"}],"correctOptionID":"A","explanation":"Codable is a type alias for Encodable & Decodable — it doesn't imply equality, thread-safety, or a specific initializer.","xp":15},
-  {"id":"jr12","topic":"Swift language","level":"Junior","format":"multipleChoice","codeSnippet":null,"prompt":"You copy a struct instance and mutate the copy. What happens to the original?","options":[{"id":"A","text":"Nothing — structs are value types, the original is unaffected"},{"id":"B","text":"The original changes too, since both point to the same storage"},{"id":"C","text":"A runtime error is thrown"},{"id":"D","text":"It depends on whether the struct is public"}],"correctOptionID":"A","explanation":"Structs are value types — assignment copies the value, so mutating the copy never affects the original. Classes (reference types) would behave differently.","xp":15},
-
-  {"id":"mid01","topic":"Concurrency","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"What problem does Swift's actor model primarily solve?","options":[{"id":"A","text":"Serializing access to mutable state to prevent data races"},{"id":"B","text":"Making network requests faster"},{"id":"C","text":"Reducing binary size"},{"id":"D","text":"Automatic memory management for structs"}],"correctOptionID":"A","explanation":"An actor guarantees only one task touches its mutable state at a time, isolating it from concurrent access without manual locks.","xp":20},
-  {"id":"mid02","topic":"Architecture","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"In an MVVM SwiftUI app, what does the ViewModel typically own?","options":[{"id":"A","text":"Presentation state and logic, exposing data the View observes"},{"id":"B","text":"UIKit view controller lifecycle callbacks"},{"id":"C","text":"The app's Core Data stack configuration directly inside every screen"},{"id":"D","text":"SwiftUI's rendering pipeline"}],"correctOptionID":"A","explanation":"The ViewModel adapts model/domain data into view-friendly state and exposes it (often via @Observable) — the View stays a thin renderer of that state.","xp":20},
-  {"id":"mid03","topic":"SwiftUI state","level":"Mid","format":"trueFalse","codeSnippet":null,"prompt":"A class marked @Observable automatically triggers SwiftUI view updates when any of its stored properties change, without needing @Published.","options":[{"id":"true","text":"True"},{"id":"false","text":"False"}],"correctOptionID":"true","explanation":"The @Observable macro (Observation framework) tracks property access directly — no @Published wrapper is needed, unlike the older ObservableObject approach.","xp":20},
-  {"id":"mid04","topic":"Memory · ARC","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"When should you use `unowned` instead of `weak` for a closure capture?","options":[{"id":"A","text":"When the captured reference is guaranteed to outlive the closure, and you don't want Optional-unwrapping overhead"},{"id":"B","text":"Always — unowned is strictly safer than weak"},{"id":"C","text":"When the closure escapes and might outlive the object"},{"id":"D","text":"Never — unowned is deprecated"}],"correctOptionID":"A","explanation":"unowned avoids the Optional wrapper weak requires, but crashes if accessed after deallocation — only safe when the captured object's lifetime is guaranteed to exceed the closure's.","xp":20},
-  {"id":"mid05","topic":"Core Data · SwiftData","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"In SwiftData, what does the @Model macro do to a class?","options":[{"id":"A","text":"Makes it a persistent, queryable model backed by SwiftData's storage"},{"id":"B","text":"Marks it as thread-safe automatically"},{"id":"C","text":"Converts it into a SwiftUI View"},{"id":"D","text":"Generates a Codable conformance only"}],"correctOptionID":"A","explanation":"@Model turns a plain class into a persisted, schema-managed SwiftData entity you can insert, fetch, and query via ModelContext.","xp":20},
-  {"id":"mid06","topic":"Networking","level":"Mid","format":"spotTheBug","codeSnippet":"func loadUser() async throws -> User {\n    let (data, response) = try await URLSession.shared.data(from: url)\n    let user = try JSONDecoder().decode(User.self, from: data)\n    return user\n}","prompt":"Spot the bug. What's missing before decoding?","options":[{"id":"A","text":"Nothing — this is correct as written"},{"id":"B","text":"A check that response is a successful HTTP status before decoding"},{"id":"C","text":"A retry loop"},{"id":"D","text":"An explicit Task { }"}],"correctOptionID":"B","explanation":"data(from:) doesn't throw on HTTP error statuses (404, 500) — it only throws on transport failures. Without checking the response's status code, a server error page could be decoded as if it were valid JSON.","xp":20},
-  {"id":"mid07","topic":"Testing","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"Why inject a protocol-typed dependency (e.g. a NetworkClient protocol) into a ViewModel rather than using URLSession.shared directly?","options":[{"id":"A","text":"It lets tests substitute a fake/mock implementation without hitting the real network"},{"id":"B","text":"Protocols are always faster than concrete types"},{"id":"C","text":"It's required by SwiftUI's compiler"},{"id":"D","text":"It removes the need for async/await"}],"correctOptionID":"A","explanation":"Depending on an abstraction (protocol) rather than a concrete singleton is what makes substituting a test double possible — the core enabler of unit-testable networking code.","xp":20},
-  {"id":"mid08","topic":"Architecture","level":"Mid","format":"trueFalse","codeSnippet":null,"prompt":"Protocol-oriented programming in Swift means you should avoid classes and inheritance entirely.","options":[{"id":"true","text":"True"},{"id":"false","text":"False"}],"correctOptionID":"false","explanation":"POP favors composition via protocols (and protocol extensions) over class inheritance hierarchies where it fits better, but it doesn't mean classes are forbidden — they're still the right tool for reference-semantics and identity.","xp":20},
-  {"id":"mid09","topic":"Swift language","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"What's the main benefit of a generic function over one that takes `Any`?","options":[{"id":"A","text":"Type safety is preserved at compile time — no runtime casting needed"},{"id":"B","text":"Generics always run faster than any concrete type"},{"id":"C","text":"Generics support fewer types than Any"},{"id":"D","text":"There's no difference in practice"}],"correctOptionID":"A","explanation":"A generic function's type is resolved at compile time and checked by the compiler; Any erases type information, pushing failures to runtime casts.","xp":20},
-  {"id":"mid10","topic":"Error handling","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"When should a function's error type be a custom enum conforming to Error rather than a generic NSError?","options":[{"id":"A","text":"When callers need to distinguish and handle specific, known failure cases"},{"id":"B","text":"Custom enums are required by the compiler for all throwing functions"},{"id":"C","text":"NSError can't be thrown in Swift"},{"id":"D","text":"Only when interoperating with Objective-C"}],"correctOptionID":"A","explanation":"A domain-specific error enum lets callers switch over precise cases (e.g. .invalidCredentials vs .networkUnavailable); NSError's userInfo dictionary loses that compile-time precision.","xp":20},
-  {"id":"mid11","topic":"UIKit · SwiftUI interop","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"What's UIViewRepresentable for?","options":[{"id":"A","text":"Wrapping a UIKit view so it can be used inside SwiftUI"},{"id":"B","text":"Converting a SwiftUI View into a UIViewController"},{"id":"C","text":"Making a UIView conform to Codable"},{"id":"D","text":"Registering a view for Instruments profiling"}],"correctOptionID":"A","explanation":"UIViewRepresentable is the bridge protocol that lets a UIKit UIView participate in a SwiftUI view hierarchy, with makeUIView/updateUIView as the sync points.","xp":20},
-  {"id":"mid12","topic":"Concurrency","level":"Mid","format":"multipleChoice","codeSnippet":null,"prompt":"What happens if you try to call an async function directly from synchronous code (e.g. a plain button action), without wrapping it in a Task?","options":[{"id":"A","text":"Compile error — an async function can only be called from an async context or inside Task { }"},{"id":"B","text":"It runs synchronously, blocking the calling thread until it finishes"},{"id":"C","text":"It silently no-ops"},{"id":"D","text":"It throws a runtime exception the first time it's called"}],"correctOptionID":"A","explanation":"Swift enforces this at compile time, not runtime — calling an async function from sync code needs an async context, which Task { await ... } provides.","xp":20},
-
-  {"id":"sr01","topic":"Concurrency","level":"Senior","format":"multipleChoice","codeSnippet":null,"prompt":"What does Sendable conformance signal about a type?","options":[{"id":"A","text":"It's safe to pass across concurrency domains (e.g. into a Task or actor) without data races"},{"id":"B","text":"It conforms to Codable"},{"id":"C","text":"It's thread-safe for UI updates specifically"},{"id":"D","text":"It has no stored properties"}],"correctOptionID":"A","explanation":"Sendable is a marker protocol the compiler uses to verify a value can cross actor/task boundaries safely — typically because it's a value type, immutable, or internally synchronized.","xp":25},
-  {"id":"sr02","topic":"Performance","level":"Senior","format":"multipleChoice","codeSnippet":null,"prompt":"You suspect a SwiftUI view is re-rendering far more often than necessary. What's the right first diagnostic step?","options":[{"id":"A","text":"Profile with Instruments' SwiftUI template to see actual view body invocation counts"},{"id":"B","text":"Rewrite the whole screen in UIKit"},{"id":"C","text":"Add @MainActor to every type"},{"id":"D","text":"Assume it's fine since SwiftUI is declarative"}],"correctOptionID":"A","explanation":"Instruments' SwiftUI instrument shows exactly which views recompute and why — guessing at optimizations without profiling first risks fixing the wrong thing.","xp":25},
-  {"id":"sr03","topic":"Modularization","level":"Senior","format":"trueFalse","codeSnippet":null,"prompt":"Splitting an app into multiple Swift Package Manager local packages can meaningfully improve incremental build times.","options":[{"id":"true","text":"True"},{"id":"false","text":"False"}],"correctOptionID":"true","explanation":"Well-drawn module boundaries let the build system skip recompiling packages whose source didn't change — a single monolithic target must often rebuild much more on small edits.","xp":25},
-  {"id":"sr04","topic":"Memory · ARC","level":"Senior","format":"multipleChoice","codeSnippet":null,"prompt":"What's the purpose of an autorelease pool in a tight loop creating many temporary Objective-C-bridged objects?","options":[{"id":"A","text":"It drains accumulated temporary objects periodically, capping peak memory instead of letting them all pile up until the loop ends"},{"id":"B","text":"It prevents retain cycles"},{"id":"C","text":"It's required for all Swift code to compile"},{"id":"D","text":"It makes ARC synchronous instead of asynchronous"}],"correctOptionID":"A","explanation":"Autorelease pools batch-release autoreleased objects; wrapping loop iterations in an inner pool drains memory per-iteration rather than accumulating until the outer scope exits.","xp":25},
-  {"id":"sr05","topic":"Testing","level":"Senior","format":"multipleChoice","codeSnippet":null,"prompt":"What's the main tradeoff of snapshot testing SwiftUI views?","options":[{"id":"A","text":"High confidence in visual regressions, but brittle to intentional design changes and platform rendering differences"},{"id":"B","text":"It replaces the need for unit tests entirely"},{"id":"C","text":"It only works with UIKit, never SwiftUI"},{"id":"D","text":"It has no downsides compared to unit tests"}],"correctOptionID":"A","explanation":"Snapshot tests catch pixel-level regressions cheaply, but every deliberate visual change requires re-recording snapshots, and results can vary subtly across OS/simulator versions.","xp":25},
-  {"id":"sr06","topic":"SwiftUI performance","level":"Senior","format":"spotTheBug","codeSnippet":"struct RowList: View {\n    let items: [Item]\n    var body: some View {\n        VStack {\n            ForEach(items) { item in\n                RowView(item: item)\n            }\n        }\n    }\n}","prompt":"Spot the issue. This list is rendered inside a ScrollView and has hundreds of items.","options":[{"id":"A","text":"VStack eagerly lays out every row up front; LazyVStack would only build visible rows"},{"id":"B","text":"ForEach can't be used inside VStack"},{"id":"C","text":"Item must conform to Codable"},{"id":"D","text":"RowView needs to be a class, not a struct"}],"correctOptionID":"A","explanation":"VStack instantiates all children immediately regardless of visibility; for long scrollable lists, LazyVStack defers building rows until they're about to appear.","xp":25},
-  {"id":"sr07","topic":"Security","level":"Senior","format":"multipleChoice","codeSnippet":null,"prompt":"Where should a long-lived auth token be stored on-device?","options":[{"id":"A","text":"The Keychain — encrypted, sandboxed, survives app deletion per its accessibility setting"},{"id":"B","text":"UserDefaults, since it's simplest"},{"id":"C","text":"A plain file in the app's Documents directory"},{"id":"D","text":"Hardcoded in the app binary"}],"correctOptionID":"A","explanation":"UserDefaults and plain files aren't encrypted at rest in a way suited for secrets; Keychain is specifically designed for credentials and tokens.","xp":25},
-  {"id":"sr08","topic":"Core Data · SwiftData","level":"Senior","format":"multipleChoice","codeSnippet":null,"prompt":"You need to add a new required, non-optional property to an existing Core Data entity that already has production data. What's the safe approach?","options":[{"id":"A","text":"A lightweight migration with a default value, or a custom mapping model if the default isn't meaningful"},{"id":"B","text":"Just add the property — Core Data infers defaults for existing rows automatically with no configuration"},{"id":"C","text":"Delete and recreate the store on every app update"},{"id":"D","text":"Required properties can't be added after a store has data"}],"correctOptionID":"A","explanation":"A lightweight migration handles simple additive changes with an explicit default value; anything requiring real data transformation needs a custom mapping model — silently doing nothing risks a migration crash.","xp":25},
-  {"id":"sr09","topic":"API design","level":"Senior","format":"trueFalse","codeSnippet":null,"prompt":"A well-designed Swift API should make illegal states unrepresentable where practical (e.g. via enums instead of multiple optional/boolean flags).","options":[{"id":"true","text":"True"},{"id":"false","text":"False"}],"correctOptionID":"true","explanation":"Modeling mutually-exclusive states as an enum with associated values (rather than several independent optionals that could combine nonsensically) moves invalid-state bugs from runtime to compile time.","xp":25},
-  {"id":"sr10","topic":"Concurrency","level":"Senior","format":"multipleChoice","codeSnippet":null,"prompt":"What's a common pitfall when migrating a completion-handler-based API to async/await?","options":[{"id":"A","text":"Forgetting that a completion handler called more than once (a pre-existing bug) will crash or hang the continuation-based wrapper"},{"id":"B","text":"async/await is always slower, so migration should be avoided"},{"id":"C","text":"Completion handlers can't be wrapped at all"},{"id":"D","text":"async functions can't call throwing functions"}],"correctOptionID":"A","explanation":"withCheckedContinuation/withCheckedThrowingContinuation traps if resumed more than once — a completion handler that was accidentally called twice in the old code becomes a hard crash once wrapped, rather than a silent double-invocation.","xp":25},
-  {"id":"sr11","topic":"App architecture","level":"Senior","format":"multipleChoice","codeSnippet":null,"prompt":"In a large app with multiple feature teams, what's the main argument for defining feature boundaries as separate local Swift packages rather than folders in one target?","options":[{"id":"A","text":"Enforced API boundaries — a package's internals genuinely can't be reached from outside it, unlike folder conventions which are just social agreements"},{"id":"B","text":"Packages compile to smaller binaries automatically"},{"id":"C","text":"It's required for App Store submission"},{"id":"D","text":"There's no real benefit over folders"}],"correctOptionID":"A","explanation":"Swift's access control is enforced at the module boundary — a local package genuinely can't reach into another package's internal types, whereas a folder split inside one target relies entirely on developer discipline.","xp":25},
-  {"id":"sr12","topic":"Build system","level":"Senior","format":"trueFalse","codeSnippet":null,"prompt":"Whole-module optimization can change how long incremental (single-file) debug builds take, not just release build behavior.","options":[{"id":"true","text":"True"},{"id":"false","text":"False"}],"correctOptionID":"true","explanation":"Whole-module optimization changes the compiler's unit of work from per-file to the whole module, which affects incremental compilation granularity — it's not purely a release-only concern, though it's most commonly enabled for Release configurations specifically.","xp":25}
+  {
+    "id": "jr01",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the key difference between `let` and `var` in Swift?",
+    "options": [
+      {
+        "id": "A",
+        "text": "let declares a constant; var declares a variable that can be reassigned"
+      },
+      {
+        "id": "B",
+        "text": "let is for classes, var is for structs"
+      },
+      {
+        "id": "C",
+        "text": "They're identical; it's a style choice"
+      },
+      {
+        "id": "D",
+        "text": "var is faster at runtime"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "let binds a name to a value once; reassigning it is a compile error. var allows reassignment.",
+    "xp": 15
+  },
+  {
+    "id": "jr02",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Force-unwrapping a nil Optional with `!` crashes the app at runtime.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Force-unwrapping nil traps immediately — there's no recoverable error, the process terminates.",
+    "xp": 15
+  },
+  {
+    "id": "jr03",
+    "topic": "Memory · ARC",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does ARC automatically manage for class instances?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Retain counts, deallocating an instance once nothing references it"
+      },
+      {
+        "id": "B",
+        "text": "Struct copying"
+      },
+      {
+        "id": "C",
+        "text": "Thread scheduling"
+      },
+      {
+        "id": "D",
+        "text": "View layout"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Automatic Reference Counting tracks strong references to class instances and deallocates them once the count hits zero.",
+    "xp": 15
+  },
+  {
+    "id": "jr04",
+    "topic": "SwiftUI state",
+    "level": "Junior",
+    "format": "fillInTheBlank",
+    "codeSnippet": "struct CounterView: View {\n    @____ private var count = 0\n\n    var body: some View {\n        Button(\"Count: \\(count)\") { count += 1 }\n    }\n}",
+    "prompt": "Complete the line. This view owns and mutates its own local value.",
+    "options": [
+      {
+        "id": "state",
+        "text": "State"
+      },
+      {
+        "id": "binding",
+        "text": "Binding"
+      },
+      {
+        "id": "observable",
+        "text": "Observable"
+      },
+      {
+        "id": "environment",
+        "text": "Environment"
+      }
+    ],
+    "correctOptionID": "state",
+    "explanation": "@State is for value-type state a view owns locally; @Binding would be for a value passed in from a parent.",
+    "xp": 15
+  },
+  {
+    "id": "jr05",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "You need a collection that guarantees no duplicate elements and doesn't preserve insertion order. Which do you use?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Array"
+      },
+      {
+        "id": "B",
+        "text": "Set"
+      },
+      {
+        "id": "C",
+        "text": "Dictionary"
+      },
+      {
+        "id": "D",
+        "text": "Tuple"
+      }
+    ],
+    "correctOptionID": "B",
+    "explanation": "Set enforces uniqueness and is unordered; Array preserves order but allows duplicates.",
+    "xp": 15
+  },
+  {
+    "id": "jr06",
+    "topic": "App lifecycle",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "In a SwiftUI App, where does one-time setup code (like configuring a third-party SDK) typically go?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The App struct's init()"
+      },
+      {
+        "id": "B",
+        "text": "Inside every View's body"
+      },
+      {
+        "id": "C",
+        "text": "AppDelegate's viewDidLoad"
+      },
+      {
+        "id": "D",
+        "text": "A Preview macro"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "init() on the App struct runs once at launch, before any Scene/View is built — the standard place for app-wide setup like Firebase configuration.",
+    "xp": 15
+  },
+  {
+    "id": "jr07",
+    "topic": "Memory · ARC",
+    "level": "Junior",
+    "format": "spotTheBug",
+    "codeSnippet": "final class ImageLoader {\n    var onComplete: (() -> Void)?\n    func start() {\n        network.fetch { result in\n            self.image = result\n            self.onComplete?()\n        }\n    }\n}",
+    "prompt": "Spot the bug. Which line risks a retain cycle?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Line 2 — the closure property declaration"
+      },
+      {
+        "id": "B",
+        "text": "Line 4 — the escaping closure capturing self strongly"
+      },
+      {
+        "id": "C",
+        "text": "Line 5 — assigning to self.image"
+      }
+    ],
+    "correctOptionID": "B",
+    "explanation": "The escaping closure passed to fetch captures self strongly by default; if ImageLoader is also retained by network, that's a cycle. [weak self] on line 4 breaks it.",
+    "xp": 15
+  },
+  {
+    "id": "jr08",
+    "topic": "Networking",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the simplest way to make a GET request and decode JSON with URLSession in modern Swift?",
+    "options": [
+      {
+        "id": "A",
+        "text": "URLSession.shared.data(from:) with async/await, then JSONDecoder"
+      },
+      {
+        "id": "B",
+        "text": "NSURLConnection synchronously on the main thread"
+      },
+      {
+        "id": "C",
+        "text": "Directly parsing raw bytes with String(data:encoding:)"
+      },
+      {
+        "id": "D",
+        "text": "CFNetwork's low-level socket API"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "URLSession's async data(from:) returns (Data, URLResponse); feeding the Data into JSONDecoder is the standard modern pattern.",
+    "xp": 15
+  },
+  {
+    "id": "jr09",
+    "topic": "Testing",
+    "level": "Junior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "In Swift Testing, a test function is marked with the @Test attribute rather than needing to start with \"test\" in its name.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Swift Testing (unlike XCTest) uses the @Test macro to identify tests — naming conventions aren't required.",
+    "xp": 15
+  },
+  {
+    "id": "jr10",
+    "topic": "Xcode · tooling",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a breakpoint used for?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Pausing program execution at a specific line to inspect state"
+      },
+      {
+        "id": "B",
+        "text": "Marking a line for later refactoring"
+      },
+      {
+        "id": "C",
+        "text": "Splitting a file into two targets"
+      },
+      {
+        "id": "D",
+        "text": "Formatting code automatically"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A breakpoint halts execution at that line so you can inspect variables, the call stack, and step through code.",
+    "xp": 15
+  },
+  {
+    "id": "jr11",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does conforming a type to Codable actually give you?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Both Encodable and Decodable — the ability to convert to/from formats like JSON"
+      },
+      {
+        "id": "B",
+        "text": "Automatic Equatable conformance"
+      },
+      {
+        "id": "C",
+        "text": "Thread-safety guarantees"
+      },
+      {
+        "id": "D",
+        "text": "A default initializer with no parameters"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Codable is a type alias for Encodable & Decodable — it doesn't imply equality, thread-safety, or a specific initializer.",
+    "xp": 15
+  },
+  {
+    "id": "jr12",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "You copy a struct instance and mutate the copy. What happens to the original?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Nothing — structs are value types, the original is unaffected"
+      },
+      {
+        "id": "B",
+        "text": "The original changes too, since both point to the same storage"
+      },
+      {
+        "id": "C",
+        "text": "A runtime error is thrown"
+      },
+      {
+        "id": "D",
+        "text": "It depends on whether the struct is public"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Structs are value types — assignment copies the value, so mutating the copy never affects the original. Classes (reference types) would behave differently.",
+    "xp": 15
+  },
+  {
+    "id": "mid01",
+    "topic": "Concurrency",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What problem does Swift's actor model primarily solve?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Serializing access to mutable state to prevent data races"
+      },
+      {
+        "id": "B",
+        "text": "Making network requests faster"
+      },
+      {
+        "id": "C",
+        "text": "Reducing binary size"
+      },
+      {
+        "id": "D",
+        "text": "Automatic memory management for structs"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "An actor guarantees only one task touches its mutable state at a time, isolating it from concurrent access without manual locks.",
+    "xp": 20
+  },
+  {
+    "id": "mid02",
+    "topic": "Architecture",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "In an MVVM SwiftUI app, what does the ViewModel typically own?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Presentation state and logic, exposing data the View observes"
+      },
+      {
+        "id": "B",
+        "text": "UIKit view controller lifecycle callbacks"
+      },
+      {
+        "id": "C",
+        "text": "The app's Core Data stack configuration directly inside every screen"
+      },
+      {
+        "id": "D",
+        "text": "SwiftUI's rendering pipeline"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "The ViewModel adapts model/domain data into view-friendly state and exposes it (often via @Observable) — the View stays a thin renderer of that state.",
+    "xp": 20
+  },
+  {
+    "id": "mid03",
+    "topic": "SwiftUI state",
+    "level": "Mid",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "A class marked @Observable automatically triggers SwiftUI view updates when any of its stored properties change, without needing @Published.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "The @Observable macro (Observation framework) tracks property access directly — no @Published wrapper is needed, unlike the older ObservableObject approach.",
+    "xp": 20
+  },
+  {
+    "id": "mid04",
+    "topic": "Memory · ARC",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "When should you use `unowned` instead of `weak` for a closure capture?",
+    "options": [
+      {
+        "id": "A",
+        "text": "When the captured reference is guaranteed to outlive the closure, and you don't want Optional-unwrapping overhead"
+      },
+      {
+        "id": "B",
+        "text": "Always — unowned is strictly safer than weak"
+      },
+      {
+        "id": "C",
+        "text": "When the closure escapes and might outlive the object"
+      },
+      {
+        "id": "D",
+        "text": "Never — unowned is deprecated"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "unowned avoids the Optional wrapper weak requires, but crashes if accessed after deallocation — only safe when the captured object's lifetime is guaranteed to exceed the closure's.",
+    "xp": 20
+  },
+  {
+    "id": "mid05",
+    "topic": "Core Data · SwiftData",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "In SwiftData, what does the @Model macro do to a class?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Makes it a persistent, queryable model backed by SwiftData's storage"
+      },
+      {
+        "id": "B",
+        "text": "Marks it as thread-safe automatically"
+      },
+      {
+        "id": "C",
+        "text": "Converts it into a SwiftUI View"
+      },
+      {
+        "id": "D",
+        "text": "Generates a Codable conformance only"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "@Model turns a plain class into a persisted, schema-managed SwiftData entity you can insert, fetch, and query via ModelContext.",
+    "xp": 20
+  },
+  {
+    "id": "mid06",
+    "topic": "Networking",
+    "level": "Mid",
+    "format": "spotTheBug",
+    "codeSnippet": "func loadUser() async throws -> User {\n    let (data, response) = try await URLSession.shared.data(from: url)\n    let user = try JSONDecoder().decode(User.self, from: data)\n    return user\n}",
+    "prompt": "Spot the bug. What's missing before decoding?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Nothing — this is correct as written"
+      },
+      {
+        "id": "B",
+        "text": "A check that response is a successful HTTP status before decoding"
+      },
+      {
+        "id": "C",
+        "text": "A retry loop"
+      },
+      {
+        "id": "D",
+        "text": "An explicit Task { }"
+      }
+    ],
+    "correctOptionID": "B",
+    "explanation": "data(from:) doesn't throw on HTTP error statuses (404, 500) — it only throws on transport failures. Without checking the response's status code, a server error page could be decoded as if it were valid JSON.",
+    "xp": 20
+  },
+  {
+    "id": "mid07",
+    "topic": "Testing",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why inject a protocol-typed dependency (e.g. a NetworkClient protocol) into a ViewModel rather than using URLSession.shared directly?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It lets tests substitute a fake/mock implementation without hitting the real network"
+      },
+      {
+        "id": "B",
+        "text": "Protocols are always faster than concrete types"
+      },
+      {
+        "id": "C",
+        "text": "It's required by SwiftUI's compiler"
+      },
+      {
+        "id": "D",
+        "text": "It removes the need for async/await"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Depending on an abstraction (protocol) rather than a concrete singleton is what makes substituting a test double possible — the core enabler of unit-testable networking code.",
+    "xp": 20
+  },
+  {
+    "id": "mid08",
+    "topic": "Architecture",
+    "level": "Mid",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Protocol-oriented programming in Swift means you should avoid classes and inheritance entirely.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "POP favors composition via protocols (and protocol extensions) over class inheritance hierarchies where it fits better, but it doesn't mean classes are forbidden — they're still the right tool for reference-semantics and identity.",
+    "xp": 20
+  },
+  {
+    "id": "mid09",
+    "topic": "Swift language",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the main benefit of a generic function over one that takes `Any`?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Type safety is preserved at compile time — no runtime casting needed"
+      },
+      {
+        "id": "B",
+        "text": "Generics always run faster than any concrete type"
+      },
+      {
+        "id": "C",
+        "text": "Generics support fewer types than Any"
+      },
+      {
+        "id": "D",
+        "text": "There's no difference in practice"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A generic function's type is resolved at compile time and checked by the compiler; Any erases type information, pushing failures to runtime casts.",
+    "xp": 20
+  },
+  {
+    "id": "mid10",
+    "topic": "Error handling",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "When should a function's error type be a custom enum conforming to Error rather than a generic NSError?",
+    "options": [
+      {
+        "id": "A",
+        "text": "When callers need to distinguish and handle specific, known failure cases"
+      },
+      {
+        "id": "B",
+        "text": "Custom enums are required by the compiler for all throwing functions"
+      },
+      {
+        "id": "C",
+        "text": "NSError can't be thrown in Swift"
+      },
+      {
+        "id": "D",
+        "text": "Only when interoperating with Objective-C"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A domain-specific error enum lets callers switch over precise cases (e.g. .invalidCredentials vs .networkUnavailable); NSError's userInfo dictionary loses that compile-time precision.",
+    "xp": 20
+  },
+  {
+    "id": "mid11",
+    "topic": "UIKit · SwiftUI interop",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's UIViewRepresentable for?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Wrapping a UIKit view so it can be used inside SwiftUI"
+      },
+      {
+        "id": "B",
+        "text": "Converting a SwiftUI View into a UIViewController"
+      },
+      {
+        "id": "C",
+        "text": "Making a UIView conform to Codable"
+      },
+      {
+        "id": "D",
+        "text": "Registering a view for Instruments profiling"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "UIViewRepresentable is the bridge protocol that lets a UIKit UIView participate in a SwiftUI view hierarchy, with makeUIView/updateUIView as the sync points.",
+    "xp": 20
+  },
+  {
+    "id": "mid12",
+    "topic": "Concurrency",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What happens if you try to call an async function directly from synchronous code (e.g. a plain button action), without wrapping it in a Task?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Compile error — an async function can only be called from an async context or inside Task { }"
+      },
+      {
+        "id": "B",
+        "text": "It runs synchronously, blocking the calling thread until it finishes"
+      },
+      {
+        "id": "C",
+        "text": "It silently no-ops"
+      },
+      {
+        "id": "D",
+        "text": "It throws a runtime exception the first time it's called"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Swift enforces this at compile time, not runtime — calling an async function from sync code needs an async context, which Task { await ... } provides.",
+    "xp": 20
+  },
+  {
+    "id": "sr01",
+    "topic": "Concurrency",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does Sendable conformance signal about a type?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It's safe to pass across concurrency domains (e.g. into a Task or actor) without data races"
+      },
+      {
+        "id": "B",
+        "text": "It conforms to Codable"
+      },
+      {
+        "id": "C",
+        "text": "It's thread-safe for UI updates specifically"
+      },
+      {
+        "id": "D",
+        "text": "It has no stored properties"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Sendable is a marker protocol the compiler uses to verify a value can cross actor/task boundaries safely — typically because it's a value type, immutable, or internally synchronized.",
+    "xp": 25
+  },
+  {
+    "id": "sr02",
+    "topic": "Performance",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "You suspect a SwiftUI view is re-rendering far more often than necessary. What's the right first diagnostic step?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Profile with Instruments' SwiftUI template to see actual view body invocation counts"
+      },
+      {
+        "id": "B",
+        "text": "Rewrite the whole screen in UIKit"
+      },
+      {
+        "id": "C",
+        "text": "Add @MainActor to every type"
+      },
+      {
+        "id": "D",
+        "text": "Assume it's fine since SwiftUI is declarative"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Instruments' SwiftUI instrument shows exactly which views recompute and why — guessing at optimizations without profiling first risks fixing the wrong thing.",
+    "xp": 25
+  },
+  {
+    "id": "sr03",
+    "topic": "Modularization",
+    "level": "Senior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Splitting an app into multiple Swift Package Manager local packages can meaningfully improve incremental build times.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Well-drawn module boundaries let the build system skip recompiling packages whose source didn't change — a single monolithic target must often rebuild much more on small edits.",
+    "xp": 25
+  },
+  {
+    "id": "sr04",
+    "topic": "Memory · ARC",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the purpose of an autorelease pool in a tight loop creating many temporary Objective-C-bridged objects?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It drains accumulated temporary objects periodically, capping peak memory instead of letting them all pile up until the loop ends"
+      },
+      {
+        "id": "B",
+        "text": "It prevents retain cycles"
+      },
+      {
+        "id": "C",
+        "text": "It's required for all Swift code to compile"
+      },
+      {
+        "id": "D",
+        "text": "It makes ARC synchronous instead of asynchronous"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Autorelease pools batch-release autoreleased objects; wrapping loop iterations in an inner pool drains memory per-iteration rather than accumulating until the outer scope exits.",
+    "xp": 25
+  },
+  {
+    "id": "sr05",
+    "topic": "Testing",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the main tradeoff of snapshot testing SwiftUI views?",
+    "options": [
+      {
+        "id": "A",
+        "text": "High confidence in visual regressions, but brittle to intentional design changes and platform rendering differences"
+      },
+      {
+        "id": "B",
+        "text": "It replaces the need for unit tests entirely"
+      },
+      {
+        "id": "C",
+        "text": "It only works with UIKit, never SwiftUI"
+      },
+      {
+        "id": "D",
+        "text": "It has no downsides compared to unit tests"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Snapshot tests catch pixel-level regressions cheaply, but every deliberate visual change requires re-recording snapshots, and results can vary subtly across OS/simulator versions.",
+    "xp": 25
+  },
+  {
+    "id": "sr06",
+    "topic": "SwiftUI performance",
+    "level": "Senior",
+    "format": "spotTheBug",
+    "codeSnippet": "struct RowList: View {\n    let items: [Item]\n    var body: some View {\n        VStack {\n            ForEach(items) { item in\n                RowView(item: item)\n            }\n        }\n    }\n}",
+    "prompt": "Spot the issue. This list is rendered inside a ScrollView and has hundreds of items.",
+    "options": [
+      {
+        "id": "A",
+        "text": "VStack eagerly lays out every row up front; LazyVStack would only build visible rows"
+      },
+      {
+        "id": "B",
+        "text": "ForEach can't be used inside VStack"
+      },
+      {
+        "id": "C",
+        "text": "Item must conform to Codable"
+      },
+      {
+        "id": "D",
+        "text": "RowView needs to be a class, not a struct"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "VStack instantiates all children immediately regardless of visibility; for long scrollable lists, LazyVStack defers building rows until they're about to appear.",
+    "xp": 25
+  },
+  {
+    "id": "sr07",
+    "topic": "Security",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Where should a long-lived auth token be stored on-device?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The Keychain — encrypted, sandboxed, survives app deletion per its accessibility setting"
+      },
+      {
+        "id": "B",
+        "text": "UserDefaults, since it's simplest"
+      },
+      {
+        "id": "C",
+        "text": "A plain file in the app's Documents directory"
+      },
+      {
+        "id": "D",
+        "text": "Hardcoded in the app binary"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "UserDefaults and plain files aren't encrypted at rest in a way suited for secrets; Keychain is specifically designed for credentials and tokens.",
+    "xp": 25
+  },
+  {
+    "id": "sr08",
+    "topic": "Core Data · SwiftData",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "You need to add a new required, non-optional property to an existing Core Data entity that already has production data. What's the safe approach?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A lightweight migration with a default value, or a custom mapping model if the default isn't meaningful"
+      },
+      {
+        "id": "B",
+        "text": "Just add the property — Core Data infers defaults for existing rows automatically with no configuration"
+      },
+      {
+        "id": "C",
+        "text": "Delete and recreate the store on every app update"
+      },
+      {
+        "id": "D",
+        "text": "Required properties can't be added after a store has data"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A lightweight migration handles simple additive changes with an explicit default value; anything requiring real data transformation needs a custom mapping model — silently doing nothing risks a migration crash.",
+    "xp": 25
+  },
+  {
+    "id": "sr09",
+    "topic": "API design",
+    "level": "Senior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "A well-designed Swift API should make illegal states unrepresentable where practical (e.g. via enums instead of multiple optional/boolean flags).",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Modeling mutually-exclusive states as an enum with associated values (rather than several independent optionals that could combine nonsensically) moves invalid-state bugs from runtime to compile time.",
+    "xp": 25
+  },
+  {
+    "id": "sr10",
+    "topic": "Concurrency",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a common pitfall when migrating a completion-handler-based API to async/await?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Forgetting that a completion handler called more than once (a pre-existing bug) will crash or hang the continuation-based wrapper"
+      },
+      {
+        "id": "B",
+        "text": "async/await is always slower, so migration should be avoided"
+      },
+      {
+        "id": "C",
+        "text": "Completion handlers can't be wrapped at all"
+      },
+      {
+        "id": "D",
+        "text": "async functions can't call throwing functions"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "withCheckedContinuation/withCheckedThrowingContinuation traps if resumed more than once — a completion handler that was accidentally called twice in the old code becomes a hard crash once wrapped, rather than a silent double-invocation.",
+    "xp": 25
+  },
+  {
+    "id": "sr11",
+    "topic": "App architecture",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "In a large app with multiple feature teams, what's the main argument for defining feature boundaries as separate local Swift packages rather than folders in one target?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Enforced API boundaries — a package's internals genuinely can't be reached from outside it, unlike folder conventions which are just social agreements"
+      },
+      {
+        "id": "B",
+        "text": "Packages compile to smaller binaries automatically"
+      },
+      {
+        "id": "C",
+        "text": "It's required for App Store submission"
+      },
+      {
+        "id": "D",
+        "text": "There's no real benefit over folders"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Swift's access control is enforced at the module boundary — a local package genuinely can't reach into another package's internal types, whereas a folder split inside one target relies entirely on developer discipline.",
+    "xp": 25
+  },
+  {
+    "id": "sr12",
+    "topic": "Build system",
+    "level": "Senior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Whole-module optimization can change how long incremental (single-file) debug builds take, not just release build behavior.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Whole-module optimization changes the compiler's unit of work from per-file to the whole module, which affects incremental compilation granularity — it's not purely a release-only concern, though it's most commonly enabled for Release configurations specifically.",
+    "xp": 25
+  },
+  {
+    "id": "jr13",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does Swift's `guard` statement do that a plain `if` cannot express as cleanly?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It requires an early exit (return/break/continue/throw) in its else branch, keeping the happy path unindented"
+      },
+      {
+        "id": "B",
+        "text": "It runs its body twice to double-check the condition"
+      },
+      {
+        "id": "C",
+        "text": "It only works with Optionals, never with plain Bool conditions"
+      },
+      {
+        "id": "D",
+        "text": "It is identical to `if`, just a stylistic alternative"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "guard's else branch must leave the current scope. That's what lets you unwrap or validate at the top of a function and write the rest of the function without nesting.",
+    "xp": 15
+  },
+  {
+    "id": "jr14",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What is the main advantage of an `enum` with associated values over a plain struct for representing state?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The compiler forces you to handle every case, so an invalid state combination can't be constructed"
+      },
+      {
+        "id": "B",
+        "text": "Enums are always faster than structs at runtime"
+      },
+      {
+        "id": "C",
+        "text": "Enums can inherit from a base class"
+      },
+      {
+        "id": "D",
+        "text": "Associated values must be classes, giving reference semantics"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A struct with several optional properties allows nonsensical combinations (e.g. loading=true and data set). An enum with associated values makes each state's data exact and exhaustive-checked by the compiler.",
+    "xp": 15
+  },
+  {
+    "id": "jr15",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "In Swift, a `protocol` can be used as a type, e.g. as a function parameter or a property's type.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Protocols are first-class types in Swift — you can declare `let x: SomeProtocol` or take one as a parameter, and any conforming type can be used there.",
+    "xp": 15
+  },
+  {
+    "id": "jr16",
+    "topic": "Swift language",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the difference between `map` and `compactMap` on an array?",
+    "options": [
+      {
+        "id": "A",
+        "text": "compactMap also unwraps and drops nil results, map keeps them as Optionals"
+      },
+      {
+        "id": "B",
+        "text": "map is for arrays, compactMap is for dictionaries only"
+      },
+      {
+        "id": "C",
+        "text": "They are identical; compactMap is just faster"
+      },
+      {
+        "id": "D",
+        "text": "compactMap can only transform Strings"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "compactMap runs the transform and then flattens away any nil results, so the output array has no Optionals and can be shorter than the input.",
+    "xp": 15
+  },
+  {
+    "id": "jr17",
+    "topic": "SwiftUI state",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does `@Environment` let a SwiftUI view do?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Read a value supplied by an ancestor view, without it being passed explicitly through every initializer"
+      },
+      {
+        "id": "B",
+        "text": "Declare a value that only that one view can ever read"
+      },
+      {
+        "id": "C",
+        "text": "Force a view to re-render every frame"
+      },
+      {
+        "id": "D",
+        "text": "Persist a value to disk automatically"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "@Environment reads a value placed into the view hierarchy higher up (via .environment(_:) or a system default), avoiding threading a parameter through every intermediate view's init.",
+    "xp": 15
+  },
+  {
+    "id": "jr18",
+    "topic": "SwiftUI state",
+    "level": "Junior",
+    "format": "fillInTheBlank",
+    "codeSnippet": "struct FavoriteButton: View {\n    @____ private var isFavorite = false\n\n    var body: some View {\n        Button(isFavorite ? \"★\" : \"☆\") {\n            isFavorite.toggle()\n        }\n    }\n}",
+    "prompt": "Complete the line. This view owns a single private Bool it toggles itself.",
+    "options": [
+      {
+        "id": "state",
+        "text": "State"
+      },
+      {
+        "id": "binding",
+        "text": "Binding"
+      },
+      {
+        "id": "observable",
+        "text": "Observable"
+      },
+      {
+        "id": "published",
+        "text": "Published"
+      }
+    ],
+    "correctOptionID": "state",
+    "explanation": "@State is exactly for a view's own private, mutable, value-type storage — no parent involved.",
+    "xp": 15
+  },
+  {
+    "id": "jr19",
+    "topic": "SwiftUI state",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why does SwiftUI recompute a view's `body` when its `@State` changes?",
+    "options": [
+      {
+        "id": "A",
+        "text": "SwiftUI diffs the new body's description against the old one and updates only what actually changed on screen"
+      },
+      {
+        "id": "B",
+        "text": "It redraws the entire screen from scratch every time, pixel by pixel"
+      },
+      {
+        "id": "C",
+        "text": "It only updates the exact property that changed, never re-running body"
+      },
+      {
+        "id": "D",
+        "text": "It waits for the next app launch to apply the change"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "body is a lightweight description of what the view should look like now. SwiftUI diffs it against the previous description and applies a minimal update — the view struct itself is cheap to recreate.",
+    "xp": 15
+  },
+  {
+    "id": "jr20",
+    "topic": "Concurrency",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What keyword do you use to call an `async` function and wait for its result?",
+    "options": [
+      {
+        "id": "A",
+        "text": "await"
+      },
+      {
+        "id": "B",
+        "text": "async"
+      },
+      {
+        "id": "C",
+        "text": "defer"
+      },
+      {
+        "id": "D",
+        "text": "yield"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "await suspends the current async context until the called function finishes, without blocking the underlying thread.",
+    "xp": 15
+  },
+  {
+    "id": "jr21",
+    "topic": "Concurrency",
+    "level": "Junior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "You can call an `async` function directly from a normal, non-async function without any wrapping.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "await can only appear inside an async context. From synchronous code you need to start a Task { } to bridge into the async world.",
+    "xp": 15
+  },
+  {
+    "id": "jr22",
+    "topic": "Concurrency",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does `Task { }` do when called from a SwiftUI button action?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Starts a new unstructured async context so you can call await inside a synchronous closure"
+      },
+      {
+        "id": "B",
+        "text": "Pauses the whole app until the task finishes"
+      },
+      {
+        "id": "C",
+        "text": "Runs the closure on a background thread with no main-thread access ever"
+      },
+      {
+        "id": "D",
+        "text": "Schedules the closure to run tomorrow"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Button actions are synchronous closures. Task { } opens an async context so you can await inside it, e.g. to call a network method.",
+    "xp": 15
+  },
+  {
+    "id": "jr23",
+    "topic": "Memory · ARC",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does ARC stand for and what does it manage?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Automatic Reference Counting — it tracks how many strong references point to a class instance and deallocates it at zero"
+      },
+      {
+        "id": "B",
+        "text": "Advanced Runtime Cache — it speeds up array operations"
+      },
+      {
+        "id": "C",
+        "text": "Async Retry Controller — it retries failed network calls"
+      },
+      {
+        "id": "D",
+        "text": "Automatic Recompilation Check — it re-checks types at runtime"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "ARC automatically inserts retain/release calls at compile time so a class instance is freed once nothing holds a strong reference to it anymore.",
+    "xp": 15
+  },
+  {
+    "id": "jr24",
+    "topic": "Memory · ARC",
+    "level": "Junior",
+    "format": "spotTheBug",
+    "codeSnippet": "final class Timer {\n    var onTick: (() -> Void)?\n    let inner = InnerTimer()\n\n    func start() {\n        inner.onFire = {\n            self.onTick?()\n        }\n    }\n}",
+    "prompt": "If `inner` also keeps a strong reference back to this Timer, which line causes a retain cycle?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Line 2 — declaring the onTick property"
+      },
+      {
+        "id": "B",
+        "text": "Line 6 — the closure capturing self strongly"
+      },
+      {
+        "id": "C",
+        "text": "Line 3 — creating the InnerTimer instance"
+      }
+    ],
+    "correctOptionID": "B",
+    "explanation": "The closure assigned to inner.onFire captures self strongly by default. If InnerTimer also retains Timer, neither can ever reach a zero reference count. [weak self] on line 6 breaks it.",
+    "xp": 15
+  },
+  {
+    "id": "jr25",
+    "topic": "Memory · ARC",
+    "level": "Junior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "A `weak` reference automatically becomes nil once the object it points to is deallocated.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "weak references must be Optional for exactly this reason — the runtime sets them to nil automatically when the referenced instance is deallocated, avoiding a dangling pointer.",
+    "xp": 15
+  },
+  {
+    "id": "jr26",
+    "topic": "Networking",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What is the modern, async/await way to fetch data with URLSession?",
+    "options": [
+      {
+        "id": "A",
+        "text": "try await URLSession.shared.data(from: url)"
+      },
+      {
+        "id": "B",
+        "text": "URLSession.shared.syncFetch(url)"
+      },
+      {
+        "id": "C",
+        "text": "URLSession.shared.dataTask(with: url).await()"
+      },
+      {
+        "id": "D",
+        "text": "Data(contentsOf: url) is always preferred for networking"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "URLSession's data(from:) async method returns the Data and URLResponse directly, replacing the older completion-handler-based dataTask API for straight-line async code.",
+    "xp": 15
+  },
+  {
+    "id": "jr27",
+    "topic": "Networking",
+    "level": "Junior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "An HTTP status code of 404 means the request succeeded and the server returned the data you asked for.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "404 means \"not found\" — the resource doesn't exist at that URL. A successful response is typically in the 200 range.",
+    "xp": 15
+  },
+  {
+    "id": "jr28",
+    "topic": "Testing",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What is the purpose of a unit test?",
+    "options": [
+      {
+        "id": "A",
+        "text": "To verify one small piece of logic behaves correctly, in isolation, so regressions are caught automatically"
+      },
+      {
+        "id": "B",
+        "text": "To manually click through the whole app before every release"
+      },
+      {
+        "id": "C",
+        "text": "To measure how fast the app compiles"
+      },
+      {
+        "id": "D",
+        "text": "To replace code review entirely"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Unit tests isolate a small unit of behavior (a function, a type) and assert its outputs for given inputs, so future changes that break it are caught without manual re-testing.",
+    "xp": 15
+  },
+  {
+    "id": "jr29",
+    "topic": "Testing",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "In Swift Testing (the `import Testing` framework), what attribute marks a function as a test?",
+    "options": [
+      {
+        "id": "A",
+        "text": "@Test"
+      },
+      {
+        "id": "B",
+        "text": "@TestCase"
+      },
+      {
+        "id": "C",
+        "text": "@XCTest"
+      },
+      {
+        "id": "D",
+        "text": "@Assert"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "@Test marks a function as a test case in Swift Testing; assertions inside it use #expect(...) rather than XCTAssert.",
+    "xp": 15
+  },
+  {
+    "id": "jr30",
+    "topic": "Core Data · SwiftData",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What is a `@Model` class in SwiftData used for?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Declaring a persisted entity whose properties SwiftData automatically stores and can query"
+      },
+      {
+        "id": "B",
+        "text": "Defining a SwiftUI view's layout"
+      },
+      {
+        "id": "C",
+        "text": "Marking a type as safe to send across threads"
+      },
+      {
+        "id": "D",
+        "text": "Declaring a network request's response shape"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "@Model turns a plain class into a persisted entity — SwiftData generates the storage and change-tracking for its stored properties automatically.",
+    "xp": 15
+  },
+  {
+    "id": "jr31",
+    "topic": "Core Data · SwiftData",
+    "level": "Junior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "A Core Data `NSFetchRequest` executes immediately when you create it, before you call any fetch method.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "Creating a fetch request just describes what you want. Nothing runs against the store until you actually execute it, e.g. via the managed object context's fetch(_:) method.",
+    "xp": 15
+  },
+  {
+    "id": "jr32",
+    "topic": "App lifecycle",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "In the SwiftUI App lifecycle, what does the `@main` attribute mark?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The type conforming to App that is the entry point of the application"
+      },
+      {
+        "id": "B",
+        "text": "The main screen the user sees first, regardless of navigation state"
+      },
+      {
+        "id": "C",
+        "text": "The primary thread the app must run all UI code on"
+      },
+      {
+        "id": "D",
+        "text": "The default font used across the app"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "@main marks the App-conforming struct whose body describes the app's scenes — it's the equivalent of the old AppDelegate/SceneDelegate entry point.",
+    "xp": 15
+  },
+  {
+    "id": "jr33",
+    "topic": "App lifecycle",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What SwiftUI environment value tells you whether the app is active, inactive, or in the background?",
+    "options": [
+      {
+        "id": "A",
+        "text": "\\.scenePhase"
+      },
+      {
+        "id": "B",
+        "text": "\\.appState"
+      },
+      {
+        "id": "C",
+        "text": "\\.lifecycle"
+      },
+      {
+        "id": "D",
+        "text": "\\.isActive"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "@Environment(\\.scenePhase) exposes .active, .inactive, and .background — the SwiftUI-native replacement for AppDelegate lifecycle callbacks.",
+    "xp": 15
+  },
+  {
+    "id": "jr34",
+    "topic": "Xcode · tooling",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does setting a conditional breakpoint let you do?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Pause execution only when a specified expression evaluates to true, instead of every time that line runs"
+      },
+      {
+        "id": "B",
+        "text": "Automatically fix the bug at that line"
+      },
+      {
+        "id": "C",
+        "text": "Skip that line entirely during every run"
+      },
+      {
+        "id": "D",
+        "text": "Run the app faster by disabling other breakpoints"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A conditional breakpoint only stops execution when its condition is true — useful when a line runs hundreds of times but you only care about one specific case.",
+    "xp": 15
+  },
+  {
+    "id": "jr35",
+    "topic": "Xcode · tooling",
+    "level": "Junior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "SwiftUI `#Preview` blocks are compiled into your shipping app binary.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "#Preview content is only used by Xcode's canvas at development time and is stripped from release builds — it isn't part of what ships.",
+    "xp": 15
+  },
+  {
+    "id": "jr36",
+    "topic": "Error handling",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What must a function declare if it can throw an error?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The `throws` keyword in its signature"
+      },
+      {
+        "id": "B",
+        "text": "An `@Error` attribute"
+      },
+      {
+        "id": "C",
+        "text": "A return type of `Result` specifically"
+      },
+      {
+        "id": "D",
+        "text": "Nothing — any function can throw silently"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Swift requires throws in the function signature, and callers must use try, try?, or try! to acknowledge the call might throw.",
+    "xp": 15
+  },
+  {
+    "id": "jr37",
+    "topic": "Error handling",
+    "level": "Junior",
+    "format": "fillInTheBlank",
+    "codeSnippet": "func loadFile() throws -> String {\n    ____ {\n        return try String(contentsOfFile: path)\n    } catch {\n        throw LoadError.missingFile\n    }\n}",
+    "prompt": "Complete the line. This block attempts the risky call and translates any error into a custom one.",
+    "options": [
+      {
+        "id": "do",
+        "text": "do"
+      },
+      {
+        "id": "try",
+        "text": "try"
+      },
+      {
+        "id": "guard",
+        "text": "guard"
+      },
+      {
+        "id": "defer",
+        "text": "defer"
+      }
+    ],
+    "correctOptionID": "do",
+    "explanation": "do/catch is the block that lets you attempt a throwing call and handle (or translate) whatever error comes out of it.",
+    "xp": 15
+  },
+  {
+    "id": "jr38",
+    "topic": "UIKit · SwiftUI interop",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What protocol do you conform to in order to host a UIKit view inside SwiftUI?",
+    "options": [
+      {
+        "id": "A",
+        "text": "UIViewRepresentable"
+      },
+      {
+        "id": "B",
+        "text": "UIViewController"
+      },
+      {
+        "id": "C",
+        "text": "ViewModifier"
+      },
+      {
+        "id": "D",
+        "text": "UIHostingController"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "UIViewRepresentable is the bridge: you implement makeUIView and updateUIView to wrap a UIKit view for use inside a SwiftUI view tree.",
+    "xp": 15
+  },
+  {
+    "id": "jr39",
+    "topic": "UIKit · SwiftUI interop",
+    "level": "Junior",
+    "format": "spotTheBug",
+    "codeSnippet": "struct LabelView: UIViewRepresentable {\n    let text: String\n    func makeUIView(context: Context) -> UILabel {\n        UILabel()\n    }\n    func updateUIView(_ uiView: UILabel, context: Context) {\n    }\n}",
+    "prompt": "This label never shows the right text after `text` changes. Which line is missing the fix?",
+    "options": [
+      {
+        "id": "A",
+        "text": "makeUIView should set uiView.text instead of updateUIView"
+      },
+      {
+        "id": "B",
+        "text": "updateUIView's body is empty — it should set uiView.text = text"
+      },
+      {
+        "id": "C",
+        "text": "The struct should not be a struct, it should be a class"
+      }
+    ],
+    "correctOptionID": "B",
+    "explanation": "makeUIView only runs once to create the view. Every subsequent update to text must be applied in updateUIView, which SwiftUI calls whenever the representable's inputs change.",
+    "xp": 15
+  },
+  {
+    "id": "jr40",
+    "topic": "Architecture",
+    "level": "Junior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What is a common problem with putting all logic directly inside a view controller (a \"Massive View Controller\")?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It mixes UI, networking, and business logic together, making the code hard to test and reuse"
+      },
+      {
+        "id": "B",
+        "text": "It compiles noticeably slower than any other pattern"
+      },
+      {
+        "id": "C",
+        "text": "Apple's App Store review rejects apps that use it"
+      },
+      {
+        "id": "D",
+        "text": "It only affects apps written in SwiftUI, not UIKit"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "When a view controller owns formatting, networking, and navigation all at once, none of that logic can be tested without spinning up a whole screen, and none of it can be reused elsewhere.",
+    "xp": 15
+  },
+  {
+    "id": "mid13",
+    "topic": "Concurrency",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the key difference between `Task {}` and `Task.detached {}`?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Task {} inherits the calling context's actor, priority and task-local values; Task.detached starts fresh with none of that"
+      },
+      {
+        "id": "B",
+        "text": "Task.detached runs synchronously, Task {} always runs asynchronously"
+      },
+      {
+        "id": "C",
+        "text": "They are exactly equivalent — detached is a deprecated alias"
+      },
+      {
+        "id": "D",
+        "text": "Task.detached cannot be cancelled"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Task {} is structured relative to its creator's context (actor isolation, priority, task-locals); Task.detached explicitly opts out of all of that inheritance.",
+    "xp": 20
+  },
+  {
+    "id": "mid14",
+    "topic": "Concurrency",
+    "level": "Mid",
+    "format": "spotTheBug",
+    "codeSnippet": "@MainActor\nfinal class ViewModel: ObservableObject {\n    @Published var items: [Item] = []\n\n    func load() {\n        Task.detached {\n            let items = try await self.api.fetch()\n            self.items = items\n        }\n    }\n}",
+    "prompt": "This throws a Swift concurrency warning/error about actor isolation. What's wrong?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Task.detached drops the @MainActor context, so mutating self.items from it isn't provably main-actor-isolated"
+      },
+      {
+        "id": "B",
+        "text": "@Published can never be mutated inside a Task"
+      },
+      {
+        "id": "C",
+        "text": "try await cannot be used inside a detached task"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Because Task.detached does not inherit the caller's actor, the compiler can't verify self.items = items runs on the main actor. Using Task {} instead (which inherits @MainActor here) fixes it.",
+    "xp": 20
+  },
+  {
+    "id": "mid15",
+    "topic": "Concurrency",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does `withTaskGroup` let you do that sequential `await` calls in a loop cannot?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Run multiple child tasks concurrently and collect their results as they complete"
+      },
+      {
+        "id": "B",
+        "text": "Guarantee a fixed execution order across all children"
+      },
+      {
+        "id": "C",
+        "text": "Avoid needing to mark the enclosing function async"
+      },
+      {
+        "id": "D",
+        "text": "Run child tasks on the main thread specifically"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A task group launches its children concurrently rather than one after another, and you iterate over results as each finishes — genuinely parallel work, not just async syntax.",
+    "xp": 20
+  },
+  {
+    "id": "mid16",
+    "topic": "SwiftUI state",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why might switching a large model from `ObservableObject`/`@Published` to `@Observable` reduce unnecessary view updates?",
+    "options": [
+      {
+        "id": "A",
+        "text": "@Observable tracks which specific properties a view actually reads and only invalidates that view when those change"
+      },
+      {
+        "id": "B",
+        "text": "@Observable disables SwiftUI's diffing entirely, so nothing ever updates"
+      },
+      {
+        "id": "C",
+        "text": "@Observable can only be used with a single property per class"
+      },
+      {
+        "id": "D",
+        "text": "@Observable moves all updates to a background thread automatically"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "ObservableObject re-renders every view observing the object on ANY @Published change. @Observable's access tracking means a view only re-renders when a property it specifically read changes.",
+    "xp": 20
+  },
+  {
+    "id": "mid17",
+    "topic": "SwiftUI state",
+    "level": "Mid",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "A SwiftUI `List` row's identity, determined by its `id`, affects whether SwiftUI treats an item as new (with insert animation) or the same item that changed.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "SwiftUI diffs collections by identity, not index. If an item's id changes (even if its content is similar), SwiftUI treats it as a different item — removed and inserted, not updated in place.",
+    "xp": 20
+  },
+  {
+    "id": "mid18",
+    "topic": "Memory · ARC",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "When should you use `unowned` instead of `weak`?",
+    "options": [
+      {
+        "id": "A",
+        "text": "When you're certain the referenced object will always outlive the reference, and you want to avoid Optional-unwrapping overhead"
+      },
+      {
+        "id": "B",
+        "text": "Whenever you want the reference to be able to become nil safely"
+      },
+      {
+        "id": "C",
+        "text": "unowned is just a faster synonym for weak with identical safety guarantees"
+      },
+      {
+        "id": "D",
+        "text": "Only inside SwiftUI views"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "unowned is non-optional and cheaper, but crashes if accessed after deallocation — appropriate only when the referenced object is guaranteed to outlive the reference (e.g. a child that can't outlive its parent).",
+    "xp": 20
+  },
+  {
+    "id": "mid19",
+    "topic": "Memory · ARC",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Two classes hold strong references to each other via delegate-style properties. What's the standard fix?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Make one side of the relationship weak, typically the delegate/callback direction"
+      },
+      {
+        "id": "B",
+        "text": "Make both sides unowned to be extra safe"
+      },
+      {
+        "id": "C",
+        "text": "Convert both classes to structs"
+      },
+      {
+        "id": "D",
+        "text": "Wrap both properties in Optional — that alone breaks the cycle"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Marking one direction (conventionally the delegate/parent-facing one) weak breaks the strong reference cycle without changing the object model's meaning.",
+    "xp": 20
+  },
+  {
+    "id": "mid20",
+    "topic": "Networking",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a solid strategy for retrying a failed network request without hammering the server?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Exponential backoff, with a capped max delay and a maximum retry count"
+      },
+      {
+        "id": "B",
+        "text": "Retry immediately in a tight loop until it succeeds"
+      },
+      {
+        "id": "C",
+        "text": "Never retry — a single failure should always be shown to the user immediately"
+      },
+      {
+        "id": "D",
+        "text": "Retry only on success, never on failure"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Exponential backoff increases the delay between attempts, avoiding a retry storm against a struggling or rate-limiting server, while a cap and max-retry count avoid retrying forever.",
+    "xp": 20
+  },
+  {
+    "id": "mid21",
+    "topic": "Networking",
+    "level": "Mid",
+    "format": "spotTheBug",
+    "codeSnippet": "struct APIClient {\n    func fetchUser(id: String) async throws -> User {\n        let (data, response) = try await URLSession.shared.data(from: url(for: id))\n        return try JSONDecoder().decode(User.self, from: data)\n    }\n}",
+    "prompt": "This silently returns garbage on a 404 or 500 response instead of throwing. What's missing?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Checking response's HTTP status code (via HTTPURLResponse) before attempting to decode"
+      },
+      {
+        "id": "B",
+        "text": "Using URLSession.shared.dataTask instead of the async data(from:) method"
+      },
+      {
+        "id": "C",
+        "text": "Decoding with JSONSerialization instead of JSONDecoder"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "data(from:) doesn't throw on a non-2xx status — it still gives you whatever body the server sent (often an error payload), which then fails to decode as User in a confusing way, or worse, decodes into garbage. Check response.statusCode first.",
+    "xp": 20
+  },
+  {
+    "id": "mid22",
+    "topic": "Core Data · SwiftData",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why is it generally unsafe to pass an `NSManagedObject` between threads/queues directly?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Managed objects are tied to the managed object context that created them, which is not thread-safe to access from elsewhere"
+      },
+      {
+        "id": "B",
+        "text": "NSManagedObject conforms to Sendable so it's always safe"
+      },
+      {
+        "id": "C",
+        "text": "Core Data objects are value types, so passing them is always safe"
+      },
+      {
+        "id": "D",
+        "text": "It's only unsafe on iOS, not macOS"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A managed object context confines its objects to the queue/thread it was created on. Pass the objectID across contexts instead, and re-fetch on the destination context.",
+    "xp": 20
+  },
+  {
+    "id": "mid23",
+    "topic": "Architecture",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What problem does a repository pattern solve in an app's data layer?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It abstracts the data source (network, cache, database) behind one interface so callers don't care where data actually comes from"
+      },
+      {
+        "id": "B",
+        "text": "It makes networking code run faster automatically"
+      },
+      {
+        "id": "C",
+        "text": "It replaces the need for any model types"
+      },
+      {
+        "id": "D",
+        "text": "It is only useful for apps with no persistence layer"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A repository presents one API (e.g. fetchUser(id:)) while internally deciding whether to hit cache, disk, or network — callers and tests don't need to know or care which.",
+    "xp": 20
+  },
+  {
+    "id": "mid24",
+    "topic": "Architecture",
+    "level": "Mid",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "In a coordinator-pattern architecture, view controllers/views typically ask the coordinator to navigate rather than pushing/presenting screens themselves.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "The coordinator owns navigation flow logic; screens report intents (e.g. \"user tapped item\") and let the coordinator decide what happens next, keeping navigation out of the view layer.",
+    "xp": 20
+  },
+  {
+    "id": "mid25",
+    "topic": "App architecture",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a good reason to introduce a dedicated use-case/interactor layer between a view model and a repository?",
+    "options": [
+      {
+        "id": "A",
+        "text": "When business logic (e.g. combining multiple data sources or applying business rules) doesn't belong in either the view model or the repository alone"
+      },
+      {
+        "id": "B",
+        "text": "It's required by SwiftUI for any app with more than one screen"
+      },
+      {
+        "id": "C",
+        "text": "It removes the need for any testing"
+      },
+      {
+        "id": "D",
+        "text": "It's only useful in apps without a network layer"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A use-case layer holds business rules that span or sit above raw data access, keeping the view model focused on presentation state and the repository focused on data access.",
+    "xp": 20
+  },
+  {
+    "id": "mid26",
+    "topic": "Error handling",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a good reason to define your own `Error`-conforming enum instead of surfacing raw `URLError`/`DecodingError` to the UI?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It lets you present a stable, user-meaningful set of cases regardless of which underlying system threw the error"
+      },
+      {
+        "id": "B",
+        "text": "Custom errors are always faster to throw than system ones"
+      },
+      {
+        "id": "C",
+        "text": "Swift requires all errors shown to users to be custom types"
+      },
+      {
+        "id": "D",
+        "text": "It removes the need for do/catch"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Mapping many possible underlying errors (network, decoding, validation) into a small, well-defined domain error type keeps your UI layer's error handling simple and stable as implementation details change.",
+    "xp": 20
+  },
+  {
+    "id": "mid27",
+    "topic": "UIKit · SwiftUI interop",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the purpose of the `Coordinator` object in a `UIViewRepresentable`?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It acts as the delegate/data source for the UIKit view, bridging UIKit callbacks back into SwiftUI bindings"
+      },
+      {
+        "id": "B",
+        "text": "It replaces makeUIView entirely"
+      },
+      {
+        "id": "C",
+        "text": "It is only used for animations"
+      },
+      {
+        "id": "D",
+        "text": "It stores the UIKit view's frame"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "UIKit delegate protocols expect a reference type conforming to NSObject-based protocols. The Coordinator holds that role and can call back into SwiftUI via bindings or closures.",
+    "xp": 20
+  },
+  {
+    "id": "mid28",
+    "topic": "Xcode · tooling",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does the Memory Graph Debugger in Xcode help you find?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Retain cycles and objects that should have been deallocated but weren't"
+      },
+      {
+        "id": "B",
+        "text": "Compile-time type errors"
+      },
+      {
+        "id": "C",
+        "text": "Network request latency"
+      },
+      {
+        "id": "D",
+        "text": "App Store review guideline violations"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "The Memory Graph Debugger visualizes live object references, making it possible to spot a purple exclamation mark flagging a probable leak and trace the retain cycle causing it.",
+    "xp": 20
+  },
+  {
+    "id": "mid29",
+    "topic": "Performance",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why can computing an expensive value directly inside a SwiftUI view's `body` hurt performance?",
+    "options": [
+      {
+        "id": "A",
+        "text": "body can be called many times (e.g. every state change anywhere in the hierarchy), recomputing the expensive value each time"
+      },
+      {
+        "id": "B",
+        "text": "SwiftUI caches body automatically, so it never matters"
+      },
+      {
+        "id": "C",
+        "text": "body only runs once per app launch, so it's always safe"
+      },
+      {
+        "id": "D",
+        "text": "It only affects UIKit apps, not SwiftUI"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "body is a computed property SwiftUI calls whenever it needs to know what to render — expensive work belongs in a cached property, a view model, or behind memoization, not recomputed on every call.",
+    "xp": 20
+  },
+  {
+    "id": "mid30",
+    "topic": "SwiftUI performance",
+    "level": "Mid",
+    "format": "spotTheBug",
+    "codeSnippet": "struct ContentView: View {\n    @State private var searchText = \"\"\n    let allItems: [Item]\n\n    var body: some View {\n        List(allItems.filter { $0.name.contains(searchText) }) { item in\n            Text(item.name)\n        }\n    }\n}",
+    "prompt": "This re-filters the full list on every keystroke and every unrelated state change in this view. What's the underlying issue?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The filter runs inside body itself, so it's recomputed on every body evaluation instead of only when searchText or allItems actually change"
+      },
+      {
+        "id": "B",
+        "text": "List cannot accept a filtered array as input"
+      },
+      {
+        "id": "C",
+        "text": "@State cannot be used for search text"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Moving the filter into a computed property or the view model, ideally recomputed only when its inputs change, avoids redoing the filter work on every body call unrelated to the search.",
+    "xp": 20
+  },
+  {
+    "id": "mid31",
+    "topic": "API design",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why prefer a protocol-based API over a concrete class when designing a networking layer other code will depend on?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Callers can substitute a fake/mock conforming to the protocol in tests, without touching real networking"
+      },
+      {
+        "id": "B",
+        "text": "Protocols always run faster than concrete classes"
+      },
+      {
+        "id": "C",
+        "text": "It's required by Swift for any type used more than once"
+      },
+      {
+        "id": "D",
+        "text": "Concrete classes cannot be used in SwiftUI"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Depending on a protocol (an abstraction) rather than a concrete networking class lets tests inject a mock implementation, avoiding real network calls in unit tests.",
+    "xp": 20
+  },
+  {
+    "id": "mid32",
+    "topic": "Testing",
+    "level": "Mid",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "A good unit test for a view model should generally avoid depending on real network or database calls.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Unit tests should be fast and deterministic. Injecting a fake data source (via a protocol) lets you test the view model's logic without flaky, slow real I/O.",
+    "xp": 20
+  },
+  {
+    "id": "mid33",
+    "topic": "Concurrency",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What happens if you call an `@MainActor`-isolated method from a background actor without `await`?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It's a compile error — crossing actor isolation requires await"
+      },
+      {
+        "id": "B",
+        "text": "It silently runs on the background thread instead"
+      },
+      {
+        "id": "C",
+        "text": "It crashes at runtime with no compile-time warning"
+      },
+      {
+        "id": "D",
+        "text": "It's allowed, but only in debug builds"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "The compiler enforces actor isolation statically: any cross-actor call must be awaited, because it may need to hop to the target actor's executor.",
+    "xp": 20
+  },
+  {
+    "id": "mid34",
+    "topic": "SwiftUI state",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the risk of storing a large, frequently-changing array directly as `@State` in a top-level view that has many child views?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Every child that reads any part of that state may re-render on any change, unless the state is scoped or observation is more granular"
+      },
+      {
+        "id": "B",
+        "text": "There is no risk — @State never causes extra work"
+      },
+      {
+        "id": "C",
+        "text": "@State arrays are limited to 100 elements"
+      },
+      {
+        "id": "D",
+        "text": "It causes a compile error above a certain size"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Broad, coarse-grained state at a high level in the view tree can cause wider invalidation than necessary — scoping state closer to where it's used, or using @Observable's per-property tracking, limits the blast radius.",
+    "xp": 20
+  },
+  {
+    "id": "mid35",
+    "topic": "Xcode · tooling",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What is `os_signpost` (or the Logger-based signpost API) typically used for?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Marking custom intervals/events in your code so they show up in Instruments for performance investigation"
+      },
+      {
+        "id": "B",
+        "text": "Sending analytics events to a third-party server"
+      },
+      {
+        "id": "C",
+        "text": "Printing debug output to the Xcode console only"
+      },
+      {
+        "id": "D",
+        "text": "Declaring App Store metadata"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Signposts let you mark the start/end of an operation you care about, so Instruments can show exactly how long it took and correlate it with CPU/memory activity — far more precise than print debugging.",
+    "xp": 20
+  },
+  {
+    "id": "mid36",
+    "topic": "Networking",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why might you want to cancel an in-flight network request when a SwiftUI view disappears?",
+    "options": [
+      {
+        "id": "A",
+        "text": "To avoid wasting bandwidth/battery on a result nobody will use, and to avoid updating state for a view that's no longer relevant"
+      },
+      {
+        "id": "B",
+        "text": "Cancelling is required by URLSession or the app crashes"
+      },
+      {
+        "id": "C",
+        "text": "It's only necessary for POST requests, never GET"
+      },
+      {
+        "id": "D",
+        "text": "SwiftUI cancels all requests automatically, so this never needs manual handling"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "An abandoned request that completes later can still try to update view model state, which is wasted work at best and a subtle bug at worst. .task automatically cancels its work when the view disappears, but a manually-started Task does not.",
+    "xp": 20
+  },
+  {
+    "id": "mid37",
+    "topic": "Architecture",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a downside worth naming honestly when proposing VIPER for a small feature team?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The strict separation into many small types (View, Interactor, Presenter, Entity, Router) adds real boilerplate that may not pay off on a small screen"
+      },
+      {
+        "id": "B",
+        "text": "VIPER cannot be used with UIKit"
+      },
+      {
+        "id": "C",
+        "text": "VIPER makes unit testing impossible"
+      },
+      {
+        "id": "D",
+        "text": "VIPER requires a specific third-party framework to work at all"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Naming the real cost — more files and indirection for a simple screen — is what a senior-leaning answer does; VIPER's testability benefits are real but come with genuine overhead.",
+    "xp": 20
+  },
+  {
+    "id": "mid38",
+    "topic": "Core Data · SwiftData",
+    "level": "Mid",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "SwiftData's `@Query` property wrapper automatically keeps a SwiftUI view's list up to date as the underlying data changes.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "@Query is a live, observed fetch — the view automatically re-renders when matching data is inserted, updated, or deleted, without manual refresh logic.",
+    "xp": 20
+  },
+  {
+    "id": "mid39",
+    "topic": "Error handling",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the tradeoff of using `try?` instead of a full `do`/`catch` block?",
+    "options": [
+      {
+        "id": "A",
+        "text": "try? converts a thrown error into nil, discarding information about what actually went wrong"
+      },
+      {
+        "id": "B",
+        "text": "try? is identical to try, just shorter to type"
+      },
+      {
+        "id": "C",
+        "text": "try? can only be used with functions returning Void"
+      },
+      {
+        "id": "D",
+        "text": "try? always crashes if an error is thrown"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "try? is convenient when you only care whether something succeeded, but you lose the specific error — appropriate for some cases, wrong when the user or logs need to know why something failed.",
+    "xp": 20
+  },
+  {
+    "id": "mid40",
+    "topic": "Memory · ARC",
+    "level": "Mid",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why does capturing `[weak self]` in a closure require unwrapping `self` before use inside the closure body?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A weak reference is always Optional, since the referenced object could have been deallocated by the time the closure runs"
+      },
+      {
+        "id": "B",
+        "text": "Swift requires all closures to unwrap something, regardless of capture list"
+      },
+      {
+        "id": "C",
+        "text": "weak self is only Optional in debug builds"
+      },
+      {
+        "id": "D",
+        "text": "It's a stylistic convention with no functional reason"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Since weak doesn't keep the object alive, self may already be nil by the time the closure executes — hence guard let self else { return } or optional chaining is needed.",
+    "xp": 20
+  },
+  {
+    "id": "sr13",
+    "topic": "Concurrency",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What is actor reentrancy, and why does it matter?",
+    "options": [
+      {
+        "id": "A",
+        "text": "While an actor method is suspended at an await, another call to the same actor can interleave and observe state mid-update"
+      },
+      {
+        "id": "B",
+        "text": "It means two actors can run the exact same method simultaneously on separate threads"
+      },
+      {
+        "id": "C",
+        "text": "It's a compiler optimization with no runtime behavior implication"
+      },
+      {
+        "id": "D",
+        "text": "It only applies to global actors, never custom ones"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "An actor only serializes access at await boundaries — during a suspension, other work can run and mutate the actor's state, so invariants that hold before an await aren't guaranteed to hold after it.",
+    "xp": 25
+  },
+  {
+    "id": "sr14",
+    "topic": "Concurrency",
+    "level": "Senior",
+    "format": "spotTheBug",
+    "codeSnippet": "actor Cache {\n    private var storage: [String: Data] = [:]\n\n    func value(for key: String) async -> Data {\n        if let cached = storage[key] { return cached }\n        let fresh = await fetch(key)\n        storage[key] = fresh\n        return fresh\n    }\n}",
+    "prompt": "Two callers request the same missing key at nearly the same time. What's the bug?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Both calls can pass the cache-miss check before either finishes fetching, causing a redundant duplicate fetch"
+      },
+      {
+        "id": "B",
+        "text": "actor types cannot have Dictionary properties"
+      },
+      {
+        "id": "C",
+        "text": "storage[key] = fresh is a data race even inside the actor"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Because fetch suspends, a second caller can reach the miss-check before the first caller has stored its result — reentrancy allows the interleaving even though storage itself is safely isolated. Fixing it needs an in-flight-request cache keyed by key.",
+    "xp": 25
+  },
+  {
+    "id": "sr15",
+    "topic": "Concurrency",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why can a non-Sendable class stored in a Sendable struct still be unsafe to send across concurrency domains?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The compiler cannot verify the class's internal mutable state won't be mutated from two places at once, even if the struct wrapping it looks safe"
+      },
+      {
+        "id": "B",
+        "text": "It can't — the compiler always rejects this at compile time with no way around it"
+      },
+      {
+        "id": "C",
+        "text": "Sendable only applies to value types, so this scenario cannot exist"
+      },
+      {
+        "id": "D",
+        "text": "It's always safe as long as the class has no stored properties"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A struct holding a reference to a mutable class doesn't make that class's state immutable — @unchecked Sendable is sometimes used here, but it's a manual promise the compiler can't verify, and it's on you to actually guarantee safety.",
+    "xp": 25
+  },
+  {
+    "id": "sr16",
+    "topic": "Memory · ARC",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why can excessive use of `autoreleasepool` matter in a tight loop processing many temporary Objective-C-bridged objects?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Without draining, autoreleased objects accumulate until the outer pool drains, causing a temporary memory spike during the loop"
+      },
+      {
+        "id": "B",
+        "text": "autoreleasepool is required for every Swift class regardless of bridging"
+      },
+      {
+        "id": "C",
+        "text": "It has no effect in Swift at all, only Objective-C"
+      },
+      {
+        "id": "D",
+        "text": "It permanently leaks memory if omitted"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Autoreleased objects (common from some Foundation/Cocoa APIs) aren't freed until their pool drains. Wrapping a large loop's iteration in its own autoreleasepool drains more frequently, capping peak memory.",
+    "xp": 25
+  },
+  {
+    "id": "sr17",
+    "topic": "Memory · ARC",
+    "level": "Senior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "A strong reference cycle between two objects will eventually be cleaned up by ARC once the app is under memory pressure.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "ARC has no cycle-detecting garbage collector — a true reference cycle leaks for the lifetime of the process, regardless of memory pressure, unless a weak/unowned reference breaks it.",
+    "xp": 25
+  },
+  {
+    "id": "sr18",
+    "topic": "Architecture",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "When migrating a large UIKit app to SwiftUI incrementally, what's a common, low-risk starting strategy?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Wrap new SwiftUI screens in UIHostingController and introduce them at leaf navigation points first, rather than rewriting the app shell"
+      },
+      {
+        "id": "B",
+        "text": "Rewrite the entire app in SwiftUI in one release to avoid interop complexity"
+      },
+      {
+        "id": "C",
+        "text": "Only use SwiftUI for unit tests, never for shipped screens"
+      },
+      {
+        "id": "D",
+        "text": "Avoid UIHostingController entirely since it cannot coexist with UIKit navigation"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Introducing SwiftUI at leaf screens (via UIHostingController) lets teams gain experience and de-risk the migration without touching the app's UIKit navigation shell all at once.",
+    "xp": 25
+  },
+  {
+    "id": "sr19",
+    "topic": "App architecture",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a key architectural concern when 50+ engineers across many feature teams contribute to one app?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Clear module boundaries with explicit public APIs, so teams can work independently without constantly breaking each other"
+      },
+      {
+        "id": "B",
+        "text": "Ensuring every team uses the exact same design pattern for every screen"
+      },
+      {
+        "id": "C",
+        "text": "Disabling code review to move faster"
+      },
+      {
+        "id": "D",
+        "text": "Keeping the entire app in one file for simplicity"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "At scale, the architectural problem shifts from \"which pattern\" to \"how do teams avoid stepping on each other\" — well-defined module boundaries and APIs let teams iterate independently.",
+    "xp": 25
+  },
+  {
+    "id": "sr20",
+    "topic": "Performance",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "You're diagnosing a slow app launch. What's the right first instrument/technique?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Time Profiler on a cold launch, looking at what runs before the first frame is drawn"
+      },
+      {
+        "id": "B",
+        "text": "Allocations, since launch time is always a memory problem"
+      },
+      {
+        "id": "C",
+        "text": "Network Link Conditioner, since launch is always network-bound"
+      },
+      {
+        "id": "D",
+        "text": "Just add print statements with timestamps around main()"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Time Profiler on a cold launch shows exactly what's consuming CPU before first frame — often dylib loading, static initializers, or eager work that could be deferred — rather than guessing at a cause.",
+    "xp": 25
+  },
+  {
+    "id": "sr21",
+    "topic": "Performance",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a real cost of adding many small dynamic frameworks to an app, versus static linking or fewer, larger modules?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Each dynamic framework adds dyld loading overhead at launch, which can add up to measurable startup latency"
+      },
+      {
+        "id": "B",
+        "text": "Dynamic frameworks always make the binary smaller with no downside"
+      },
+      {
+        "id": "C",
+        "text": "There is no meaningful launch-time cost either way"
+      },
+      {
+        "id": "D",
+        "text": "Dynamic frameworks are required for SwiftUI to work at all"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Every dynamic framework the OS has to locate, load, and link at launch adds real, measurable overhead — a reason large apps often consolidate into fewer frameworks or use static linking for internal modules.",
+    "xp": 25
+  },
+  {
+    "id": "sr22",
+    "topic": "SwiftUI performance",
+    "level": "Senior",
+    "format": "spotTheBug",
+    "codeSnippet": "struct RootView: View {\n    @StateObject private var store = AppStore()\n\n    var body: some View {\n        TabView {\n            HomeView().environmentObject(store)\n            SettingsView().environmentObject(store)\n        }\n    }\n}\n\nclass AppStore: ObservableObject {\n    @Published var everything: AppState = .init()\n}",
+    "prompt": "Every tab re-renders whenever ANY part of AppState changes, even unrelated fields. What's the design flaw?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A single @Published property holding the entire app's state means any mutation invalidates every observer of the store"
+      },
+      {
+        "id": "B",
+        "text": "TabView cannot host more than one environmentObject"
+      },
+      {
+        "id": "C",
+        "text": "@StateObject should have been @ObservedObject instead"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Coarse-grained @Published state fans out invalidation to every view observing the object. Splitting state into focused, independently-observed pieces (or migrating to @Observable's per-property tracking) narrows the blast radius.",
+    "xp": 25
+  },
+  {
+    "id": "sr23",
+    "topic": "Networking",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does certificate pinning protect against that standard TLS validation does not?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A man-in-the-middle attack using a certificate issued by a compromised or coerced certificate authority that the OS otherwise trusts"
+      },
+      {
+        "id": "B",
+        "text": "Slow network connections"
+      },
+      {
+        "id": "C",
+        "text": "DNS resolution failures"
+      },
+      {
+        "id": "D",
+        "text": "It has no additional protection over standard TLS"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Standard TLS trusts any certificate signed by a CA in the OS trust store. Pinning additionally requires the certificate (or its public key) to match a specific expected value, defeating a rogue-but-trusted CA.",
+    "xp": 25
+  },
+  {
+    "id": "sr24",
+    "topic": "Security",
+    "level": "Senior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Storing a user's auth token in UserDefaults instead of the Keychain is generally considered a security weakness.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "UserDefaults is not encrypted at rest to the same standard the Keychain is, and is more easily extracted from a backup or a jailbroken device. Sensitive credentials belong in the Keychain.",
+    "xp": 25
+  },
+  {
+    "id": "sr25",
+    "topic": "Security",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a reason to use the Keychain's `kSecAttrAccessibleWhenUnlockedThisDeviceOnly` accessibility class for a sensitive token?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It prevents the item from being included in encrypted backups/restored onto a different device, and only allows access when the device is unlocked"
+      },
+      {
+        "id": "B",
+        "text": "It makes reads faster than any other accessibility class"
+      },
+      {
+        "id": "C",
+        "text": "It's required for all Keychain items regardless of sensitivity"
+      },
+      {
+        "id": "D",
+        "text": "It automatically rotates the token every 24 hours"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "ThisDeviceOnly accessibility options exclude the item from backup/restore migration to another device, appropriate for credentials that should never leave the originating device.",
+    "xp": 25
+  },
+  {
+    "id": "sr26",
+    "topic": "Core Data · SwiftData",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the risk of a \"lightweight\" Core Data migration when your model change involves more than simple additions/renames?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Lightweight migration can't infer complex transformations (e.g. splitting one attribute into two), silently producing incorrect or lost data if forced"
+      },
+      {
+        "id": "B",
+        "text": "Lightweight migrations always fail loudly, so there's no real risk"
+      },
+      {
+        "id": "C",
+        "text": "There's no such thing as a non-lightweight migration in Core Data"
+      },
+      {
+        "id": "D",
+        "text": "Lightweight migration only works for read-only stores"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Lightweight (automatic) migration handles simple structural changes. Anything requiring custom data transformation logic needs a mapping model and custom migration policy, or you risk silent data corruption.",
+    "xp": 25
+  },
+  {
+    "id": "sr27",
+    "topic": "Modularization",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a real benefit of splitting a large app into Swift Package Manager feature modules, beyond \"organization\"?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Xcode can build and cache modules independently, so unrelated changes don't force a full app rebuild"
+      },
+      {
+        "id": "B",
+        "text": "SPM modules run in separate processes for extra security"
+      },
+      {
+        "id": "C",
+        "text": "It eliminates the need for any access control (public/internal)"
+      },
+      {
+        "id": "D",
+        "text": "It's required before you can write any unit tests"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Modular builds let the toolchain skip recompiling packages whose source hasn't changed, which is a meaningful, measurable win on incremental build times in a large codebase.",
+    "xp": 25
+  },
+  {
+    "id": "sr28",
+    "topic": "Modularization",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a real cost of over-modularizing an app into too many tiny packages?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Cross-module boundaries force more public API surface and can add friction/indirection without a corresponding build-time or ownership benefit"
+      },
+      {
+        "id": "B",
+        "text": "There's no such thing as too many modules — more is always strictly better"
+      },
+      {
+        "id": "C",
+        "text": "Swift caps the number of packages an app can depend on"
+      },
+      {
+        "id": "D",
+        "text": "It makes the app impossible to submit to the App Store"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Every module boundary has a real cost — more public API to maintain, more indirection to navigate — so the right granularity balances team/ownership boundaries and build parallelism against that overhead.",
+    "xp": 25
+  },
+  {
+    "id": "sr29",
+    "topic": "Build system",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a common cause of unexpectedly slow incremental builds even after modularizing?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A shared, frequently-changing module sitting at the base of the dependency graph, forcing everything above it to rebuild"
+      },
+      {
+        "id": "B",
+        "text": "Xcode always rebuilds the whole app regardless of dependency structure"
+      },
+      {
+        "id": "C",
+        "text": "Incremental builds are impossible in Swift"
+      },
+      {
+        "id": "D",
+        "text": "Adding more CPU cores always makes builds slower"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "If a low-level, widely-depended-upon module changes often, every module downstream of it must rebuild — a dependency-graph shape problem, not just a \"how many modules\" problem.",
+    "xp": 25
+  },
+  {
+    "id": "sr30",
+    "topic": "Concurrency",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does Swift's exclusivity enforcement (exclusive access to memory) protect against?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Two overlapping accesses to the same mutable variable, one of which writes, happening at the same time — a source of undefined behavior"
+      },
+      {
+        "id": "B",
+        "text": "Force-unwrapping a nil Optional"
+      },
+      {
+        "id": "C",
+        "text": "Array index out-of-bounds access"
+      },
+      {
+        "id": "D",
+        "text": "It's purely a compiler diagnostic with no runtime component"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Exclusivity rules (enforced statically where possible, dynamically otherwise) prevent, e.g., passing a variable inout to a function that also reads/writes it via a captured reference, which produced undefined behavior in earlier Swift versions.",
+    "xp": 25
+  },
+  {
+    "id": "sr31",
+    "topic": "Testing",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a strong argument for adding a performance-regression gate to CI, beyond ordinary unit tests?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Correctness tests won't catch a change that still returns the right answer but takes 5x longer or allocates far more memory"
+      },
+      {
+        "id": "B",
+        "text": "Performance tests are a full substitute for unit tests"
+      },
+      {
+        "id": "C",
+        "text": "CI cannot measure performance at all, only correctness"
+      },
+      {
+        "id": "D",
+        "text": "Performance regressions are always caught by App Store review"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A performance regression can slip through a green test suite entirely, since \"still correct\" and \"still fast\" are different properties — a dedicated gate (e.g. tracking key metrics per build) catches the latter.",
+    "xp": 25
+  },
+  {
+    "id": "sr32",
+    "topic": "Architecture",
+    "level": "Senior",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Introducing a new architecture pattern org-wide is primarily a technical decision, with adoption/migration cost being a secondary concern.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "At an org level, migration cost, team buy-in, incremental adoptability, and training are often the deciding factors — a technically superior pattern that nobody can migrate to safely isn't a win.",
+    "xp": 25
+  },
+  {
+    "id": "sr33",
+    "topic": "API design",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a key design consideration for rate-limiting/backpressure when your app talks to a backend used by many clients?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The client should respect and react to server-provided signals (e.g. 429 responses, Retry-After headers) rather than assuming it can always send as fast as it wants"
+      },
+      {
+        "id": "B",
+        "text": "The client should always retry immediately regardless of server response"
+      },
+      {
+        "id": "C",
+        "text": "Rate limiting is purely a server concern the client never needs to handle"
+      },
+      {
+        "id": "D",
+        "text": "Backpressure only matters for GET requests"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A well-behaved client backs off when told to, using the server's own signals, rather than contributing to the overload it's being asked to ease.",
+    "xp": 25
+  },
+  {
+    "id": "sr34",
+    "topic": "Memory · ARC",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why does an enum with many cases and large associated values sometimes have a surprisingly large memory footprint?",
+    "options": [
+      {
+        "id": "A",
+        "text": "An enum's size is at least the size of its largest case's payload, even for instances currently holding a smaller case"
+      },
+      {
+        "id": "B",
+        "text": "Enums always allocate on the heap regardless of size"
+      },
+      {
+        "id": "C",
+        "text": "Enum size is always exactly one byte, regardless of payload"
+      },
+      {
+        "id": "D",
+        "text": "Associated values are always boxed automatically, so size is irrelevant"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "The compiler must reserve enough inline storage for the largest possible case, so one oversized case can bloat every instance of the enum, even ones holding a tiny case — worth knowing when memory layout matters.",
+    "xp": 25
+  },
+  {
+    "id": "sr35",
+    "topic": "App architecture",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "When designing an app's analytics pipeline, what's a key tension to balance beyond \"collect everything\"?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Data richness/timeliness versus user privacy, battery/network cost of frequent event batching, and regulatory constraints"
+      },
+      {
+        "id": "B",
+        "text": "There is no tension — collecting maximal data has no downside"
+      },
+      {
+        "id": "C",
+        "text": "Analytics should always be sent synchronously and immediately for accuracy"
+      },
+      {
+        "id": "D",
+        "text": "Battery cost of analytics is never measurable in practice"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A senior-level answer names the real constraints: batching to save battery/network trades off against timeliness, and privacy/regulatory limits constrain what can be collected and how it's stored.",
+    "xp": 25
+  },
+  {
+    "id": "sr36",
+    "topic": "Networking",
+    "level": "Senior",
+    "format": "spotTheBug",
+    "codeSnippet": "final class TokenRefresher {\n    func authorizedRequest(_ request: URLRequest) async throws -> Data {\n        var req = request\n        req.setValue(\"Bearer \\(currentToken)\", forHTTPHeaderField: \"Authorization\")\n        let (data, response) = try await URLSession.shared.data(for: req)\n        if (response as? HTTPURLResponse)?.statusCode == 401 {\n            currentToken = try await refreshToken()\n            return try await authorizedRequest(request)\n        }\n        return data\n    }\n}",
+    "prompt": "Under concurrent requests, this can trigger many redundant token refreshes at once. What's missing?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A single in-flight refresh should be shared/awaited by all concurrent 401s, instead of each caller independently calling refreshToken()"
+      },
+      {
+        "id": "B",
+        "text": "The recursive call to authorizedRequest is not allowed in Swift"
+      },
+      {
+        "id": "C",
+        "text": "HTTPURLResponse cannot be cast from URLResponse"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "If 5 requests all 401 around the same time, each independently starts its own refresh. Coalescing concurrent refresh attempts into one shared in-flight Task avoids hammering the auth endpoint and potentially invalidating tokens mid-flight.",
+    "xp": 25
+  },
+  {
+    "id": "sr37",
+    "topic": "Testing",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What makes a concurrency bug (a data race, say) especially hard to root-cause from a single crash report in production?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It's often timing-dependent, so it may not reproduce locally, and the crash location can be far from the actual root cause of the race"
+      },
+      {
+        "id": "B",
+        "text": "Concurrency bugs always produce identical, reproducible crash logs"
+      },
+      {
+        "id": "C",
+        "text": "Data races are always caught at compile time in Swift, so this scenario can't happen"
+      },
+      {
+        "id": "D",
+        "text": "Production crash reports never contain enough information to investigate any bug"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A heisenbug's symptom (the crash) often occurs downstream of the actual race, and its timing-dependence makes it resistant to straightforward local reproduction — you often need to reason from invariants rather than a debugger session.",
+    "xp": 25
+  },
+  {
+    "id": "sr38",
+    "topic": "Performance",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a legitimate reason memory usage might grow steadily over a long-running session even without a classic reference-cycle leak?",
+    "options": [
+      {
+        "id": "A",
+        "text": "An unbounded cache or history list that keeps appending without ever evicting old entries"
+      },
+      {
+        "id": "B",
+        "text": "Memory can only grow due to reference cycles — no other cause exists"
+      },
+      {
+        "id": "C",
+        "text": "Long sessions always leak regardless of code quality"
+      },
+      {
+        "id": "D",
+        "text": "Growth like this is always a false positive in Instruments"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Not every growth pattern is a leak in the ARC sense — an ever-growing cache, log buffer, or undo history that's technically still reachable (so not \"leaked\") can still be the real cause of memory growth over time.",
+    "xp": 25
+  },
+  {
+    "id": "sr39",
+    "topic": "Core Data · SwiftData",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why might you deliberately batch Core Data saves instead of saving after every single change?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Frequent small saves add overhead (I/O, notification fan-out) that batching amortizes across many changes"
+      },
+      {
+        "id": "B",
+        "text": "Core Data only allows one save per app session"
+      },
+      {
+        "id": "C",
+        "text": "Batching is required for the store to even open"
+      },
+      {
+        "id": "D",
+        "text": "It has no measurable effect either way"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Each save triggers persistence I/O and context-changed notifications; batching related changes into fewer saves reduces that overhead for high-frequency mutation scenarios like a bulk import.",
+    "xp": 25
+  },
+  {
+    "id": "sr40",
+    "topic": "Architecture",
+    "level": "Senior",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's a reasonable approach to safely sharing code between a main app and an app extension (e.g. a widget) with a strict memory limit?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Extract shared logic into a lightweight framework/module with no heavy dependencies, keeping the extension's own footprint minimal"
+      },
+      {
+        "id": "B",
+        "text": "Link the entire main app target into the extension for simplicity"
+      },
+      {
+        "id": "C",
+        "text": "Extensions cannot share any code with the main app, by design"
+      },
+      {
+        "id": "D",
+        "text": "Memory limits only apply to the main app, never extensions"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Extensions run under tight, type-specific memory limits — pulling in the whole app's dependency graph risks getting killed. Shared code should be deliberately lean and only include what the extension truly needs.",
+    "xp": 25
+  }
 ]

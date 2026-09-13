@@ -13,7 +13,9 @@
           "Classes support inheritance; structs support protocol conformance and composition instead.",
           "SwiftUI views are structs on purpose — cheap to recreate, no shared state to corrupt."
         ],
-        "followUps": ["When would you reach for a class anyway?"]
+        "followUps": [
+          "When would you reach for a class anyway?"
+        ]
       },
       {
         "id": "sf-j2",
@@ -26,15 +28,590 @@
           "Access tracking is per-view, not per-object, so unrelated property changes don't trigger a redraw.",
           "Requires iOS 17+; ObservableObject is still the right call for earlier deployment targets."
         ],
-        "followUps": ["How does SwiftUI know which properties a view actually read?"]
+        "followUps": [
+          "How does SwiftUI know which properties a view actually read?"
+        ]
+      },
+      {
+        "id": "sf-j3",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What's the difference between `if let` and `guard let`?",
+        "modelAnswer": "Both unwrap an Optional, but guard let requires the else branch to exit the current scope, so the unwrapped value stays available for the rest of the function. if let only scopes the unwrapped value inside its own braces.",
+        "talkingPoints": [
+          "guard let flattens code that would otherwise nest deeply with repeated if lets.",
+          "The else branch of guard must return, throw, break, or continue — it cannot just fall through.",
+          "Reach for guard when a missing value means there's nothing left to do in this function."
+        ],
+        "followUps": [
+          "When would you still prefer if let over guard let?"
+        ]
+      },
+      {
+        "id": "sf-j4",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What does it mean for an enum to have an associated value?",
+        "modelAnswer": "Each case can carry its own extra data alongside the case itself, so the type models exactly the data that's relevant to that state — a loading case needs no payload, a loaded case carries the result, an error case carries the error.",
+        "talkingPoints": [
+          "This makes invalid states unrepresentable — you can't have 'loaded' without its data.",
+          "Pattern matching with switch lets you extract the associated value directly in the case label.",
+          "It's a common way to model network/UI state cleanly instead of several optional properties."
+        ],
+        "followUps": [
+          "How would you model a screen's loading/loaded/error state as an enum?"
+        ]
+      },
+      {
+        "id": "sf-j5",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "Why would you extend a protocol instead of just writing a free function?",
+        "modelAnswer": "A protocol extension adds a default implementation every conforming type gets for free, callable with normal dot syntax, and it can be overridden by a specific conformer if needed. A free function has neither of those — every caller has to know to call it explicitly.",
+        "talkingPoints": [
+          "Default implementations reduce boilerplate across many conforming types.",
+          "Conforming types can still provide their own implementation to override the default.",
+          "It reads more naturally at the call site: value.doThing() instead of doThing(value)."
+        ],
+        "followUps": [
+          "What happens if a conforming type implements a method the protocol extension also provides a default for?"
+        ]
+      },
+      {
+        "id": "sf-j6",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What's the difference between a computed property and a stored property?",
+        "modelAnswer": "A stored property actually holds a value in memory. A computed property has no storage of its own — it runs a getter (and optionally a setter) every time it's accessed, deriving its value from other state.",
+        "talkingPoints": [
+          "Computed properties are useful when a value can always be derived, so there's nothing to keep in sync.",
+          "A computed property with only a getter reads like a read-only value from the outside.",
+          "Overusing expensive computed properties can hurt performance if they're accessed often."
+        ],
+        "followUps": [
+          "When would a computed property be a performance concern?"
+        ]
+      },
+      {
+        "id": "sf-j7",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What does Swift's `Result` type represent, and why use it over throwing?",
+        "modelAnswer": "Result<Success, Failure> is an enum with two cases, success and failure, each carrying a value. It's useful when you want to store or pass around an outcome as a value — for example in a completion handler — rather than only being able to express it in the moment via throw.",
+        "talkingPoints": [
+          "throws only works synchronously in the call itself; Result can be stored, passed around, or delayed.",
+          "Result forces the caller to switch/handle both cases explicitly.",
+          "async/await has reduced how often Result shows up in completion-handler-style code."
+        ],
+        "followUps": [
+          "How do you convert a Result into a thrown error, or vice versa?"
+        ]
+      },
+      {
+        "id": "sf-j8",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What's the difference between `Array` and `Set` in Swift, and when would you choose one over the other?",
+        "modelAnswer": "Array preserves insertion order and allows duplicates; Set has no defined order and only holds unique, Hashable elements. Reach for Set when you need fast membership checks or want to guarantee no duplicates, and Array when order matters or you need to keep duplicates.",
+        "talkingPoints": [
+          "Set's contains(_:) is roughly O(1) versus Array's O(n) linear scan.",
+          "Elements in a Set must conform to Hashable.",
+          "Converting between them is common: Array(mySet) or Set(myArray)."
+        ],
+        "followUps": [
+          "What would go wrong if you put a class without proper Hashable/Equatable into a Set?"
+        ]
+      },
+      {
+        "id": "sf-j9",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What is a closure, and what does it mean for a closure to \"capture\" a value?",
+        "modelAnswer": "A closure is a self-contained block of code you can pass around like a value. Capturing means the closure holds on to variables from the surrounding scope it was created in, so it can still use them later even after that scope has technically finished executing.",
+        "talkingPoints": [
+          "Captured reference types are retained by default, which is the root of many retain-cycle bugs.",
+          "A capture list, e.g. [weak self], changes how a specific captured value is held.",
+          "Closures are a normal Swift value — they can be stored in properties, passed as arguments, and returned from functions."
+        ],
+        "followUps": [
+          "What's the difference between capturing a variable by value versus by reference?"
+        ]
+      },
+      {
+        "id": "sf-j10",
+        "category": "Swift fundamentals",
+        "difficulty": "Junior",
+        "prompt": "What's the difference between `==` and `===` in Swift?",
+        "modelAnswer": "== checks value equality — whether two values are considered equal, defined by an Equatable conformance. === checks reference identity — whether two variables point to the exact same instance of a class. Only class instances (or other reference types) support ===.",
+        "talkingPoints": [
+          "Two different struct instances can be == equal even though structs have no identity to compare with ===.",
+          "=== is only meaningful for reference types (classes), never for structs.",
+          "Confusing the two is a common source of bugs when checking whether a cached object 'is the same one'."
+        ],
+        "followUps": [
+          "Can two different class instances be == equal but not === identical?"
+        ]
       }
     ],
-    "mid": [],
-    "senior": []
+    "mid": [
+      {
+        "id": "sf-m1",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "What problem does `@Observable` solve compared to `ObservableObject`?",
+        "modelAnswer": "ObservableObject requires every property you want observed to be marked @Published, and it re-renders any view observing the object on ANY @Published change, even if that view only reads one property. @Observable tracks access per-property at read time, so a view only re-renders when a property it actually read changes.",
+        "talkingPoints": [
+          "No @Published needed — every stored property on an @Observable class is tracked automatically.",
+          "Access tracking is granular per-view, not per-object.",
+          "@Observable requires a newer OS target than ObservableObject, which matters for apps with older minimum deployment."
+        ],
+        "followUps": [
+          "What has to change at the call site when migrating a class from ObservableObject to @Observable?"
+        ]
+      },
+      {
+        "id": "sf-m2",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "What's the tradeoff between protocol-oriented programming with associated types versus using `any` existentials?",
+        "modelAnswer": "A protocol with an associated type gives the compiler full static type information, enabling generic specialization and avoiding indirection — but it means the protocol can only be used as a generic constraint, not as a plain variable type. any erases the concrete type, letting you store heterogeneous conformers in one collection, at the cost of dynamic dispatch and losing some type safety.",
+        "talkingPoints": [
+          "Associated-type protocols can't be used as a standalone type without `some` or `any` (and any support depends on the protocol's requirements).",
+          "Generics resolved at compile time avoid the overhead any incurs at runtime.",
+          "Reach for any when you genuinely need a heterogeneous collection of different conforming types."
+        ],
+        "followUps": [
+          "What is a protocol 'self-requirement' and why does it block using any directly?"
+        ]
+      },
+      {
+        "id": "sf-m3",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "How would you write a custom property wrapper, and when would you reach for one?",
+        "modelAnswer": "A property wrapper is a struct or class annotated @propertyWrapper with a wrappedValue property holding the actual storage logic. You'd write one when the same storage/access pattern — validation, clamping, persistence — repeats across many properties, so you factor that behavior out once instead of duplicating it.",
+        "talkingPoints": [
+          "wrappedValue is required; projectedValue (accessed via $name) is optional and often exposes extra API like a Binding.",
+          "SwiftUI's own @State, @Binding, @Environment are all property wrappers built the same way.",
+          "Overusing custom wrappers for one-off logic can make code harder to follow than a plain computed property."
+        ],
+        "followUps": [
+          "What is projectedValue used for, and how do you access it?"
+        ]
+      },
+      {
+        "id": "sf-m4",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "What is copy-on-write, and why does it matter for Swift's value types?",
+        "modelAnswer": "Array, Dictionary, and String share their underlying storage across copies until one copy is mutated — only then does Swift actually duplicate the buffer. This gives value types the cheap-to-copy feel of references most of the time, while still preserving value semantics the moment a mutation happens.",
+        "talkingPoints": [
+          "Copying a large array is O(1) until a write triggers the actual duplication.",
+          "isKnownUniquelyReferenced is the primitive you'd use to implement copy-on-write yourself for a custom type.",
+          "This is why passing large collections around by value in Swift isn't the performance concern it would be in a language without COW."
+        ],
+        "followUps": [
+          "How would you implement copy-on-write for your own custom value type wrapping a class?"
+        ]
+      },
+      {
+        "id": "sf-m5",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "How does Swift's automatic `Equatable`/`Hashable` synthesis work, and when does it break down?",
+        "modelAnswer": "If every stored property of a struct or enum already conforms to Equatable (or Hashable), the compiler can synthesize the conformance for you automatically — comparing all properties in order. It breaks down once a property is a type that doesn't conform, or when equality should mean something other than 'all properties match' (e.g. comparing only an id).",
+        "talkingPoints": [
+          "Synthesis only fires for structs/enums, not classes, and only for stored properties, not computed ones.",
+          "You can always override with a manual == implementation if identity-based or partial equality is what you actually want.",
+          "Hashable synthesis follows the same rule and must stay consistent with your Equatable definition."
+        ],
+        "followUps": [
+          "Why must == consistency be maintained with hash(into:) if you write both manually?"
+        ]
+      },
+      {
+        "id": "sf-m6",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "What's the difference between `some View` and `any View` as a return type?",
+        "modelAnswer": "some View is an opaque type — the function returns one specific, concrete type the compiler knows at compile time, just hidden from the caller, which preserves performance and allows further generic use. any View is an existential — it can hold any conforming type, decided at runtime, at the cost of extra indirection and losing some compile-time guarantees.",
+        "talkingPoints": [
+          "some is what SwiftUI's body property uses almost everywhere — one concrete view type per call site.",
+          "any View lets you return genuinely different view types from different branches of a function.",
+          "Mixing many any View boxes in a hot path (e.g. a long list) can be measurably slower than a fully concrete view tree."
+        ],
+        "followUps": [
+          "Why can't a function returning `some View` return different concrete types from different branches?"
+        ]
+      },
+      {
+        "id": "sf-m7",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "How would you customize `Codable` encoding/decoding for a type whose JSON shape doesn't match its Swift property names?",
+        "modelAnswer": "Define a nested CodingKeys enum conforming to CodingKey, mapping each case to the actual JSON key. For anything more custom — nested/flattened structures, computed fields — implement init(from:) and encode(to:) manually using a container.",
+        "talkingPoints": [
+          "CodingKeys alone handles simple renames; anything structural needs manual container code.",
+          "You can mix synthesized and manual decoding by decoding some keys automatically and post-processing others.",
+          "Getting this wrong silently drops or mis-maps data rather than always crashing loudly."
+        ],
+        "followUps": [
+          "How would you decode a JSON field that's sometimes a String and sometimes a number?"
+        ]
+      },
+      {
+        "id": "sf-m8",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "What's the difference between `weak` and `unowned`, and what determines which one you should use?",
+        "modelAnswer": "Both avoid a strong reference cycle, but weak is Optional and becomes nil automatically when the referenced object deallocates, while unowned is non-optional and traps if accessed after the object is gone. Use unowned only when you can guarantee the reference's lifetime is fully covered by what it points to.",
+        "talkingPoints": [
+          "unowned avoids the small overhead of an Optional and the need to unwrap, but is less forgiving if the lifetime assumption is wrong.",
+          "A common pattern: a child unowned back to a parent that's guaranteed to outlive it.",
+          "Getting the lifetime assumption wrong with unowned crashes rather than silently returning nil."
+        ],
+        "followUps": [
+          "Give an example where unowned is clearly the right choice over weak."
+        ]
+      },
+      {
+        "id": "sf-m9",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "What are generic constraints (`where` clauses) for, and why not just make everything take `Any`?",
+        "modelAnswer": "A where clause tells the compiler what a generic type must be able to do — conform to a protocol, be equal to another type parameter, etc — so you can call those specific operations on it while still writing one implementation for every type that satisfies the constraint. Any gives up all of that: you'd lose type safety and have to force-cast to do anything useful.",
+        "talkingPoints": [
+          "Constraints let the compiler catch a misuse at the call site instead of at runtime.",
+          "Multiple constraints can be combined, e.g. where T: Equatable, T: Hashable.",
+          "Generics with constraints are resolved and specialized at compile time — no runtime type-checking overhead like Any would need."
+        ],
+        "followUps": [
+          "What's the difference between a generic function and one that takes a protocol existential parameter?"
+        ]
+      },
+      {
+        "id": "sf-m10",
+        "category": "Swift fundamentals",
+        "difficulty": "Mid",
+        "prompt": "Why might a large struct with many stored properties actually be a performance concern, contrary to the usual 'structs are cheap' assumption?",
+        "modelAnswer": "A struct's size is the sum of its stored properties, and copying it copies all of that memory unless copy-on-write for an internal reference kicks in. A struct with many large value-type fields (not indirected through a class or COW container) can make copies genuinely expensive, especially if it's passed around frequently.",
+        "talkingPoints": [
+          "Structs are 'cheap' mainly because typical structs are small and/or wrap COW containers like Array/String internally.",
+          "Boxing a large struct's payload inside a class (indirect enum case or a reference-typed wrapper) can reduce copy cost.",
+          "Measuring with Instruments before assuming this is actually your bottleneck is the right first step."
+        ],
+        "followUps": [
+          "How would you use `indirect` with an enum to avoid this kind of size blow-up?"
+        ]
+      }
+    ],
+    "senior": [
+      {
+        "id": "sf-s1",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "What does variance mean for generics, and where does Swift's generic system fall short compared to a fully variant type system?",
+        "modelAnswer": "Variance is about whether a generic type built from a subtype can be substituted where the same generic built from its supertype is expected. Swift's generics are largely invariant — an Array<Dog> is not usable where Array<Animal> is expected, unlike arrays in some other languages — which trades flexibility for the stronger safety and performance guarantees Swift's generic specialization relies on.",
+        "talkingPoints": [
+          "Function parameter/return types do have some variance (covariant returns, contravariant parameters) but generic type parameters generally don't.",
+          "Workarounds usually involve mapping the collection to the supertype explicitly rather than relying on implicit variance.",
+          "This is a deliberate design tradeoff, not an oversight — full variance complicates specialization and can hide real type errors."
+        ],
+        "followUps": [
+          "Why is Swift generally comfortable with covariant function return types but not covariant generic containers?"
+        ]
+      },
+      {
+        "id": "sf-s2",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "At a high level, how do Swift macros work, and what's a real risk of adopting them heavily?",
+        "modelAnswer": "A macro is compiled code that runs during compilation, inspecting the syntax tree of the code it's attached to and generating additional Swift source, which the compiler then merges in. The risk is that generated code is invisible in the source you read day-to-day, which can make debugging and onboarding harder if macros hide too much non-obvious behavior.",
+        "talkingPoints": [
+          "Macros operate on syntax (via SwiftSyntax), not on already-typechecked semantics — they can't do arbitrary reflection.",
+          "Xcode can expand a macro's generated code for inspection, which mitigates but doesn't eliminate the opacity concern.",
+          "A macro used for pure boilerplate reduction (like @Observable) is a very different risk profile than one changing control flow."
+        ],
+        "followUps": [
+          "How would you decide whether a piece of repeated boilerplate is a good candidate for a macro versus a protocol extension?"
+        ]
+      },
+      {
+        "id": "sf-s3",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "What does `~Copyable` let you express that wasn't possible before, and what's a real use case?",
+        "modelAnswer": "~Copyable lets you define a type that cannot be implicitly copied at all — the compiler enforces that a value is moved (ownership transferred) rather than duplicated. It's useful for modeling a resource with a single owner, like a file handle or a hardware lock, where an accidental copy would represent two owners of one physical resource.",
+        "talkingPoints": [
+          "This is closer to how Rust's ownership model or a C++ unique_ptr works, newly expressible in Swift.",
+          "It shifts a class of 'accidental double-use' bugs from runtime to compile time.",
+          "Most everyday app code doesn't need this — it matters most for low-level resource-owning types."
+        ],
+        "followUps": [
+          "Why would you choose ~Copyable over just making the type a class with no copy method?"
+        ]
+      },
+      {
+        "id": "sf-s4",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "What is `@frozen` and library evolution mode, and why does it matter for a binary framework?",
+        "modelAnswer": "Without library evolution, Swift can freely change a public type's memory layout between versions, which is fine when source and consumer are compiled together. A binary framework built for ABI stability needs @frozen (and library evolution mode) on performance-critical public types to lock their layout, letting the compiler generate more direct, non-resilient access instead of always going through slower resilient accessors.",
+        "talkingPoints": [
+          "Marking something @frozen is a promise you won't add stored properties/cases later without breaking ABI compatibility.",
+          "This mostly matters for system frameworks and widely-distributed binary SDKs, not typical app code.",
+          "The tradeoff is compile-time flexibility for later versions versus runtime performance today."
+        ],
+        "followUps": [
+          "What's the practical difference in generated code between a resilient and a frozen struct?"
+        ]
+      },
+      {
+        "id": "sf-s5",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "What's the overhead of an existential container (`any SomeProtocol`), and when does it actually matter?",
+        "modelAnswer": "An existential value is stored in a fixed-size inline buffer plus a witness table for dispatch; if the concrete type is larger than that inline buffer, the value is boxed on the heap, adding an allocation and indirection. It matters in hot paths — tight loops or frequently-called code — where per-call boxing/dispatch overhead accumulates; it rarely matters for a handful of calls in ordinary app logic.",
+        "talkingPoints": [
+          "Generics avoid this entirely via specialization, at the cost of code size (one specialized copy per concrete type used).",
+          "Profiling before optimizing away existentials is important — this is a real but often-overstated cost.",
+          "any and generics aren't mutually exclusive in a codebase; use each where its tradeoff fits."
+        ],
+        "followUps": [
+          "How would you measure whether existential overhead is actually affecting your app's performance?"
+        ]
+      },
+      {
+        "id": "sf-s6",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "How does Swift bridge to C, and what's a real danger of using `UnsafePointer` APIs?",
+        "modelAnswer": "Swift can call C functions directly and represent raw memory via UnsafePointer/UnsafeMutablePointer types, bypassing ARC and bounds checking entirely. The danger is that these types give you all the sharp edges of C — dangling pointers, buffer overruns, use-after-free — with none of Swift's usual safety net, so a mistake here can corrupt memory silently instead of trapping cleanly.",
+        "talkingPoints": [
+          "withUnsafeBytes/withUnsafeMutableBytes scope the pointer's validity to a closure, which is much safer than holding a raw pointer indefinitely.",
+          "Unsafe APIs exist for real interop and performance needs, but should be a small, carefully-reviewed surface of the codebase.",
+          "A bug here often manifests far from its cause — classic memory-corruption debugging."
+        ],
+        "followUps": [
+          "Why is it dangerous to escape an UnsafePointer outside the closure that provided it?"
+        ]
+      },
+      {
+        "id": "sf-s7",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "What's the tradeoff of adopting Swift's stricter concurrency checking (strict Sendable checking) in a large, pre-existing codebase?",
+        "modelAnswer": "Turning on strict concurrency checking surfaces every place where data crosses actor/task boundaries unsafely, which is valuable — but in a large legacy codebase it can produce a very large number of warnings/errors at once, many of which require real architectural changes (not just annotations) to fix properly. Rolling it out incrementally, module by module, is usually more realistic than flipping it on everywhere at once.",
+        "talkingPoints": [
+          "Some warnings are quick annotation fixes (marking a type Sendable); others reveal genuine, pre-existing races.",
+          "@preconcurrency can suppress checking at a boundary temporarily while you migrate incrementally.",
+          "The value is proportional to how much concurrent code the module actually has — a purely synchronous module gets little benefit for the migration cost."
+        ],
+        "followUps": [
+          "How would you prioritize which modules to migrate to strict concurrency checking first?"
+        ]
+      },
+      {
+        "id": "sf-s8",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "What is a phantom type, and what's a practical use for one?",
+        "modelAnswer": "A phantom type is a generic parameter that appears in a type's declaration but never actually appears in any stored property — its only purpose is to let the compiler distinguish otherwise-identical types at compile time, e.g. Distance<Meters> versus Distance<Feet> both just wrapping a Double. It's a way to get compile-time safety for a distinction the runtime representation doesn't actually need to know about.",
+        "talkingPoints": [
+          "It costs nothing at runtime — the phantom parameter only exists for the type checker.",
+          "A common use is tagging IDs by the entity they belong to, e.g. ID<User> vs ID<Order>, so they can't be mixed up even though both just wrap a String.",
+          "It trades a bit of API verbosity for catching a class of mix-up bugs at compile time instead of runtime."
+        ],
+        "followUps": [
+          "How would you construct a value of a phantom-typed generic without ever storing the phantom parameter?"
+        ]
+      },
+      {
+        "id": "sf-s9",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "What does 'protocol witness table' dispatch mean, and how does it differ from vtable dispatch for classes?",
+        "modelAnswer": "A protocol witness table is a per-conformance table of function pointers the compiler generates, mapping each protocol requirement to that specific type's implementation — dispatch through it happens whenever you call a protocol requirement on a generic or existential value. It's conceptually similar to a class's vtable for dynamic dispatch, but scoped per-conformance rather than per-class-hierarchy, and it's what lets an existential or generic-constrained call reach the right concrete implementation without knowing the type at compile time.",
+        "talkingPoints": [
+          "Generic functions specialized at compile time can often bypass the witness table entirely via static dispatch.",
+          "This is one reason final methods/classes can be faster — the compiler can skip dynamic dispatch when it statically knows there's only one possible implementation.",
+          "Understanding this helps explain why protocol-heavy code sometimes profiles differently than expected."
+        ],
+        "followUps": [
+          "Why can marking a class or method `final` sometimes measurably improve performance?"
+        ]
+      },
+      {
+        "id": "sf-s10",
+        "category": "Swift fundamentals",
+        "difficulty": "Senior",
+        "prompt": "When would you reach for `indirect` on an enum case, and what's actually happening under the hood?",
+        "modelAnswer": "indirect tells the compiler to box a case's associated value on the heap instead of storing it inline, which is required for a recursive enum (a case that contains another instance of the same enum) since an inline, unboxed recursive type would have infinite size. The cost is an extra heap allocation and indirection for that case, traded for making an otherwise-impossible recursive definition compile.",
+        "talkingPoints": [
+          "You can mark just one recursive case indirect, or the whole enum, depending on how much boxing you actually need.",
+          "A classic example is an expression tree: case add(Expr, Expr) needs indirect since Expr contains itself.",
+          "This is conceptually the same tradeoff as boxing a large associated value to shrink an enum's overall size."
+        ],
+        "followUps": [
+          "What would happen if you tried to define a recursive enum case without indirect?"
+        ]
+      }
+    ]
   },
   {
     "name": "Architecture patterns",
-    "junior": [],
+    "junior": [
+      {
+        "id": "ap-j1",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "What is a 'Massive View Controller', and why is it a problem?",
+        "modelAnswer": "It's when a single view controller owns UI layout, networking, business logic, and navigation all at once. The problem isn't length for its own sake — it's that none of that logic can be tested or reused without spinning up the whole screen, and every change risks breaking something unrelated in the same giant file.",
+        "talkingPoints": [
+          "Splitting responsibilities (a view model for state, a service for networking) makes each piece independently testable.",
+          "It's an architecture symptom, not just a style complaint about file length.",
+          "Fixing it incrementally, one responsibility at a time, is usually more realistic than a full rewrite."
+        ],
+        "followUps": [
+          "What's the very first responsibility you'd extract out of a massive view controller?"
+        ]
+      },
+      {
+        "id": "ap-j2",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "What is a view model, in plain terms?",
+        "modelAnswer": "A view model holds the state and logic a screen needs, described in a UI-framework-independent way, so the view's only job is to display that state and forward user actions back to it. It doesn't import UIKit or SwiftUI types itself, which is exactly what makes it testable without rendering anything.",
+        "talkingPoints": [
+          "The view observes the view model; the view model doesn't know or care how it's displayed.",
+          "This separation is what lets you write a unit test that never touches a screen.",
+          "It's a role, not necessarily a specific framework or class — Swift lets you implement it many ways."
+        ],
+        "followUps": [
+          "What kind of code should NOT live in a view model?"
+        ]
+      },
+      {
+        "id": "ap-j3",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "What's the downside of a singleton like `Service.shared` used everywhere in an app?",
+        "modelAnswer": "It creates a hidden global dependency — any code can reach out and use it directly, which makes it hard to substitute a fake version in tests and hard to see, just from reading a type's initializer, what it actually depends on.",
+        "talkingPoints": [
+          "Passing dependencies in explicitly (dependency injection) makes what a type needs visible and swappable.",
+          "Singletons aren't always wrong — some genuinely global, stateless services are fine — but overuse hides coupling.",
+          "Testing a type that reaches into a singleton often means the test can't isolate that type's behavior alone."
+        ],
+        "followUps": [
+          "How would you refactor code depending on Service.shared to use dependency injection instead?"
+        ]
+      },
+      {
+        "id": "ap-j4",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "What does 'separation of concerns' mean, using a login screen as an example?",
+        "modelAnswer": "It means each part of the code has one job: the view renders the text fields and button, the view model validates input and calls the auth service, and the auth service knows how to actually talk to the network. No single piece has to know how to do all three.",
+        "talkingPoints": [
+          "Each piece can change independently — swapping the network layer doesn't touch the view.",
+          "It also makes each piece individually testable and reusable elsewhere.",
+          "Over-separating a truly trivial screen can add needless indirection — this is a judgment call, not a rule to apply everywhere uniformly."
+        ],
+        "followUps": [
+          "Where would you draw the line for a screen simple enough not to need this separation?"
+        ]
+      },
+      {
+        "id": "ap-j5",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "What is unidirectional data flow, at a basic level?",
+        "modelAnswer": "State flows one way, down from a single source of truth to the views that display it; user actions flow back up as events, which update that source of truth, which then flows back down again. Nothing mutates the UI directly out-of-band — it's always state changes, then a re-render.",
+        "talkingPoints": [
+          "This makes it easier to reason about where a bug came from — there's one place state actually changes.",
+          "SwiftUI's own model (state changes trigger body re-evaluation) is a form of this.",
+          "The alternative — mutating views directly from many places — gets hard to trace as an app grows."
+        ],
+        "followUps": [
+          "How does SwiftUI's @State/@Binding pairing embody unidirectional flow between a parent and child view?"
+        ]
+      },
+      {
+        "id": "ap-j6",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "Why would you define a protocol for a networking service instead of using the concrete class directly everywhere?",
+        "modelAnswer": "Code that depends on the protocol, not the concrete type, can be given a fake implementation in tests — one that returns canned data instantly instead of making a real network call. The concrete type is still used at the app's actual entry point; only the dependency is abstracted.",
+        "talkingPoints": [
+          "This is the core idea behind 'dependency inversion' — depend on an abstraction, not a concrete implementation.",
+          "It doesn't require any third-party framework — plain Swift protocols are enough.",
+          "The tradeoff is one extra layer of indirection for every dependency you do this for."
+        ],
+        "followUps": [
+          "What would a fake/mock conforming to that protocol look like in a unit test?"
+        ]
+      },
+      {
+        "id": "ap-j7",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "What's the basic idea behind MVVM, in one sentence you could give a beginner?",
+        "modelAnswer": "The view describes what's on screen, the view model owns the state and decisions behind it, and the two stay in sync through observation rather than the view directly manipulating that state.",
+        "talkingPoints": [
+          "Model, View, ViewModel — each has one job, and the view model is the only one directly aware of the model's shape.",
+          "It's popular with SwiftUI/Combine/@Observable because those give a natural observation mechanism.",
+          "It's one pattern among several — not the only correct way to structure an app."
+        ],
+        "followUps": [
+          "What's the difference between MVVM and plain MV (no separate view model type)?"
+        ]
+      },
+      {
+        "id": "ap-j8",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "Why is testing a view model usually easier than testing a view directly?",
+        "modelAnswer": "A view model is plain Swift — you can create one, call a method, and assert on its resulting state without ever rendering anything to a screen. Testing a view usually means UI testing, which is slower, more brittle, and harder to set up for every edge case.",
+        "talkingPoints": [
+          "Fast, deterministic unit tests are only possible when the logic under test doesn't depend on rendering.",
+          "This is one of the strongest practical arguments for pulling logic out of the view layer.",
+          "UI tests still matter — they just answer a different question (does it actually render/behave right) than a unit test does."
+        ],
+        "followUps": [
+          "What would you still want a UI test to cover that a view model unit test cannot?"
+        ]
+      },
+      {
+        "id": "ap-j9",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "What's a simple way to pass data from a parent view to a child view in SwiftUI without a full architecture pattern?",
+        "modelAnswer": "Pass the value directly as an initializer parameter, and if the child needs to write back, pass a Binding so both share the same underlying source of truth. For small, local screen state, this alone is often architecture enough — no view model required.",
+        "talkingPoints": [
+          "Not every screen needs MVVM — a small view with local @State can be simpler and just as correct.",
+          "Reach for a dedicated view model once a screen's logic grows past what's comfortable to read inline.",
+          "Overengineering a trivial screen has a real cost too: more files, more indirection, for no real benefit."
+        ],
+        "followUps": [
+          "What's a concrete signal that a simple view should graduate to having its own view model?"
+        ]
+      },
+      {
+        "id": "ap-j10",
+        "category": "Architecture patterns",
+        "difficulty": "Junior",
+        "prompt": "What is the 'single responsibility principle' and how does it apply to iOS app structure?",
+        "modelAnswer": "It says a type should have one reason to change — one job. Applied to an app, it's the reasoning behind splitting a screen into a view (rendering), a view model (state/logic), and a service (data access), so a change to how you fetch data doesn't require touching the view at all.",
+        "talkingPoints": [
+          "It's a guideline, not a hard rule — taken to an extreme it produces too many tiny types.",
+          "The test is: if I need to change X, how many unrelated things also need edits?",
+          "It pairs naturally with dependency injection and protocol-based abstraction."
+        ],
+        "followUps": [
+          "Can you give an example of a type in a typical app that violates this principle?"
+        ]
+      }
+    ],
     "mid": [
       {
         "id": "ap-m1",
@@ -47,15 +624,606 @@
           "Bindings are the contract; in SwiftUI that is @Observable, not a framework.",
           "Name the cost honestly: more files, and indirection a small screen may not need."
         ],
-        "followUps": ["Where does navigation live?", "How do you test a view model that calls the network?"]
+        "followUps": [
+          "Where does navigation live?",
+          "How do you test a view model that calls the network?"
+        ]
+      },
+      {
+        "id": "ap-m2",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "What does the coordinator pattern solve, and what's its real cost?",
+        "modelAnswer": "It pulls navigation decisions out of view controllers/views entirely, into a dedicated object that knows the flow between screens — so a screen just reports 'user tapped this' and the coordinator decides what happens next. The cost is real: an extra layer of indirection and a set of coordinator types to maintain, which can feel heavy for a simple, mostly-linear app.",
+        "talkingPoints": [
+          "It shines when navigation logic is complex or needs to be reused/tested independently of any one screen.",
+          "SwiftUI's built-in NavigationStack with a path binding covers a lot of what coordinators solved in UIKit.",
+          "Introducing it for a simple three-screen app is usually overkill."
+        ],
+        "followUps": [
+          "How would you implement deep linking with a coordinator versus with SwiftUI's own navigation path?"
+        ]
+      },
+      {
+        "id": "ap-m3",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "How would you decide between MVVM and a plain MV (view + model, no separate view model type) for a given screen?",
+        "modelAnswer": "If the screen's logic is simple enough that @Observable model state can be read directly by the view with little transformation, a dedicated view model adds a layer that earns nothing. Once real presentation logic — formatting, validation, combining multiple sources — accumulates, a view model gives that logic somewhere to live and be tested apart from the view.",
+        "talkingPoints": [
+          "MV works well when the model IS effectively the view's state already.",
+          "The decision is per-screen, not an app-wide mandate — different screens can reasonably use different levels of structure.",
+          "Watch for a 'plain model' quietly growing view-specific logic — that's the signal to introduce a view model."
+        ],
+        "followUps": [
+          "What's a concrete sign a screen using plain MV should graduate to MVVM?"
+        ]
+      },
+      {
+        "id": "ap-m4",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "What is a dependency injection container, and when is manual injection preferable?",
+        "modelAnswer": "A DI container is a central registry that knows how to construct and hand out a type's dependencies, resolving a whole dependency graph automatically. Manual injection — just passing dependencies through initializers — is preferable in most app-scale codebases because it's explicit, requires no extra framework, and the compiler catches a missing dependency at compile time instead of at runtime resolution.",
+        "talkingPoints": [
+          "Containers earn their complexity mainly in very large codebases with deep, shared dependency graphs.",
+          "Manual injection makes a type's dependencies visible right in its initializer signature — good for readability.",
+          "A container without discipline can hide dependencies just as effectively as a singleton did."
+        ],
+        "followUps": [
+          "What's a concrete downside of a DI container you'd want a team to be aware of before adopting one?"
+        ]
+      },
+      {
+        "id": "ap-m5",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "How do you decide what belongs in a repository versus what belongs in a use-case/interactor layer?",
+        "modelAnswer": "A repository's job is purely data access — deciding between cache, disk, and network for one entity, with no business rules. A use case sits above it, coordinating one or more repositories and applying actual business logic — like 'refresh the feed only if it's been more than 5 minutes, and log an analytics event either way.'",
+        "talkingPoints": [
+          "If a repository starts making decisions based on business rules, that logic is probably in the wrong layer.",
+          "Not every app needs a use-case layer — it earns its keep when business logic spans multiple data sources or repositories.",
+          "The view model then depends on use cases (or directly on repositories, for a simple screen) rather than reaching past them."
+        ],
+        "followUps": [
+          "Give an example of logic that clearly belongs in a use case rather than a repository."
+        ]
+      },
+      {
+        "id": "ap-m6",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "What's a practical way to introduce testable architecture into an existing, poorly-structured screen without a full rewrite?",
+        "modelAnswer": "Extract one responsibility at a time — start with the networking/data logic into a protocol-backed service, write tests against that in isolation, then move UI-adjacent state into a view model next. Each extraction is small, reviewable, and immediately testable, rather than one risky rewrite touching everything at once.",
+        "talkingPoints": [
+          "Incremental extraction lets you ship value (tests, safer refactors) continuously instead of a long-lived branch.",
+          "Picking the highest-risk or highest-churn logic to extract first gives the best return on effort.",
+          "A full rewrite risks reintroducing the exact bugs the untested old code had already worked around."
+        ],
+        "followUps": [
+          "How would you convince a team to invest time in this incremental extraction rather than 'just shipping features'?"
+        ]
+      },
+      {
+        "id": "ap-m7",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "What does 'unidirectional data flow' buy you in a Redux/TCA-style architecture, and what's the cost?",
+        "modelAnswer": "Every state change goes through one place — a reducer function taking the current state and an action, returning new state — which makes the entire history of how state changed traceable and testable as pure functions. The cost is real ceremony: actions, reducers, and effects for even simple interactions, which can feel heavy for a small app or team unfamiliar with the pattern.",
+        "talkingPoints": [
+          "Pure reducer functions are trivially unit-testable — no mocking needed, just input/output assertions.",
+          "Debugging is aided by being able to log/replay the exact sequence of actions that led to a bug.",
+          "This is a deliberate tradeoff of more boilerplate for more predictability — not universally the right choice."
+        ],
+        "followUps": [
+          "How would you test a reducer function in isolation from the rest of the architecture?"
+        ]
+      },
+      {
+        "id": "ap-m8",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "How would you structure shared business logic that both your main app and a widget/app extension need?",
+        "modelAnswer": "Extract that logic into a separate module/framework with no UI dependencies, that both the main app target and the extension target link against. The extension's own target should stay a thin adapter, not duplicate the logic — but the shared module needs to be genuinely lightweight, since extensions run under strict memory limits.",
+        "talkingPoints": [
+          "Duplicating logic across targets instead of sharing it is a common, avoidable source of the two drifting out of sync.",
+          "A shared module pulling in heavy dependencies can push a memory-constrained extension over its limit.",
+          "This is also a good forcing function for keeping that logic UI-independent in the first place."
+        ],
+        "followUps": [
+          "What would you do if the shared module's dependencies were too heavy for the extension's memory budget?"
+        ]
+      },
+      {
+        "id": "ap-m9",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "What's the tradeoff of protocol-oriented architecture (heavy use of protocols for every layer) versus a more concrete, class-based structure?",
+        "modelAnswer": "Protocols at every boundary maximize testability and substitutability, but add a layer of indirection and often a matching mock/fake type for every protocol, which is real maintenance overhead. A more concrete structure with dependency injection only at the boundaries that actually need substitution (like networking) keeps the benefit without protocol-izing everything reflexively.",
+        "talkingPoints": [
+          "The question to ask for each type: will I ever actually substitute a different implementation, in tests or otherwise?",
+          "Protocol-izing a type with no real alternative implementation is often needless ceremony.",
+          "This is a judgment call that should be revisited as a codebase's actual testing needs become clearer."
+        ],
+        "followUps": [
+          "How would you identify which types in a codebase are over-protocol-ized without a real substitution need?"
+        ]
+      },
+      {
+        "id": "ap-m10",
+        "category": "Architecture patterns",
+        "difficulty": "Mid",
+        "prompt": "How do you keep a view model from becoming a second 'massive' object that just moved the original problem?",
+        "modelAnswer": "Watch for the same warning signs that caused the original massive view controller — a view model that owns networking details directly, formats presentation strings, AND handles navigation is heading the same direction. Push networking behind a service/use-case dependency, and keep the view model focused on translating that into presentation state.",
+        "talkingPoints": [
+          "MVVM doesn't automatically prevent a 'massive view model' — discipline about what belongs where still matters.",
+          "A view model doing real networking directly (not through an injected dependency) is a common way this creeps back in.",
+          "Splitting a large view model into smaller, composed view models per screen section is a reasonable escape hatch."
+        ],
+        "followUps": [
+          "What's a concrete metric or signal you'd use to flag a view model that's grown too large?"
+        ]
       }
     ],
-    "senior": []
+    "senior": [
+      {
+        "id": "ap-s1",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "How would you approach migrating a large UIKit + MVC app to SwiftUI + MVVM incrementally, without a multi-month feature freeze?",
+        "modelAnswer": "Introduce SwiftUI at leaf screens first — new features or low-risk existing screens — hosted inside the existing UIKit navigation via UIHostingController, rather than rewriting the app's navigation shell. This lets the team build SwiftUI experience and confidence on real, shippable work while the two paradigms coexist for as long as necessary.",
+        "talkingPoints": [
+          "Trying to convert the whole app at once is exactly the kind of risky, all-or-nothing migration senior engineers should push back on.",
+          "The navigation shell (tab bar, root navigation) is usually the hardest, riskiest thing to migrate — leave it for last.",
+          "Track migration progress explicitly so 'coexistence forever by accident' doesn't quietly become the outcome."
+        ],
+        "followUps": [
+          "How do you handle passing state between a UIKit screen and a hosted SwiftUI screen mid-migration?"
+        ]
+      },
+      {
+        "id": "ap-s2",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "You're introducing a new architecture pattern (say, TCA) org-wide. What's the biggest risk that isn't technical?",
+        "modelAnswer": "Adoption cost: engineers who don't know the pattern will be slower and more error-prone in it at first, and a team-wide mandate without buy-in or training tends to produce cargo-culted, half-migrated code that's worse than what it replaced. The technical merits of the pattern matter far less than whether the org can actually adopt it well.",
+        "talkingPoints": [
+          "A pilot on one team/feature before an org-wide rollout surfaces real adoption friction early.",
+          "Documentation and pairing/training budget should be planned as part of the migration, not an afterthought.",
+          "A technically 'better' pattern that the org can't execute well is a net loss, not a win."
+        ],
+        "followUps": [
+          "How would you measure whether a pilot migration actually succeeded before rolling it out further?"
+        ]
+      },
+      {
+        "id": "ap-s3",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "How would you design module boundaries for an app with 50+ engineers across many feature teams?",
+        "modelAnswer": "Boundaries should map to team ownership as much as to technical layering — each team owns a module with a small, deliberate public API, so teams can ship independently without constantly coordinating changes to shared code. Cross-cutting concerns (design system, core networking) live in their own modules with a slower, more carefully-reviewed change process since many teams depend on them.",
+        "talkingPoints": [
+          "Conway's Law is real — module structure that fights team structure creates constant friction.",
+          "A small public API surface per module is what actually makes independent shipping possible, not just splitting files into folders.",
+          "Shared foundational modules need a higher bar for changes since their blast radius is much larger."
+        ],
+        "followUps": [
+          "How would you handle a change that genuinely needs to touch multiple teams' modules at once?"
+        ]
+      },
+      {
+        "id": "ap-s4",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "What's your approach to designing an offline-first architecture with sync conflict resolution?",
+        "modelAnswer": "Local writes happen immediately against a local store, queued for sync, with each record carrying enough metadata (a version, a timestamp, or a vector clock) to detect conflicts when syncing. The resolution strategy — last-write-wins, merge, or surfacing the conflict to the user — depends entirely on what the data actually represents; there's no one-size-fits-all answer.",
+        "talkingPoints": [
+          "Naive last-write-wins is often wrong for anything users would consider 'their content' — silently dropping their edit is a bad experience.",
+          "The sync queue itself needs to survive app termination and handle partial failures (some records synced, others not).",
+          "Testing conflict scenarios deliberately (two devices editing offline, then reconnecting) is essential — they won't show up in normal manual testing."
+        ],
+        "followUps": [
+          "How would you test conflict resolution logic without needing two physical devices?"
+        ]
+      },
+      {
+        "id": "ap-s5",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "How would you design a feature-flag system that's safe for gradual rollouts across a large app?",
+        "modelAnswer": "Flags need a clear lifecycle — created, rolled out, then removed — because permanent flags accumulate into their own form of technical debt and dead-code risk. The evaluation itself should be fast and side-effect-free (a pure lookup), with rollout percentage/targeting logic living server-side so it can change without an app release.",
+        "talkingPoints": [
+          "A flag that's never cleaned up after full rollout becomes permanent branching complexity nobody remembers the reason for.",
+          "Local caching of flag values (with a safe default) matters for offline/first-launch behavior.",
+          "Flag interactions (two flags that shouldn't both be on) are an underappreciated source of bugs at scale."
+        ],
+        "followUps": [
+          "How would you prevent stale/abandoned feature flags from accumulating indefinitely?"
+        ]
+      },
+      {
+        "id": "ap-s6",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "When would you introduce a plugin/module system that lets features be added without modifying a core app shell?",
+        "modelAnswer": "When many independent teams need to ship features on their own timeline without coordinating merges into a shared entry point — a plugin system where each feature module registers itself (e.g. into a tab list or a router) avoids a central file every team has to touch and conflict over. It's not worth the complexity for a small team or a small number of features.",
+        "talkingPoints": [
+          "The core app shell becomes a thin host that discovers and assembles registered features, rather than hardcoding knowledge of each one.",
+          "This pattern trades upfront design complexity for long-term reduced merge conflicts and team autonomy.",
+          "Overzealous plugin architecture in a small codebase is itself a common over-engineering trap."
+        ],
+        "followUps": [
+          "How would a new feature module register itself with the app shell without the shell needing to know about it at compile time?"
+        ]
+      },
+      {
+        "id": "ap-s7",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "How would you evaluate whether to adopt a new architecture pattern versus refining the one you already have?",
+        "modelAnswer": "Start from the actual pain points teams are hitting today — slow tests, hard-to-trace bugs, merge conflicts — and check whether they're inherent to the current pattern or just inconsistently applied. Often the existing pattern applied with more discipline solves the problem more cheaply than a wholesale migration to something new, which carries real cost regardless of its technical merits.",
+        "talkingPoints": [
+          "A migration is justified by evidence of a real, structural limitation, not novelty or industry trend-following.",
+          "Cheaper interventions — better linting, code review checklists, targeted refactors — should be ruled out first.",
+          "Naming the actual migration cost honestly, including team ramp-up time, is part of a credible recommendation."
+        ],
+        "followUps": [
+          "What evidence would convince you a migration IS justified, versus better applying the current pattern?"
+        ]
+      },
+      {
+        "id": "ap-s8",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "How do you approach architecture decisions differently for a startup shipping fast versus a mature app with a large user base?",
+        "modelAnswer": "Early on, optimism about future scale is usually wrong — the highest-value architecture is whatever lets you validate product-market fit fastest, even if it needs real rework later. At scale, the cost of a wrong architectural bet is much higher (more code, more teams, more users affected), so more upfront design investment and staged rollouts of architectural change are justified.",
+        "talkingPoints": [
+          "Over-architecting a pre-product-market-fit app is a common, costly mistake — the app may pivot entirely before that investment pays off.",
+          "At scale, architecture changes need migration plans, not just a decision — the blast radius of getting it wrong is much larger.",
+          "The right amount of architecture is relative to the actual risk and cost of getting it wrong at that stage."
+        ],
+        "followUps": [
+          "What's a concrete example of over-architecting too early that you'd want a startup to avoid?"
+        ]
+      },
+      {
+        "id": "ap-s9",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "How would you design an architecture that supports both a phone app and a widget/watch extension sharing most business logic, with very different UI paradigms?",
+        "modelAnswer": "The shared layer should stop at data/business logic and expose UI-agnostic state — no assumptions about SwiftUI view hierarchies or navigation baked in — so each target's presentation layer can be built appropriately for its own constraints (a widget's snapshot-based rendering versus a full interactive app). Trying to share presentation logic across radically different UI paradigms usually produces awkward compromises in both.",
+        "talkingPoints": [
+          "The natural seam is exactly where MVVM already draws one — model/business logic shared, view (and often view model) per-target.",
+          "Each target's constraints (widget memory limits, watch's limited interaction model) should shape its own presentation layer independently.",
+          "Sharing too much, including presentation logic, tends to produce a lowest-common-denominator experience on all platforms."
+        ],
+        "followUps": [
+          "Would you share the view model layer across phone and widget, or just the model/business logic? Why?"
+        ]
+      },
+      {
+        "id": "ap-s10",
+        "category": "Architecture patterns",
+        "difficulty": "Senior",
+        "prompt": "What's your framework for deciding when an architectural pattern has outlived its usefulness for a growing codebase?",
+        "modelAnswer": "Track concrete signals over time — test suite flakiness/slowness, time-to-onboard a new engineer, frequency of merge conflicts in shared files, and how often 'simple' changes require touching many unrelated files. When those trend the wrong way despite the team applying the pattern correctly and consistently, that's evidence the pattern itself, not its execution, has hit a ceiling.",
+        "talkingPoints": [
+          "Distinguishing 'pattern hit its ceiling' from 'we're applying it inconsistently' matters — the fixes are very different.",
+          "Concrete metrics make this a data-driven conversation instead of an architecture-preference debate.",
+          "A pattern outliving its usefulness is normal as a codebase and org grow — it's not a failure of the original decision."
+        ],
+        "followUps": [
+          "What's a metric you'd specifically distrust or discount when making this kind of call?"
+        ]
+      }
+    ]
   },
   {
     "name": "System design for iOS",
-    "junior": [],
-    "mid": [],
+    "junior": [
+      {
+        "id": "sd-j1",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you design the data flow for a simple to-do list app?",
+        "modelAnswer": "A single source of truth — an array of to-do items — lives in a view model or persisted store; the list view reads from it, and adding/completing/deleting an item goes through a method on that same source rather than the view mutating a local copy directly.",
+        "talkingPoints": [
+          "One source of truth avoids the list view and any other screen showing the list disagreeing with each other.",
+          "Persisting to disk (UserDefaults for something this small, or SwiftData for more structure) keeps items across launches.",
+          "Even a simple app benefits from not mutating UI state directly from multiple places."
+        ],
+        "followUps": [
+          "Where would you persist this data, and why?"
+        ]
+      },
+      {
+        "id": "sd-j2",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you show a list of items fetched from a network API, handling the loading state?",
+        "modelAnswer": "Model the screen's state explicitly — loading, loaded(items), or error(message) — so the view can switch on it and show a spinner, the list, or an error message unambiguously, instead of guessing from a combination of optional properties.",
+        "talkingPoints": [
+          "An enum with associated values (loading/loaded/error) makes invalid combinations (loaded AND error at once) unrepresentable.",
+          "The fetch should run once when the view appears, not be triggered from inside body.",
+          "Consider what happens if the view appears again — do you refetch every time, or only if data is stale?"
+        ],
+        "followUps": [
+          "How would you add pull-to-refresh without duplicating the fetch logic?"
+        ]
+      },
+      {
+        "id": "sd-j3",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you avoid re-downloading the same image every time it scrolls back on screen?",
+        "modelAnswer": "Cache downloaded images in memory keyed by URL, so a second request for the same URL returns the cached image instantly instead of hitting the network again. For images that need to survive app relaunch, add a disk cache layer as well.",
+        "talkingPoints": [
+          "An in-memory cache alone already solves the common 'scrolled past and back' case cheaply.",
+          "The cache needs some eviction strategy so it doesn't grow unbounded under memory pressure.",
+          "AsyncImage or a small custom loader both need this same caching idea underneath."
+        ],
+        "followUps": [
+          "What would you do if the same image needs to display at multiple different sizes?"
+        ]
+      },
+      {
+        "id": "sd-j4",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you persist a user's simple app settings, like dark mode or notification preferences?",
+        "modelAnswer": "UserDefaults is the right tool for small, simple key-value settings like this — it's built for exactly this case and persists automatically across launches, with no need for a database for something this lightweight.",
+        "talkingPoints": [
+          "UserDefaults isn't encrypted, so it's fine for preferences but wrong for anything sensitive like a token.",
+          "@AppStorage in SwiftUI wraps UserDefaults with automatic view updates when the value changes.",
+          "Reach for Core Data/SwiftData only once settings grow into genuinely structured, relational data."
+        ],
+        "followUps": [
+          "Where would you store something sensitive instead, and why?"
+        ]
+      },
+      {
+        "id": "sd-j5",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you implement basic pagination for a long list of items from an API?",
+        "modelAnswer": "Request items in pages (e.g. 20 at a time), and when the list view scrolls near the end of what's already loaded, request the next page and append it to the existing array, rather than fetching everything up front.",
+        "talkingPoints": [
+          "Loading everything at once wastes bandwidth and memory for content the user may never scroll to.",
+          "You need to track whether a fetch for the next page is already in flight to avoid firing duplicate requests.",
+          "A 'no more pages' signal from the API (or an empty page) should stop further pagination attempts."
+        ],
+        "followUps": [
+          "How would you show a loading indicator specifically at the bottom of the list while the next page loads?"
+        ]
+      },
+      {
+        "id": "sd-j6",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you design a simple 'favorite this item' feature that persists across launches?",
+        "modelAnswer": "Store the set of favorited item IDs (not full copies of the items) persisted locally, and check membership in that set when rendering each item's favorite state. This avoids duplicating and keeping full item data in sync in two places.",
+        "talkingPoints": [
+          "Storing just IDs, not full objects, avoids a second, potentially stale copy of the item's data.",
+          "A Set gives fast membership checks compared to scanning an array each time.",
+          "If items can be deleted server-side, you'll want to reconcile the favorites set against what still actually exists."
+        ],
+        "followUps": [
+          "What would you do if a favorited item is later deleted from the server?"
+        ]
+      },
+      {
+        "id": "sd-j7",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you design search for a static, already-loaded list of items (no network call per keystroke)?",
+        "modelAnswer": "Keep the full list in memory and filter it locally as the user types, updating a derived filtered array the list view displays — no network round trip needed since the data's already local.",
+        "talkingPoints": [
+          "For a small local list, filtering directly is simpler and faster than any debouncing/network machinery.",
+          "The filter should live in a computed property or method, not be recomputed unnecessarily inside body.",
+          "This is a genuinely different problem from search-as-you-type against a remote API."
+        ],
+        "followUps": [
+          "At what list size would you start worrying about filtering performance on every keystroke?"
+        ]
+      },
+      {
+        "id": "sd-j8",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you show a 'no internet connection' state gracefully in a simple app?",
+        "modelAnswer": "Detect connectivity (e.g. via NWPathMonitor) and reflect it as part of your screen's state, showing a clear message and a retry action rather than a generic spinner that never resolves or a cryptic error.",
+        "talkingPoints": [
+          "Distinguishing 'no connection' from 'server error' gives the user a much clearer, more actionable message.",
+          "A retry button that re-triggers the same fetch logic avoids needing the user to force-quit the app.",
+          "Caching the last successful result lets you show stale-but-useful data instead of nothing at all, if appropriate."
+        ],
+        "followUps": [
+          "Would you automatically retry when connectivity returns, or wait for the user to tap retry? Why?"
+        ]
+      },
+      {
+        "id": "sd-j9",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you structure a simple onboarding flow with several sequential screens?",
+        "modelAnswer": "Model the current step as a piece of state (an index or an enum case) that a single container view switches on, advancing it as the user completes each step, rather than pushing each screen as an independent navigation destination with its own logic about what comes next.",
+        "talkingPoints": [
+          "Centralizing 'what's the next step' in one place avoids scattering that decision across every screen.",
+          "This also makes it easy to skip steps conditionally (e.g. skip notifications permission if already granted).",
+          "Persisting 'onboarding completed' so it doesn't show again on next launch is an easy detail to forget."
+        ],
+        "followUps": [
+          "How would you handle a user force-quitting mid-onboarding and reopening the app?"
+        ]
+      },
+      {
+        "id": "sd-j10",
+        "category": "System design for iOS",
+        "difficulty": "Junior",
+        "prompt": "How would you design a basic 'pull to refresh' feature for a list screen?",
+        "modelAnswer": "Trigger the same fetch method the initial load uses, keyed to the pull gesture, and replace (or merge) the displayed data with the fresh result once it returns — reusing existing fetch logic rather than writing a second, parallel path for refreshing.",
+        "talkingPoints": [
+          "SwiftUI's .refreshable modifier handles the gesture and spinner state for you, calling an async closure you provide.",
+          "Reusing the same fetch method as initial load avoids two slightly-different code paths drifting apart.",
+          "Consider what the UI should show if refresh fails — probably keep showing the old data with an error toast, not blank the screen."
+        ],
+        "followUps": [
+          "What should happen if the user pulls to refresh again while a refresh is already in flight?"
+        ]
+      }
+    ],
+    "mid": [
+      {
+        "id": "sd-m1",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design an offline-capable notes app with sync. What's your data model and sync strategy?",
+        "modelAnswer": "Each note is stored locally first (so writes are instant and offline-safe) with a version/updated-timestamp, queued for background sync to the server; on sync, the server's response reconciles any conflicting versions using that timestamp, with a policy for what happens when both sides changed since the last sync.",
+        "talkingPoints": [
+          "Local-first writes mean the UI never waits on network to feel responsive.",
+          "The sync queue itself must survive app termination — persisted, not just in-memory.",
+          "Conflict handling needs an explicit decision, not an accidental one — silently dropping a user's edit is a real bug."
+        ],
+        "followUps": [
+          "What would you do differently if notes needed real-time collaborative editing, not just eventual sync?"
+        ]
+      },
+      {
+        "id": "sd-m2",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design a chat app's message list, including pagination and read receipts.",
+        "modelAnswer": "Messages load newest-first with reverse pagination as the user scrolls up into history, while new incoming messages append at the bottom via a live connection (push or websocket). Read receipts are a separate, lightweight event stream — marking messages read shouldn't require re-fetching the whole message list.",
+        "talkingPoints": [
+          "Scroll position management is a real UX challenge — loading older messages shouldn't visibly jump the user's current view.",
+          "Read receipts at scale should batch (e.g. 'read up to message X') rather than one event per message.",
+          "Message ordering needs to handle out-of-order delivery from the network, not assume arrival order equals send order."
+        ],
+        "followUps": [
+          "How would you handle a message arriving out of order relative to messages already displayed?"
+        ]
+      },
+      {
+        "id": "sd-m3",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design a search-as-you-type feature against a remote API, avoiding wasted requests.",
+        "modelAnswer": "Debounce keystrokes (wait ~300ms after the user stops typing before firing a request) and cancel any in-flight request when a new one starts, so a fast typist never triggers a pile of redundant, out-of-order requests hitting the server.",
+        "talkingPoints": [
+          "Debouncing trades a small perceived delay for a large reduction in wasted requests.",
+          "Cancelling the previous request (not just ignoring its result) avoids wasting server resources on work nobody needs anymore.",
+          "Handling out-of-order responses (an older request's response arriving after a newer one) needs explicit guarding, e.g. by request ID."
+        ],
+        "followUps": [
+          "How would you guard against an old, slow request's response overwriting a newer one's result?"
+        ]
+      },
+      {
+        "id": "sd-m4",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design a background photo-upload feature that survives the app being terminated mid-upload.",
+        "modelAnswer": "Use a URLSession background configuration, which hands the actual transfer off to the OS so it continues even if the app is suspended or terminated, with the app relaunched in the background to handle completion. The upload queue and its state need to be persisted so a relaunch can reconcile what actually finished.",
+        "talkingPoints": [
+          "A background URLSession is specifically designed for exactly this — surviving app termination during a long transfer.",
+          "The app needs to implement the app-launch-for-background-events delegate callback to hear about completion later.",
+          "Persisting queue state means a relaunch can correctly report 'still pending' vs 'completed' vs 'failed' per photo."
+        ],
+        "followUps": [
+          "What would you do if the upload needs to resume from a partial transfer rather than restart from zero?"
+        ]
+      },
+      {
+        "id": "sd-m5",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design a feature-flag system for gradually rolling out a risky new feature.",
+        "modelAnswer": "Flags are evaluated client-side from a config fetched at launch (with a safe cached/default fallback), with rollout percentage and targeting rules controlled server-side so you can dial exposure up or down without an app release. Each flag has an owner and an expected removal date to avoid permanent accumulation.",
+        "talkingPoints": [
+          "Server-side control of rollout percentage is what lets you actually respond quickly if the new feature misbehaves.",
+          "A safe default/fallback matters for first launch or offline scenarios where the config hasn't been fetched yet.",
+          "Two flags interacting unexpectedly (both targeting overlapping users) is an underappreciated risk worth testing for."
+        ],
+        "followUps": [
+          "How would you quickly disable a flagged feature that's causing a spike in crashes in production?"
+        ]
+      },
+      {
+        "id": "sd-m6",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design the caching strategy for a settings/config object fetched at app launch that many screens depend on.",
+        "modelAnswer": "Fetch once at launch, cache in memory for the session, and persist the last successful value to disk so a subsequent launch has an immediately-usable value even before the fresh fetch completes — avoiding every dependent screen blocking on its own redundant fetch.",
+        "talkingPoints": [
+          "A shared, single fetch avoids N screens each independently requesting the same config.",
+          "Falling back to the last cached value on fetch failure is usually better than blocking or showing an error for something this foundational.",
+          "Config that changes mid-session (a remote update) needs a defined strategy — refetch periodically, or push-triggered."
+        ],
+        "followUps": [
+          "How would you handle a screen that needs config before the initial fetch has completed?"
+        ]
+      },
+      {
+        "id": "sd-m7",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design a robust local notification system for a daily-habit app that needs to respect user-configured reminder times.",
+        "modelAnswer": "Schedule notifications via UNUserNotificationCenter ahead of time based on the user's chosen time, re-scheduling whenever that preference changes, and cap how many are scheduled at once since the system enforces a pending-notification limit. Avoid scheduling from a background task expecting precise timing — local notifications should be scheduled well ahead, not just-in-time.",
+        "talkingPoints": [
+          "iOS limits the number of pending local notifications per app — scheduling too far ahead can silently drop some.",
+          "A changed reminder time needs old, now-stale scheduled notifications cancelled, not just new ones added.",
+          "Testing notification permission being denied is a real, easy-to-forget edge case."
+        ],
+        "followUps": [
+          "What would you do differently if reminders needed to be timezone-aware for a traveling user?"
+        ]
+      },
+      {
+        "id": "sd-m8",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design a 'download for offline use' feature for media content (e.g. articles or videos), including storage management.",
+        "modelAnswer": "Downloaded content is stored on disk with metadata tracking what's downloaded, its size, and when it was downloaded, so the app can show storage used and let the user manage/delete individual items. A background download task handles the transfer, and a defined eviction or user-driven cleanup policy prevents unbounded disk usage.",
+        "talkingPoints": [
+          "Metadata (not just raw files) is what lets the UI show accurate storage usage and manage individual downloads.",
+          "Deciding whether old downloads auto-expire or persist until manually deleted is a real product decision, not just technical.",
+          "Handling a download interrupted mid-transfer (partial file) needs explicit cleanup, or it silently wastes disk space."
+        ],
+        "followUps": [
+          "How would you handle running out of disk space partway through a download?"
+        ]
+      },
+      {
+        "id": "sd-m9",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design an in-app purchase / subscription status system that stays correct across devices.",
+        "modelAnswer": "Treat the App Store's transaction/entitlement state as the source of truth (via StoreKit's current entitlements), rather than an app-managed flag that can drift out of sync — the app should re-verify against StoreKit at launch and after any purchase-related event, and use server-side receipt validation if entitlement needs to be checked from a backend too.",
+        "talkingPoints": [
+          "Caching purchase status locally without periodically re-verifying against StoreKit risks stale, incorrect state (e.g. after a refund).",
+          "StoreKit 2's Transaction.currentEntitlements is the modern way to check this directly.",
+          "A backend that also needs to know entitlement status should validate independently, not just trust the client's claim."
+        ],
+        "followUps": [
+          "How would you handle a subscription that was refunded while the user is actively using premium features?"
+        ]
+      },
+      {
+        "id": "sd-m10",
+        "category": "System design for iOS",
+        "difficulty": "Mid",
+        "prompt": "Design an app's approach to handling multiple concurrent in-flight network requests to the same endpoint (e.g. refresh triggered from two places at once).",
+        "modelAnswer": "Deduplicate at the request layer: if a request for the same resource is already in flight, return the same pending Task's result to the new caller instead of starting a second identical request, then clear the in-flight entry once it completes.",
+        "talkingPoints": [
+          "This avoids wasted bandwidth and, worse, potential inconsistent results if the two responses arrive in different order.",
+          "A dictionary of in-flight Tasks keyed by request identity is a common, simple way to implement this.",
+          "This pattern generalizes well beyond a single feature — it's a useful primitive in a shared networking layer."
+        ],
+        "followUps": [
+          "How would you key 'the same request' when the endpoint takes parameters, not just a fixed URL?"
+        ]
+      }
+    ],
     "senior": [
       {
         "id": "sd-s1",
@@ -68,13 +1236,301 @@
           "Disk cache needs a background eviction pass, not eviction-on-write.",
           "Cache keys must account for image size variants, or you serve the wrong resolution."
         ],
-        "followUps": ["How do you avoid duplicate in-flight requests for the same image?"]
+        "followUps": [
+          "How do you avoid duplicate in-flight requests for the same image?"
+        ]
+      },
+      {
+        "id": "sd-s2",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design a multi-region sync system for a collaborative app used by teams across the globe.",
+        "modelAnswer": "Writes are accepted locally and replicated asynchronously across regions, using a conflict-resolution strategy (CRDTs or operational transforms, depending on the data shape) that tolerates concurrent edits from different regions without requiring a single global lock. Latency-sensitive reads are served from the nearest region's replica, accepting eventual consistency as the tradeoff for responsiveness.",
+        "talkingPoints": [
+          "A single global source of truth with synchronous cross-region writes would trade away the latency benefit of multi-region entirely.",
+          "The right conflict-resolution technique depends heavily on the data's actual structure — text edits, counters, and sets each have different well-known approaches.",
+          "Testing needs to deliberately simulate cross-region latency and concurrent edits, not just single-region development conditions."
+        ],
+        "followUps": [
+          "How would you decide between CRDTs and a simpler last-write-wins strategy for a specific piece of shared state?"
+        ]
+      },
+      {
+        "id": "sd-s3",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design a robust background task/queue system that respects iOS's background execution limits.",
+        "modelAnswer": "Persist a durable task queue on disk, process it using BGTaskScheduler for periodic/deferred work and background URLSession for actual transfers, and design every task to be safely resumable or re-enqueued if the OS terminates the app mid-execution rather than assuming a task runs to completion uninterrupted.",
+        "talkingPoints": [
+          "iOS gives no guarantee of exactly when or how often background tasks run — design for 'eventually, maybe' not 'on schedule'.",
+          "A task must be idempotent or track partial progress, since it can be interrupted and retried.",
+          "Excessive background work can get an app throttled by the system — budget background time deliberately."
+        ],
+        "followUps": [
+          "How would you test background task behavior given you can't fully control iOS's scheduling in a test environment?"
+        ]
+      },
+      {
+        "id": "sd-s4",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design an app's analytics pipeline that balances data richness against battery, network cost, and privacy.",
+        "modelAnswer": "Events are collected locally and batched, flushed on a timer or app-background transition rather than sent individually in real time, with payloads minimized to what's actually needed and PII either excluded or handled per applicable regulation. The pipeline should degrade gracefully offline, queuing events for the next successful flush rather than dropping them.",
+        "talkingPoints": [
+          "Batching is the main lever for reducing network/battery cost — real-time-per-event is rarely worth its overhead.",
+          "Privacy/regulatory constraints (GDPR, App Tracking Transparency) shape what CAN be collected before any technical design starts.",
+          "An unbounded local event queue during extended offline periods needs a cap or eviction policy too."
+        ],
+        "followUps": [
+          "How would you handle a burst of events (e.g. from a crash loop) overwhelming the batching/flush system?"
+        ]
+      },
+      {
+        "id": "sd-s5",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design a system for running A/B tests at scale across a large app.",
+        "modelAnswer": "Experiment assignment happens server-side (or via a deterministic client-side hash of a stable user ID against experiment config) so assignment is consistent across sessions and devices, with exposure logging tied to actual usage of the experimental code path, not just assignment, to get accurate results. The system needs safeguards against overlapping experiments interfering with each other's measurements.",
+        "talkingPoints": [
+          "Exposure logging only at assignment time, rather than at actual use, silently corrupts results if not every assigned user reaches the experimental path.",
+          "Deterministic hashing on a stable ID keeps a user in the same bucket across sessions without needing a server round trip every time.",
+          "Experiment interaction effects are a real, often-overlooked risk in a mature A/B testing program."
+        ],
+        "followUps": [
+          "How would you detect that two concurrently-running experiments are interfering with each other's results?"
+        ]
+      },
+      {
+        "id": "sd-s6",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design a resilient push-notification-driven data-refresh architecture for a content app.",
+        "modelAnswer": "A silent push triggers a background fetch that refreshes only what changed (ideally via a delta/changed-since API, not a full re-download), with the system designed to tolerate a dropped or delayed push — since push delivery isn't guaranteed — by also polling or refreshing on foreground as a fallback.",
+        "talkingPoints": [
+          "Relying on push alone as the only refresh trigger is fragile — delivery isn't guaranteed, so a fallback path matters.",
+          "A full re-fetch on every push wastes bandwidth; a delta/changed-since approach scales much better.",
+          "Background fetch triggered by silent push still competes for the same limited background execution budget as everything else."
+        ],
+        "followUps": [
+          "How would you handle receiving multiple silent pushes in quick succession for the same underlying change?"
+        ]
+      },
+      {
+        "id": "sd-s7",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design storage for an end-to-end encrypted messaging app. What are the key constraints?",
+        "modelAnswer": "Message content is encrypted client-side before it ever reaches the server, so the server only ever stores ciphertext it cannot read; keys are generated and stored on-device (in the Keychain, never transmitted in plaintext), with a defined key-exchange protocol for establishing shared secrets between conversation participants. Multi-device support is the hard part — each device needs its own way to decrypt history without the server ever holding a decryption key.",
+        "talkingPoints": [
+          "The server being unable to read content is the whole point — any design where the server CAN decrypt isn't actually end-to-end encrypted.",
+          "Key loss (e.g. device lost/reset) has real product implications — undecryptable history versus some recovery mechanism is a genuine tradeoff.",
+          "Multi-device key distribution (each new device needing access to past conversation keys) is genuinely one of the hardest parts of this design."
+        ],
+        "followUps": [
+          "How would you handle a user adding a new device and needing access to their existing encrypted message history?"
+        ]
+      },
+      {
+        "id": "sd-s8",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design an architecture for handling API versioning as your backend evolves, without breaking older app versions still in the wild.",
+        "modelAnswer": "The client should decode defensively — unknown new fields are ignored rather than causing a decode failure, and required-field changes are rolled out additively (new optional fields, not renamed/removed required ones) so old app versions keep working against a newer API for as long as they're supported. A minimum-supported-version gate can force upgrades once truly breaking changes are unavoidable.",
+        "talkingPoints": [
+          "Decoding defensively (tolerating unknown keys, treating new fields as optional) buys a lot of forward compatibility for free.",
+          "Genuinely breaking API changes should be rare and paired with a deliberate app-update-required strategy, not silent failures.",
+          "This is as much an API design discipline as an app architecture concern — both sides need to cooperate."
+        ],
+        "followUps": [
+          "How would you force users on a very old, unsupported app version to update?"
+        ]
+      },
+      {
+        "id": "sd-s9",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design a system for detecting and recovering from a corrupted local database/cache in production.",
+        "modelAnswer": "Wrap local store access with integrity checks (e.g. can the store actually be opened and a basic query executed) at launch, and if corruption is detected, fall back to a clean rebuild — re-fetching from the server or starting from an empty local store — rather than crash-looping indefinitely on a store the app can never open.",
+        "talkingPoints": [
+          "A crash loop from a corrupted store is one of the worst production failure modes — it can render the app permanently unusable for affected users without a fix.",
+          "The fallback needs a clear degrade path — the app should function, even if some local-only data (e.g. unsynced offline edits) is lost.",
+          "Instrumenting how often this recovery path actually triggers in production tells you whether corruption is a real, ongoing problem or a rare edge case."
+        ],
+        "followUps": [
+          "What data would you be comfortable losing versus not, when recovering from a corrupted local store?"
+        ]
+      },
+      {
+        "id": "sd-s10",
+        "category": "System design for iOS",
+        "difficulty": "Senior",
+        "prompt": "Design a caching layer that serves multiple features with different freshness/consistency needs from the same underlying data.",
+        "modelAnswer": "A single cache with a per-entry freshness policy (TTL, or explicit invalidation on write) lets different callers request 'give me anything, even if stale' versus 'must be fresh, refetch if older than X' from the same underlying store, rather than each feature building its own separate, inconsistent caching logic.",
+        "talkingPoints": [
+          "Multiple ad-hoc caches for the same underlying data are a common source of features silently disagreeing with each other.",
+          "Explicit invalidation on write (not just TTL expiry) matters for data the user just changed themselves.",
+          "The API needs to make the freshness tradeoff explicit to callers, not hide it behind a single opaque fetch() method."
+        ],
+        "followUps": [
+          "How would you invalidate a cache entry that's shared and being read by multiple features simultaneously?"
+        ]
       }
     ]
   },
   {
     "name": "Performance & debugging",
-    "junior": [],
+    "junior": [
+      {
+        "id": "pd-j1",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What is a breakpoint, and what's a conditional breakpoint good for?",
+        "modelAnswer": "A breakpoint pauses execution at a specific line so you can inspect variables and step through code. A conditional breakpoint only pauses when a given expression is true, which is essential when a line runs hundreds of times but you only care about one specific case.",
+        "talkingPoints": [
+          "Stepping through code at a breakpoint often reveals a bug faster than staring at the source.",
+          "Conditional breakpoints avoid manually clicking 'continue' dozens of times to reach the case you care about.",
+          "Breakpoints can also log a message and auto-continue, useful as a non-intrusive alternative to print statements."
+        ],
+        "followUps": [
+          "What's an example where print debugging would be slower than using a breakpoint?"
+        ]
+      },
+      {
+        "id": "pd-j2",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What's the difference between print debugging and using the debugger?",
+        "modelAnswer": "print statements require you to guess ahead of time what you'll need to see and re-run the app after adding them, while the debugger lets you pause live and inspect any variable's state on demand — including ones you didn't think to print.",
+        "talkingPoints": [
+          "print is fine for quick, simple checks; the debugger is better for exploring an unfamiliar bug.",
+          "Leaving print statements in shipped code is a code-review smell — breakpoints/logging leave no trace.",
+          "Both are legitimate tools — the right choice depends on how well you already understand the bug."
+        ],
+        "followUps": [
+          "When would you actually prefer print/logging over the debugger?"
+        ]
+      },
+      {
+        "id": "pd-j3",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What is a crash log, and what does 'symbolication' mean?",
+        "modelAnswer": "A crash log records the state of the app (call stack, thread info) at the moment it crashed, but on a release build the addresses are just numbers until they're 'symbolicated' — mapped back to actual function/file/line names using the matching dSYM debug symbols.",
+        "talkingPoints": [
+          "Without the matching dSYM for that exact build, a crash log is nearly unreadable.",
+          "Xcode Organizer and crash-reporting services (Crashlytics, etc.) automate symbolication if you upload the right dSYM.",
+          "This is why keeping dSYMs archived per release version matters."
+        ],
+        "followUps": [
+          "What happens if you try to symbolicate a crash log with the wrong dSYM?"
+        ]
+      },
+      {
+        "id": "pd-j4",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "In simple terms, what is a memory leak?",
+        "modelAnswer": "Memory that's no longer needed but never gets freed, because something still holds a reference to it that it shouldn't — commonly a retain cycle between two objects that keep each other alive forever.",
+        "talkingPoints": [
+          "In Swift, this is usually a reference-cycle problem, not a 'forgot to free' problem like in manual-memory languages.",
+          "A leaked object keeps consuming memory for the rest of the app's lifetime.",
+          "Xcode's Memory Graph Debugger and Instruments' Leaks tool both help find these."
+        ],
+        "followUps": [
+          "What's the simplest way a closure can accidentally cause a leak?"
+        ]
+      },
+      {
+        "id": "pd-j5",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What is Instruments, at a high level?",
+        "modelAnswer": "It's Apple's profiling tool suite bundled with Xcode, with different 'instruments' (templates) for measuring different things — CPU usage over time, memory allocations, energy impact, and more — so you can actually measure a performance problem instead of guessing.",
+        "talkingPoints": [
+          "Profile first, guess never — Instruments turns 'I think it's slow because X' into an actual measurement.",
+          "Different instruments answer different questions — Time Profiler for CPU, Allocations for memory.",
+          "Instruments should be run against a release-like build for realistic numbers, not always debug."
+        ],
+        "followUps": [
+          "Why might a debug build give misleading performance numbers compared to a release build?"
+        ]
+      },
+      {
+        "id": "pd-j6",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What's a common cause of a table or list scrolling slowly?",
+        "modelAnswer": "Doing expensive work per row every time it's displayed — like decoding an image or recomputing a formatted string on the main thread — instead of caching that work or doing it off the main thread ahead of time.",
+        "talkingPoints": [
+          "Cells/rows get reused and redrawn constantly while scrolling, so per-row cost matters a lot more than it looks.",
+          "Visual effects like shadows and rounded corners with clipping can also force expensive offscreen rendering.",
+          "Profiling with Instruments confirms whether the bottleneck is actually CPU work or rendering, before you guess at a fix."
+        ],
+        "followUps": [
+          "Why would a shadow modifier specifically be a suspect for slow scrolling?"
+        ]
+      },
+      {
+        "id": "pd-j7",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What does a retain cycle look like in simple terms, using a closure example?",
+        "modelAnswer": "An object stores a closure property, and that closure captures self strongly (its default behavior) while also being called by something the object itself keeps alive — so the object retains the closure, and the closure retains the object, and neither can ever be freed.",
+        "talkingPoints": [
+          "The fix is usually adding [weak self] to the closure's capture list.",
+          "Not every closure capturing self causes a cycle — only when something the object owns also holds onto that closure.",
+          "The Memory Graph Debugger can visually confirm a suspected cycle."
+        ],
+        "followUps": [
+          "Why doesn't a closure that runs once and is then discarded usually cause a cycle?"
+        ]
+      },
+      {
+        "id": "pd-j8",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What's the difference between a compile-time error and a runtime crash?",
+        "modelAnswer": "A compile-time error is caught by the compiler before the app ever runs, like a type mismatch — you can't even build. A runtime crash happens while the app is executing, like force-unwrapping a nil value, and only shows up when that exact code path actually runs.",
+        "talkingPoints": [
+          "Swift's type system catches a lot of bugs at compile time that would be runtime bugs in a less strict language.",
+          "Runtime crashes are harder to catch because they depend on the exact input/state at that moment.",
+          "Good test coverage helps surface runtime crash scenarios before users hit them."
+        ],
+        "followUps": [
+          "Give an example of a bug Swift's compiler would catch that a more dynamic language wouldn't."
+        ]
+      },
+      {
+        "id": "pd-j9",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What's a reasonable first step when your app crashes only on a specific device or OS version you don't have locally?",
+        "modelAnswer": "Check the actual crash log/stack trace for clues first — the exact line and type of crash often narrows it down a lot — and try the iOS Simulator for that OS version if you don't have the physical device, since many (not all) bugs reproduce there too.",
+        "talkingPoints": [
+          "Not every bug reproduces in the Simulator — some are genuinely device- or hardware-specific.",
+          "Reading the actual crash report carefully, rather than guessing, is the highest-leverage first step.",
+          "Asking whoever reported it for exact repro steps and device/OS details saves a lot of guessing."
+        ],
+        "followUps": [
+          "What would you do if the crash truly cannot be reproduced locally at all?"
+        ]
+      },
+      {
+        "id": "pd-j10",
+        "category": "Performance & debugging",
+        "difficulty": "Junior",
+        "prompt": "What is the 'Leaks' template in Instruments used for?",
+        "modelAnswer": "It specifically flags objects that were allocated and are no longer reachable from anywhere in your code but were never deallocated — a direct signal of a genuine memory leak, as opposed to just high but legitimate memory usage.",
+        "talkingPoints": [
+          "It's a targeted tool for leaks specifically, distinct from Allocations, which shows overall memory usage over time.",
+          "A leak shown here is unambiguous — the object truly cannot be reached, yet it's still alive.",
+          "Running it against realistic user flows (not just app launch) surfaces leaks that only occur during actual usage."
+        ],
+        "followUps": [
+          "What's the difference between what the Leaks instrument flags versus what the Memory Graph Debugger shows?"
+        ]
+      }
+    ],
     "mid": [
       {
         "id": "pd-m1",
@@ -87,10 +1543,298 @@
           "Recomputing expensive view state in body on every scroll frame is a common self-inflicted cause.",
           "Measure again after the fix — an unverified fix isn't a fix."
         ],
-        "followUps": ["What's the difference between a CPU-bound and GPU-bound frame drop?"]
+        "followUps": [
+          "What's the difference between a CPU-bound and GPU-bound frame drop?"
+        ]
+      },
+      {
+        "id": "pd-m2",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "How would you use Instruments to find a retain cycle causing a memory leak?",
+        "modelAnswer": "Run the Allocations or Leaks instrument while performing the suspected flow repeatedly (e.g. opening and closing a screen several times), and check whether the object count for that screen's types keeps growing instead of returning to baseline. Xcode's Memory Graph Debugger then visualizes the actual reference chain keeping the object alive.",
+        "talkingPoints": [
+          "Repeating the flow several times makes a real leak obvious — object count climbs instead of staying flat.",
+          "The Memory Graph Debugger's purple exclamation mark flags a probable leak and shows the exact retaining chain.",
+          "Confirming a leak this way, rather than guessing from code review alone, avoids chasing a false lead."
+        ],
+        "followUps": [
+          "What would make you suspect a leak WITHOUT even opening Instruments first?"
+        ]
+      },
+      {
+        "id": "pd-m3",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "How would you diagnose a slow app launch?",
+        "modelAnswer": "Profile a cold launch with Time Profiler, looking specifically at what runs before the first frame is drawn — dylib loading, static initializers, and any eager setup work in the App/SceneDelegate. Often the fix is deferring non-essential work until after first render, not literally making everything faster.",
+        "talkingPoints": [
+          "Cold launch (not warm) is the number that actually matters for user-perceived launch time.",
+          "Too many dynamically linked frameworks can add measurable dyld overhead before your code even runs.",
+          "Deferred/lazy initialization of anything not needed for the very first screen is a common, effective fix."
+        ],
+        "followUps": [
+          "What's the difference between measuring a cold launch versus a warm launch, and why does it matter?"
+        ]
+      },
+      {
+        "id": "pd-m4",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "How would you diagnose a main-thread hang?",
+        "modelAnswer": "Time Profiler (or the Hangs template) shows what's actually running on the main thread during the frozen period — often a synchronous, blocking call (disk I/O, a synchronous network call, a large computation) that should be moved off the main thread or made asynchronous.",
+        "talkingPoints": [
+          "A hang is specifically about the main thread being blocked, unable to process user input or update the UI.",
+          "Xcode's built-in Hang detection (and MetricKit in production) can surface these without manual Instruments sessions.",
+          "The fix is almost always moving the blocking work off the main thread, not just making it 'faster'."
+        ],
+        "followUps": [
+          "How would you detect hangs happening in production, not just during local testing?"
+        ]
+      },
+      {
+        "id": "pd-m5",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "How would you diagnose excessive/unnecessary re-renders in a SwiftUI view?",
+        "modelAnswer": "Add a visible signal (like a print in body, or Instruments' SwiftUI template) to see how often body actually runs relative to what you'd expect, then trace which piece of observed state is changing more often than the view actually needs to react to — often a coarse @Published property or unscoped @Observable state.",
+        "talkingPoints": [
+          "The SwiftUI Instruments template can show view update counts directly, without manual print instrumentation.",
+          "Moving to more granular state (per-property @Observable tracking, or splitting a large model) narrows what triggers a re-render.",
+          "Not every re-render is actually a performance problem — measure whether it's causing a visible cost before optimizing."
+        ],
+        "followUps": [
+          "What's a concrete SwiftUI pattern that causes a view to re-render more often than it needs to?"
+        ]
+      },
+      {
+        "id": "pd-m6",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "How would you use os_signpost (or Logger-based signposts) to investigate a performance issue?",
+        "modelAnswer": "Wrap the operation you suspect is slow with a begin/end signpost interval, giving it a meaningful name, and view the resulting intervals directly in Instruments' Points of Interest track — correlated against CPU/memory activity at the same moment, rather than guessing from timestamps in a log.",
+        "talkingPoints": [
+          "Signposts are far more precise than manual print-with-timestamp debugging.",
+          "They show up directly inside Instruments, correlated with everything else being measured at the same time.",
+          "This is a good technique for narrowing down which of several suspect operations is actually the slow one."
+        ],
+        "followUps": [
+          "How would signposts help you distinguish between two candidate slow operations happening close together in time?"
+        ]
+      },
+      {
+        "id": "pd-m7",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "How would you symbolicate a crash report you received from a user, given only the crash log and no direct device access?",
+        "modelAnswer": "Match the crash log's build/version info to the exact archived build (and its dSYM) from that release, then use Xcode's Organizer (or a manual symbolication tool) to resolve the addresses in the stack trace into actual function names and line numbers.",
+        "talkingPoints": [
+          "The dSYM must match the exact build that produced the crash — a mismatched dSYM won't symbolicate correctly.",
+          "Archiving dSYMs for every shipped build (or letting App Store Connect manage them) is what makes this possible later.",
+          "A crash-reporting SDK usually automates this, but understanding the manual process matters when it doesn't."
+        ],
+        "followUps": [
+          "What would you do if you no longer have the dSYM for the build that crashed?"
+        ]
+      },
+      {
+        "id": "pd-m8",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "How would you diagnose an app that's draining battery unusually fast?",
+        "modelAnswer": "Use the Energy Log / Energy Impact instrument to see which subsystem is responsible — CPU, GPS/location, networking, or display — and check for obvious culprits like a location manager left running at high accuracy, or a background task polling too frequently.",
+        "talkingPoints": [
+          "Excessive location accuracy/frequency is one of the most common, avoidable battery drains.",
+          "Waking the CPU frequently for small amounts of work (polling) is worse for battery than doing more work less often.",
+          "MetricKit can surface real-world energy impact data from actual users in production, not just local testing."
+        ],
+        "followUps": [
+          "Why can frequent small background wake-ups be worse for battery than infrequent larger ones?"
+        ]
+      },
+      {
+        "id": "pd-m9",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "What's your process for reproducing a bug that only happens intermittently?",
+        "modelAnswer": "Look for a pattern first — specific device, OS version, network condition, or sequence of actions — rather than randomly retrying; add targeted logging around the suspected area to capture more state the next time it occurs, since you often can't reproduce it live in the debugger.",
+        "talkingPoints": [
+          "Intermittent bugs are often timing- or state-dependent — the pattern search is usually more productive than blind repetition.",
+          "Adding logging that survives into production (via a remote logging/crash tool) helps capture the one occurrence you can't reproduce locally.",
+          "Narrowing down 'does this only happen under X condition' is real progress even before you find the root cause."
+        ],
+        "followUps": [
+          "What kind of logging would you add if you suspected the bug was concurrency-related?"
+        ]
+      },
+      {
+        "id": "pd-m10",
+        "category": "Performance & debugging",
+        "difficulty": "Mid",
+        "prompt": "How would you investigate why a specific screen uses noticeably more memory than expected?",
+        "modelAnswer": "Use the Allocations instrument to see what's actually being allocated while that screen is active, sorted by size/count, to find the actual heavy contributors — often uncompressed images, an unexpectedly large cached array, or a view hierarchy that's more complex than it needs to be.",
+        "talkingPoints": [
+          "Allocations by type/size quickly reveals whether the culprit is images, a data structure, or something else entirely.",
+          "Comparing the screen's footprint against a simpler baseline screen highlights what's actually unusual.",
+          "Downsampling images to their display size, rather than loading full resolution, is a very common, high-impact fix."
+        ],
+        "followUps": [
+          "What's a common image-loading mistake that inflates memory usage without changing what's visually shown?"
+        ]
       }
     ],
-    "senior": []
+    "senior": [
+      {
+        "id": "pd-s1",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "How would you design a performance-regression gate in CI for a large app?",
+        "modelAnswer": "Track a small set of key metrics (cold launch time, a critical screen's render time, memory at a defined checkpoint) automatically on every PR against a stable baseline device/simulator, failing or flagging the build if a metric regresses beyond a defined threshold — accepting some noise tolerance since performance measurements are never perfectly deterministic.",
+        "talkingPoints": [
+          "Picking a small number of high-signal metrics avoids drowning the team in noisy, low-value alerts.",
+          "Measurement noise is real — thresholds need to tolerate normal variance without becoming useless.",
+          "This catches regressions correctness tests structurally cannot — code that's still right but got slower."
+        ],
+        "followUps": [
+          "How would you tune the threshold to avoid both false alarms and missed real regressions?"
+        ]
+      },
+      {
+        "id": "pd-s2",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "How would you root-cause a rare, intermittent crash that only appears in production, never locally?",
+        "modelAnswer": "Start from every piece of context the crash report actually gives you — device model, OS version, memory state, thread states beyond just the crashing thread — looking for a pattern across multiple occurrences rather than one instance. Adding targeted, low-overhead logging/breadcrumbs around the suspected area, shipped in the next release, is often the only way to gather more evidence when you can't reproduce it directly.",
+        "talkingPoints": [
+          "A single crash report is often not enough evidence — aggregating patterns across many occurrences is usually necessary.",
+          "Breadcrumb-style logging that survives into the actual crash report is far more valuable than trying to reproduce blind.",
+          "Some rare crashes genuinely require several release cycles of instrumentation before the cause becomes clear."
+        ],
+        "followUps": [
+          "What would you log ahead of time to make the NEXT occurrence of this crash more diagnosable?"
+        ]
+      },
+      {
+        "id": "pd-s3",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "How would you diagnose thread contention or priority inversion in a concurrent app?",
+        "modelAnswer": "The Thread State / System Trace instrument shows when threads are blocked waiting on a lock and by what, which surfaces contention directly; priority inversion specifically shows as a high-priority thread blocked behind a lower-priority one holding a shared resource, visible in the same trace by checking thread priorities against block/wait states.",
+        "talkingPoints": [
+          "This class of bug rarely shows up as a crash — it shows up as sporadic slowness or hangs, which is why it's hard to notice without deliberate profiling.",
+          "Reducing lock scope, or using higher-level concurrency primitives (actors) that avoid explicit locks, is a common structural fix.",
+          "Priority inheritance (letting a blocking low-priority thread temporarily inherit the waiting thread's priority) is the classic mitigation where locks are unavoidable."
+        ],
+        "followUps": [
+          "Why does adopting actors instead of manual locks reduce (but not eliminate) this class of bug?"
+        ]
+      },
+      {
+        "id": "pd-s4",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "How would you approach reducing a large app's binary size?",
+        "modelAnswer": "Start by measuring where size actually comes from — App Thinning reports, or a tool that breaks down the binary by module/asset — rather than guessing; common high-impact fixes are moving assets to On-Demand Resources, stripping unused code/dependencies, and enabling bitcode/size-optimized build settings where applicable.",
+        "talkingPoints": [
+          "Measuring first avoids spending effort optimizing something that isn't actually the biggest contributor.",
+          "On-Demand Resources let you defer downloading content not needed at first launch.",
+          "Unused third-party dependencies pulled in transitively are a surprisingly common, easy win once identified."
+        ],
+        "followUps": [
+          "What's the tradeoff of using On-Demand Resources versus bundling everything in the initial download?"
+        ]
+      },
+      {
+        "id": "pd-s5",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "How would you diagnose memory growth that happens gradually over a long-running session, without a clear single leak?",
+        "modelAnswer": "Run Allocations over an extended, realistic session and look at the growth curve rather than a single snapshot — a genuine leak shows unbounded growth in specific types, while an unbounded cache or history buffer shows growth in a type that's technically reachable (not a 'leak' in the ARC sense) but still needs an eviction policy.",
+        "talkingPoints": [
+          "Not all memory growth is a leak — an ever-growing but reachable cache is a design problem, not an ARC bug.",
+          "Comparing allocation counts by type over time (not just total bytes) usually reveals which specific structure is accumulating.",
+          "This kind of bug often requires a genuinely long test session to manifest clearly — a quick profiling run may miss it."
+        ],
+        "followUps": [
+          "How would you distinguish this from a genuine retain-cycle leak using the same tooling?"
+        ]
+      },
+      {
+        "id": "pd-s6",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "What would you build as internal tooling to make performance monitoring an ongoing practice rather than a one-off investigation?",
+        "modelAnswer": "A dashboard aggregating real, production performance data (via MetricKit or a similar pipeline) — launch time, hang rate, memory — tracked over time per app version, so a regression is visible immediately after a release rather than discovered weeks later from scattered user complaints.",
+        "talkingPoints": [
+          "MetricKit gives real, production, aggregated performance data without needing users to manually report anything.",
+          "Tracking per-app-version trends turns 'is this release slower' into a direct, answerable question.",
+          "This shifts performance work from reactive firefighting to an ongoing, measurable practice."
+        ],
+        "followUps": [
+          "What would you alert on automatically versus what would just feed into a dashboard for manual review?"
+        ]
+      },
+      {
+        "id": "pd-s7",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "How would you root-cause a heisenbug — a concurrency bug that seems to disappear when you add debugging instrumentation?",
+        "modelAnswer": "Recognize that the instrumentation itself (a print, a breakpoint, even Instruments' own overhead) can change timing enough to mask a race — so reasoning from code review and invariants (what SHOULD be true at each point) matters more here than trying to catch it live. Tools designed not to perturb timing as much, like the Thread Sanitizer, are more reliable than manual debugging for this specific class of bug.",
+        "talkingPoints": [
+          "Adding a print statement can genuinely change the timing enough to hide a race — this is a real, well-known phenomenon.",
+          "Thread Sanitizer instruments memory accesses specifically to catch races, with much less timing distortion than manual debugging.",
+          "Sometimes the fix comes from proving a piece of code CAN'T be safe by inspection, rather than ever catching it in the act."
+        ],
+        "followUps": [
+          "Why is Thread Sanitizer generally more reliable here than adding print statements or breakpoints?"
+        ]
+      },
+      {
+        "id": "pd-s8",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "How would you profile and fix SwiftUI diffing overhead at scale — a screen with a very large, complex view hierarchy?",
+        "modelAnswer": "Use the SwiftUI Instruments template to see where time is actually spent — often in body evaluation for views that didn't need to update, or excessive AnyView/type-erasure forcing more diffing work — then reduce unnecessary re-evaluation by scoping state more granularly and avoiding type erasure in hot paths.",
+        "talkingPoints": [
+          "Type erasure (AnyView) trades away some of SwiftUI's ability to efficiently diff, since the concrete type information is hidden.",
+          "Extracting subviews so SwiftUI can diff and skip unchanged branches independently is a common, effective technique.",
+          "This kind of investigation needs actual measurement — SwiftUI's diffing behavior isn't always intuitive from reading the code alone."
+        ],
+        "followUps": [
+          "Why does wrapping a view in AnyView reduce SwiftUI's ability to diff it efficiently?"
+        ]
+      },
+      {
+        "id": "pd-s9",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "What's your approach to setting a performance budget for a new feature before it ships?",
+        "modelAnswer": "Define explicit, measurable limits up front — e.g. this screen must render its first frame within X ms, use no more than Y MB of additional memory — tied to what would actually be noticeable/harmful to users, then measure against that budget in CI or manual profiling before merging rather than discovering a violation after release.",
+        "talkingPoints": [
+          "A budget tied to user-perceptible impact is far more actionable than a vague 'try to keep it fast' expectation.",
+          "This forces performance to be part of the design conversation up front, not an afterthought once it's already slow.",
+          "Budgets need periodic revisiting as the app and device capabilities evolve — they're not set once forever."
+        ],
+        "followUps": [
+          "How would you decide what an appropriate budget number actually is for a brand-new feature with no prior baseline?"
+        ]
+      },
+      {
+        "id": "pd-s10",
+        "category": "Performance & debugging",
+        "difficulty": "Senior",
+        "prompt": "How would you investigate a performance issue that only reproduces on older/lower-end devices, not on your development hardware?",
+        "modelAnswer": "Test directly on representative low-end hardware (or the oldest officially supported device) rather than extrapolating from a high-end device's profile, since CPU/GPU/memory constraints scale very differently across the device range — Instruments run on the actual target device gives numbers that a simulator or newer device simply can't.",
+        "talkingPoints": [
+          "A feature that feels instant on the newest device can be genuinely unusable on the oldest supported one — this gap is easy to miss without deliberate testing.",
+          "Simulators run on Mac hardware and don't accurately represent an older iPhone's real performance characteristics.",
+          "Maintaining at least one old, officially-supported device for testing is a worthwhile investment for any team shipping broadly."
+        ],
+        "followUps": [
+          "What's a concrete example of an optimization that matters a lot on an old device but is invisible on a new one?"
+        ]
+      }
+    ]
   },
   {
     "name": "Behavioural",
@@ -106,10 +1850,449 @@
           "Showing you changed your mind at least once reads better than always being right.",
           "Keep it short — this is a door-opener for follow-up questions, not the whole interview."
         ],
-        "followUps": ["How did you make sure the disagreement didn't become personal?"]
+        "followUps": [
+          "How did you make sure the disagreement didn't become personal?"
+        ]
+      },
+      {
+        "id": "bh-j2",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you got stuck and had to ask for help.",
+        "modelAnswer": "Show that you tried a reasonable amount on your own first, then describe exactly what you asked and from whom, and what you learned — the goal is proving good judgment about WHEN to ask, not that you never get stuck.",
+        "talkingPoints": [
+          "Struggling silently for too long before asking is its own red flag interviewers listen for.",
+          "Naming what you'd tried already shows you didn't just offload the problem.",
+          "End on what you'd do differently next time you hit something similar."
+        ],
+        "followUps": [
+          "How do you decide when you've spent 'enough time' before asking for help?"
+        ]
+      },
+      {
+        "id": "bh-j3",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you had to learn a new technology quickly.",
+        "modelAnswer": "Pick a real example with a real deadline pressure, describe your actual learning approach (docs, a small experiment, asking someone), and be honest about what you still didn't fully understand by the time you shipped — that honesty reads better than claiming instant mastery.",
+        "talkingPoints": [
+          "A specific, concrete learning strategy is more convincing than a vague 'I read the documentation'.",
+          "Admitting a remaining gap and how you handled it shows maturity, not weakness.",
+          "Keep the technical detail light — this is about your learning process, not a tech deep-dive."
+        ],
+        "followUps": [
+          "How do you usually decide where to start when learning something completely new?"
+        ]
+      },
+      {
+        "id": "bh-j4",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a bug you introduced. How did you handle it?",
+        "modelAnswer": "Own it plainly — what the bug was, how it was found, and what you did about it — rather than over-explaining why it wasn't really your fault. Ending with what you changed afterward (a habit, a test you now write) is what makes this answer land well.",
+        "talkingPoints": [
+          "Deflecting blame is one of the fastest ways to lose credibility in this answer.",
+          "A concrete process change afterward (not just 'I was more careful') shows real learning.",
+          "Keep the story short — the point is your response to the mistake, not the bug's technical details."
+        ],
+        "followUps": [
+          "What's a habit or process you adopted afterward specifically because of that bug?"
+        ]
+      },
+      {
+        "id": "bh-j5",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you received critical feedback that was hard to hear.",
+        "modelAnswer": "Describe the feedback plainly without softening it too much, your honest initial reaction, and then how you actually processed and acted on it — the arc from defensive-or-stung to genuinely incorporating it is the part interviewers are listening for.",
+        "talkingPoints": [
+          "A too-polished 'I immediately agreed and loved the feedback' story often reads as inauthentic.",
+          "Showing the feedback actually changed something concrete afterward is stronger than just 'I took it well'.",
+          "This is one of the more revealing behavioral questions — genuine self-awareness matters more than a perfect answer."
+        ],
+        "followUps": [
+          "Did you ever disagree with feedback you received? How did you handle that?"
+        ]
+      },
+      {
+        "id": "bh-j6",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you had to work from an ambiguous or incomplete spec.",
+        "modelAnswer": "Describe what was actually missing, how you decided to fill the gap (asking someone, making a reasonable assumption and stating it, building the simplest version first), and how that decision turned out — showing you can make forward progress without needing everything specified perfectly.",
+        "talkingPoints": [
+          "Freezing entirely until a spec is perfect is itself a red flag some interviewers are probing for.",
+          "Stating an assumption explicitly (rather than silently guessing) is a good practice worth highlighting.",
+          "It's fine if the assumption turned out wrong, as long as you show how you'd course-correct."
+        ],
+        "followUps": [
+          "How do you decide when an assumption is safe to make versus when you need to stop and ask?"
+        ]
+      },
+      {
+        "id": "bh-j7",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you had to prioritize when everything felt urgent.",
+        "modelAnswer": "Describe the actual competing items, the reasoning you used to rank them (impact, deadline, dependency on others), and the concrete tradeoff you made — including what you deliberately didn't get to and why that was the right call.",
+        "talkingPoints": [
+          "A concrete prioritization framework (even a simple one) is more convincing than 'I just did what felt important'.",
+          "Naming what you chose NOT to do is often the most telling part of this answer.",
+          "If the prioritization involved other people's expectations, briefly mention how you communicated it."
+        ],
+        "followUps": [
+          "How did you communicate to others that something they cared about was being deprioritized?"
+        ]
+      },
+      {
+        "id": "bh-j8",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you worked on a team project and had a disagreement about how to implement something.",
+        "modelAnswer": "State both technical positions clearly and fairly, describe how the disagreement actually got resolved (discussion, a quick prototype, deferring to someone with more context), and be honest about which side you were on and whether you were right.",
+        "talkingPoints": [
+          "Being willing to say you were wrong (if you were) is more convincing than every story ending in your favor.",
+          "Describing HOW it got resolved matters more than who was right.",
+          "Keep technical detail light enough that a non-technical interviewer could still follow the story's shape."
+        ],
+        "followUps": [
+          "What would you do differently if the same kind of disagreement came up again?"
+        ]
+      },
+      {
+        "id": "bh-j9",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a time you had to give up on your preferred approach and go with someone else's.",
+        "modelAnswer": "Describe your reasoning for your original preference honestly, what actually changed your mind (new information, a compelling argument, deferring to more context), and be specific about whether you were fully convinced or just deferring — both are legitimate, but be honest about which.",
+        "talkingPoints": [
+          "Pretending you were instantly and fully convinced when you weren't reads as inauthentic.",
+          "Showing you can genuinely update your view based on a good argument is the real signal here.",
+          "It's fine to say you deferred without being fully convinced, as long as you explain why that was still the right call."
+        ],
+        "followUps": [
+          "How do you usually decide whether to keep pushing your point versus deferring?"
+        ]
+      },
+      {
+        "id": "bh-j10",
+        "category": "Behavioural",
+        "difficulty": "Junior",
+        "prompt": "Tell me about a project you're proud of, and what made it hard.",
+        "modelAnswer": "Pick something with a real, specific technical or logistical challenge — not just 'it worked' — and walk through what made it genuinely hard and what you actually did about that difficulty, ending on why you're specifically proud of it (not just that it shipped).",
+        "talkingPoints": [
+          "Specificity about the actual hard part is what separates a memorable answer from a generic one.",
+          "Pride tied to overcoming a real obstacle lands better than pride tied only to the outcome.",
+          "This is a good moment to let genuine enthusiasm for the work show through."
+        ],
+        "followUps": [
+          "What would you do differently if you started that project again today?"
+        ]
       }
     ],
-    "mid": [],
-    "senior": []
+    "mid": [
+      {
+        "id": "bh-m1",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time you had to push back on an unrealistic deadline.",
+        "modelAnswer": "Describe the actual pressure and stakeholders involved, how you communicated the real tradeoffs (not just 'this is impossible', but what's possible by when and what it would cost to hit the original date), and how it was resolved — the goal is showing you can advocate for reality without just being difficult.",
+        "talkingPoints": [
+          "Bringing concrete tradeoffs (scope, quality, staffing) rather than just objecting is what makes pushback credible.",
+          "Showing you found or proposed an alternative, not just raised a problem, is a stronger answer.",
+          "Being honest if the deadline still didn't move, and how you handled shipping under pressure anyway, is a legitimate answer too."
+        ],
+        "followUps": [
+          "What would you have done if the deadline genuinely couldn't move despite your pushback?"
+        ]
+      },
+      {
+        "id": "bh-m2",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time you mentored a junior engineer.",
+        "modelAnswer": "Describe the specific gap you noticed and what you actually did about it — pairing, targeted feedback, deliberately giving them a stretch task with support — and be concrete about the outcome, including anything that didn't go as smoothly as planned.",
+        "talkingPoints": [
+          "Specific mentoring actions (not just 'I was available for questions') carry more weight.",
+          "Describing a genuine outcome, positive or mixed, is more credible than a too-perfect success story.",
+          "This is also a chance to show you can adapt your approach to different people's learning styles."
+        ],
+        "followUps": [
+          "How do you adjust your mentoring approach for people with very different experience levels?"
+        ]
+      },
+      {
+        "id": "bh-m3",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a technical decision you'd make differently in hindsight.",
+        "modelAnswer": "Pick a real, specific decision, explain what you knew (and didn't know) at the time that made it reasonable then, and be concrete about what you'd do differently now and why — genuine hindsight, not a decision that was obviously wrong even at the time.",
+        "talkingPoints": [
+          "A decision that was reasonable given the information available at the time is more credible than admitting an obvious mistake.",
+          "Naming what specifically changed (new information, new constraints) is what makes the hindsight genuine.",
+          "This question tests whether you can reflect honestly on your own past judgment, not just recite lessons learned."
+        ],
+        "followUps": [
+          "What would have had to be true for you to make the better decision back then?"
+        ]
+      },
+      {
+        "id": "bh-m4",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time you disagreed with another engineer about architecture and had to resolve it.",
+        "modelAnswer": "Present both positions fairly and specifically, describe the actual mechanism of resolution (a design doc, a prototype comparing both approaches, escalating to a shared decision-maker), and be honest about the outcome and whether it was the right call in retrospect.",
+        "talkingPoints": [
+          "A concrete resolution mechanism (not just 'we talked it out') is more convincing at this level.",
+          "Showing you can disagree productively without it becoming personal is a key signal here.",
+          "If you were wrong, saying so plainly is stronger than any spin."
+        ],
+        "followUps": [
+          "How do you decide when to escalate an architecture disagreement versus keep working it out between the two of you?"
+        ]
+      },
+      {
+        "id": "bh-m5",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time scope crept on a project you were leading or heavily involved in.",
+        "modelAnswer": "Describe how the scope actually grew (a new requirement, an underestimated edge case), how you noticed and named it explicitly rather than silently absorbing it, and what you did — renegotiating timeline, cutting something else, or explicitly accepting the tradeoff.",
+        "talkingPoints": [
+          "Naming scope creep explicitly, rather than silently working overtime to absorb it, is the healthier pattern to describe.",
+          "A concrete renegotiation (timeline, scope cut) shows you can manage this actively, not just endure it.",
+          "This is a good moment to show awareness of the cost of silently absorbing scope creep long-term."
+        ],
+        "followUps": [
+          "How do you tell the difference between reasonable scope refinement and genuine scope creep?"
+        ]
+      },
+      {
+        "id": "bh-m6",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time you advocated for paying down technical debt.",
+        "modelAnswer": "Frame the ask in terms stakeholders actually cared about — velocity, bug rate, onboarding time — rather than purely 'this code is ugly', and describe how you got buy-in (data, a small proof-of-concept improvement, tying it to an upcoming feature that would be harder without it).",
+        "talkingPoints": [
+          "Framing debt in terms of concrete business impact, not just code aesthetics, is what actually gets buy-in.",
+          "A small, low-risk proof of the improvement's value is often more persuasive than a big upfront proposal.",
+          "Being honest about whether you succeeded, partially succeeded, or didn't is more credible than a universal success story."
+        ],
+        "followUps": [
+          "What would you do if leadership still said no despite a well-reasoned case?"
+        ]
+      },
+      {
+        "id": "bh-m7",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time you had to give a peer difficult feedback.",
+        "modelAnswer": "Describe the actual situation and feedback specifically (vague answers here read as evasive), how you delivered it — privately, focused on behavior/impact rather than character — and what happened afterward, including whether the relationship or their behavior actually changed.",
+        "talkingPoints": [
+          "Specificity about what you actually said (not just 'I gave them feedback') is what makes this answer credible.",
+          "Focusing feedback on behavior and impact, not character, is a signal of maturity worth explicitly naming.",
+          "An honest account of an imperfect outcome is more convincing than a story where everything goes smoothly."
+        ],
+        "followUps": [
+          "How do you decide whether feedback should be given immediately versus saved for a scheduled 1:1?"
+        ]
+      },
+      {
+        "id": "bh-m8",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time you had to balance code quality against shipping quickly.",
+        "modelAnswer": "Name the actual tradeoff explicitly — what corner was cut, why, and what the plan was to address it later (or why it turned out fine not to) — rather than framing it as quality always winning or always losing, since real engineering constantly makes this tradeoff deliberately.",
+        "talkingPoints": [
+          "A deliberate, explicit tradeoff (with a plan to revisit) is a stronger answer than either extreme.",
+          "Following up on whether the 'pay it back later' plan actually happened adds real credibility.",
+          "This question often probes whether you can make pragmatic calls rather than being dogmatic either way."
+        ],
+        "followUps": [
+          "Did you ever go back and address the corner you cut? What happened if you didn't?"
+        ]
+      },
+      {
+        "id": "bh-m9",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time you had to work with a difficult stakeholder or teammate.",
+        "modelAnswer": "Describe the actual friction specifically and professionally (no need to be harsh about the person), what you did to work through it — understanding their underlying concern, adjusting your communication style, finding common ground — and how the working relationship evolved.",
+        "talkingPoints": [
+          "Staying professional and specific about the friction, rather than venting, is important in how this lands.",
+          "Understanding the other person's underlying motivation/concern often unlocks a better working relationship than just 'trying harder to be nice'.",
+          "An honest account, including if the relationship only partially improved, is fine and often more credible."
+        ],
+        "followUps": [
+          "What did you learn about your own communication style from that experience?"
+        ]
+      },
+      {
+        "id": "bh-m10",
+        "category": "Behavioural",
+        "difficulty": "Mid",
+        "prompt": "Tell me about a time you had to make a decision with incomplete information under time pressure.",
+        "modelAnswer": "Describe the actual gap in information, what you did to reduce uncertainty as much as time allowed (a quick check, asking the one person who might know), and the reasoning behind the call you ultimately made — including how it turned out and what you'd do differently with more time.",
+        "talkingPoints": [
+          "Showing you tried to reduce uncertainty efficiently, rather than either freezing or guessing blindly, is the key signal.",
+          "Being explicit about your reasoning at decision time (not just the outcome) shows real judgment.",
+          "An honest account of a decision that didn't pan out perfectly is fine, as long as the reasoning was sound given what you knew."
+        ],
+        "followUps": [
+          "How do you decide how much time to spend gathering more information before you just have to decide?"
+        ]
+      }
+    ],
+    "senior": [
+      {
+        "id": "bh-s1",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a time you led a project through a major technical pivot.",
+        "modelAnswer": "Describe what forced the pivot, how you communicated the change to the team and stakeholders (including the cost of the work already done), and how you kept the team's morale and momentum through what's usually a difficult transition — this is as much about leadership through uncertainty as the technical decision itself.",
+        "talkingPoints": [
+          "Naming the sunk-cost conversation explicitly — acknowledging prior work's cost without letting it drive a bad decision forward — is a mature signal.",
+          "How you kept the team motivated through the pivot often matters as much as the technical reasoning for it.",
+          "Being honest about what was hard or imperfect about the transition is stronger than a story where it went flawlessly."
+        ],
+        "followUps": [
+          "How did you handle team members who disagreed with the decision to pivot?"
+        ]
+      },
+      {
+        "id": "bh-s2",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a production incident you handled, and the postmortem that followed.",
+        "modelAnswer": "Walk through the incident's actual timeline and your role in resolving it, then focus real weight on the postmortem — specifically whether it was blameless, what root cause (not just symptom) was identified, and what concrete, tracked follow-up actually happened afterward, not just what was discussed.",
+        "talkingPoints": [
+          "A blameless postmortem culture (focused on systems and process, not individual fault) is a strong signal to name explicitly if it was true.",
+          "Distinguishing root cause from the immediate trigger shows real incident-analysis maturity.",
+          "Following up on whether the action items from the postmortem actually got done is what separates real learning from a checkbox exercise."
+        ],
+        "followUps": [
+          "What's an example of a postmortem action item that didn't get followed through on, and why?"
+        ]
+      },
+      {
+        "id": "bh-s3",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a time you influenced engineers outside your direct team, without formal authority over them.",
+        "modelAnswer": "Describe the specific outcome you were trying to achieve and the actual mechanism of influence you used — building a credible case with data/prototypes, finding allies, working through existing forums/processes rather than around them — since influence without authority is fundamentally about earning trust and making a clear, compelling case.",
+        "talkingPoints": [
+          "Naming the specific mechanism (not just 'I convinced them') is what makes this answer credible at a senior level.",
+          "Working through existing processes/forums, rather than around them, tends to build more durable influence.",
+          "Being honest about a case where influence only partially worked is a legitimate, credible answer."
+        ],
+        "followUps": [
+          "What do you do when a team you don't have authority over simply won't adopt your recommendation?"
+        ]
+      },
+      {
+        "id": "bh-s4",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a time you made an unpopular technical decision and had to stand by it.",
+        "modelAnswer": "Describe the decision, why it was unpopular (real, understandable objections, not strawmen), and how you handled the disagreement — genuinely listening to the pushback, being willing to be wrong, but ultimately explaining your reasoning clearly and following through — and be honest about how it turned out.",
+        "talkingPoints": [
+          "Steelmanning the opposition's view, rather than dismissing it, is what shows real judgment here.",
+          "Standing by a decision under pushback is different from being unwilling to reconsider — both matter.",
+          "An honest account of a decision that turned out only partially right is more credible than a universal vindication story."
+        ],
+        "followUps": [
+          "What would have made you change your mind at the time, if anything?"
+        ]
+      },
+      {
+        "id": "bh-s5",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a time you had to balance short-term business pressure against long-term code health.",
+        "modelAnswer": "Name the actual, specific tradeoff and the reasoning behind wherever you landed — this is rarely a clean 'I chose long-term health' story; more often it's a negotiated middle ground with an explicit, tracked plan to address what was deferred, and honesty about whether that plan actually happened.",
+        "talkingPoints": [
+          "A senior-level answer here rarely claims one side always wins — it shows judgment about WHEN each consideration should dominate.",
+          "An explicit, tracked plan for deferred work is stronger than an implicit 'we'll get to it eventually'.",
+          "Being honest if the deferred work never actually got addressed is a real, credible answer worth including."
+        ],
+        "followUps": [
+          "How do you decide, in general, when short-term pressure should win over long-term code health?"
+        ]
+      },
+      {
+        "id": "bh-s6",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about how you've grown or retained engineers on a team you led.",
+        "modelAnswer": "Describe specific, individual actions — a stretch project matched to someone's growth area, advocating for their promotion with concrete evidence, adjusting their workload during a difficult period — rather than generic statements about 'caring about my team', since retention and growth come from specific, sustained actions.",
+        "talkingPoints": [
+          "Specific, individualized actions are far more convincing than general statements about team culture.",
+          "Being honest about someone you couldn't retain, and what you learned from that, is a legitimate and often stronger answer than only success stories.",
+          "This question probes whether you invest in people proactively, not just react when someone's already unhappy."
+        ],
+        "followUps": [
+          "Tell me about a time you couldn't retain someone despite your efforts. What did you learn?"
+        ]
+      },
+      {
+        "id": "bh-s7",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a time you were wrong about a significant technical bet.",
+        "modelAnswer": "Be genuinely honest about the bet, why you made it with the information available at the time, when and how you realized it was wrong, and what you did about it — including the cost of unwinding it. This is one of the most revealing senior-level questions; a too-clean answer undermines its own credibility.",
+        "talkingPoints": [
+          "Genuine, specific honesty here is worth more than any amount of careful framing.",
+          "Describing the actual cost of being wrong (time, rework, trust) shows real accountability.",
+          "What changed in how you make similar bets afterward is the part that shows real growth from the experience."
+        ],
+        "followUps": [
+          "How did being wrong about that bet change how you evaluate similar decisions today?"
+        ]
+      },
+      {
+        "id": "bh-s8",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a time you had to say no to a request from senior leadership.",
+        "modelAnswer": "Describe the actual request, your reasoning for pushing back, and — critically — HOW you said no: with a clear rationale and, ideally, an alternative or a path to yes under different conditions, rather than a flat refusal. Be honest about how leadership responded and whether your no held.",
+        "talkingPoints": [
+          "A 'no, but here's what could work' is generally more effective and more senior than a flat 'no'.",
+          "Bringing data or clear reasoning, not just gut feeling, is what makes pushback to leadership land well.",
+          "Being honest if leadership overruled you anyway, and how you executed afterward, is a legitimate part of this story."
+        ],
+        "followUps": [
+          "What did you do if leadership overruled your no anyway?"
+        ]
+      },
+      {
+        "id": "bh-s9",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a time you had to build consensus across teams with genuinely conflicting priorities.",
+        "modelAnswer": "Describe the actual conflicting priorities honestly (not as a strawman one side clearly should have won), and the process you used to find real alignment — surfacing the underlying goals behind each position, finding a solution that served both, or making the tradeoff explicit when a true compromise wasn't possible.",
+        "talkingPoints": [
+          "Presenting both sides' priorities as genuinely legitimate, not one obviously wrong, is what makes this answer credible.",
+          "Surfacing underlying goals (not just stated positions) often reveals solutions neither side initially saw.",
+          "Being honest if true consensus wasn't reachable, and how the tradeoff was made instead, is a legitimate senior-level answer."
+        ],
+        "followUps": [
+          "What do you do when two teams' priorities genuinely cannot both be satisfied?"
+        ]
+      },
+      {
+        "id": "bh-s10",
+        "category": "Behavioural",
+        "difficulty": "Senior",
+        "prompt": "Tell me about a time you had to decide whether to build something in-house versus adopt a third-party solution, with real organizational stakes.",
+        "modelAnswer": "Walk through the actual factors weighed — long-term maintenance cost, team expertise, vendor lock-in risk, time-to-market — and be honest about which factors ended up mattering most in practice, including anything that surprised you after the decision was made and lived with for a while.",
+        "talkingPoints": [
+          "Naming the real tradeoffs (not just 'build is more flexible, buy is faster') shows genuine experience with this decision.",
+          "Being honest about a factor that mattered more in hindsight than expected is a strong, credible detail.",
+          "This decision's stakes (cost, lock-in, team capacity) are organizational, not just technical — a senior answer should reflect that breadth."
+        ],
+        "followUps": [
+          "Would you make the same call again today, knowing what you know now?"
+        ]
+      }
+    ]
   }
 ]
