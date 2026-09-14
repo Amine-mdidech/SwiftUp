@@ -54,7 +54,13 @@ struct QuizQuestionView: View {
             }
 
             ScrollView {
-                VStack(spacing: 0) {
+                // `.leading`, not the VStack default `.center`: a ScrollView stretches its content
+                // to the full screen width, but no individual optionRow expands to fill that width
+                // (no Spacer, no maxWidth:.infinity) — each one only takes the width its own text
+                // needs. Left at the VStack default, shorter-text rows center under the longer ones
+                // instead of lining up at the same left edge (same root cause as RuledRow's earlier
+                // horizontal-centering bug, in a different component).
+                VStack(alignment: .leading, spacing: 0) {
                     ForEach(question.options) { option in
                         optionRow(option, question: question, answered: answered, selected: selected)
                     }
