@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct TodayFlowView: View {
+    /// `.editions` is terminal for the rest of the day: nothing transitions back to `.entry` once
+    /// today's real quiz is finished — the user stays on `QuizEditionsView`, redoing any of the last
+    /// 7 days (today included) for practice, until the app relaunches and this `@State` resets.
     enum Stage { case entry, question, summary, editions }
 
     @Environment(QuestionRepository.self) private var questionRepo
@@ -35,8 +38,7 @@ struct TodayFlowView: View {
                     case .editions:
                         QuizEditionsView(
                             todayXPEarned: session?.totalXPEarned ?? 0,
-                            onSelectDay: startReplay,
-                            onDoneForToday: finish
+                            onSelectDay: startReplay
                         )
                     }
                 }
@@ -99,12 +101,6 @@ struct TodayFlowView: View {
             practiceSession = nil
             stage = .editions
         }
-    }
-
-    private func finish() {
-        session = nil
-        practiceSession = nil   // the .question stage prefers practiceSession — never leave a stale one
-        stage = .entry
     }
 }
 
