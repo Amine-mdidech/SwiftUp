@@ -180,4 +180,17 @@ struct RepositoryTests {
         #expect(days[6].state == .missed) // 2026-01-10, today, no record
         #expect(days[0].state == .missed) // 2026-01-04, no record
     }
+
+    @Test func quizSessionDefaultsToNotPracticeAndStoresExplicitFlag() {
+        let question = Question(
+            id: "q1", topic: "Swift", level: .junior, format: .multipleChoice, prompt: "?",
+            codeSnippet: nil, options: [QuestionOption(id: "A", text: "a")],
+            correctOptionID: "A", explanation: "e", xp: 10
+        )
+        let real = QuizSession(questions: [question])
+        #expect(real.isPractice == false)
+
+        let practice = QuizSession(questions: [question], isPractice: true)
+        #expect(practice.isPractice == true)
+    }
 }

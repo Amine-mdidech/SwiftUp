@@ -3,13 +3,21 @@ import Foundation
 @Observable
 final class QuizSession {
     let questions: [Question]
+    /// `true` for a redo of a past day started from `QuizEditionsView`. This flag is never read
+    /// inside `QuizSession` itself — "zero stat impact" for a practice redo is structural:
+    /// `TodayFlowView.advancePractice` (the only caller that ever advances a practice session)
+    /// simply never calls `ProfileRepository.recordCompletion` or `QuestionRepository.recordAnswered`,
+    /// unlike `advance()` (the real-quiz path). The flag exists so call sites and future features can
+    /// tell which kind of session they're holding without threading a separate parameter everywhere.
+    let isPractice: Bool
     private(set) var currentIndex: Int = 0
     private var answers: [String: String] = [:]
     private let startedAt = Date()
     private var finishedAt: Date?
 
-    init(questions: [Question]) {
+    init(questions: [Question], isPractice: Bool = false) {
         self.questions = questions
+        self.isPractice = isPractice
     }
 
     var currentQuestion: Question? {
