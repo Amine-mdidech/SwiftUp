@@ -315,17 +315,35 @@ final class ProfileRepository {
     var inReachAchievements: [Achievement] { achievements.filter { $0.status == .inReach } }
     var lockedAchievements: [Achievement] { achievements.filter { $0.status == .locked } }
 
+    /// `count` calendar-day keys ending at `today`, oldest first. Shared by `buildCalendarDays`
+    /// (112-day grid) and `buildLastSevenDays` (7-day redo picker) so the offset arithmetic lives in
+    /// one place.
+    private static func recentDates(before today: String, count: Int) -> [String] {
+        (0..<count).compactMap { offset in StreakCalculator.dateOffset(-(count - 1 - offset), from: today) }
+    }
+
     /// The last 112 calendar days as an ordered grid input — oldest first, today last. Factored out
     /// as a static, pure function (rather than inline in a computed property reading `self`) so it's
     /// directly unit-testable without touching Firestore or this class's `private(set)` state.
     static func buildCalendarDays(from records: [String: StreakDayState], today: String) -> [StreakDayState] {
-        (0..<112).compactMap { offset -> StreakDayState? in
-            guard let date = StreakCalculator.dateOffset(-(111 - offset), from: today) else { return nil }
-            return records[date] ?? .missed
-        }
+        recentDates(before: today, count: 112).map { records[$0] ?? .missed }
+    }
+
+    /// Today + the 6 days before it, oldest first, today last, paired with their state — the pure
+    /// core of `lastSevenDays` below (mirrors `buildCalendarDays`), directly unit-testable without
+    /// touching Firestore or the device clock.
+    static func buildLastSevenDays(from records: [String: StreakDayState], today: String) -> [(date: String, state: StreakDayState)] {
+        recentDates(before: today, count: 7).map { ($0, records[$0] ?? .missed) }
     }
 
     var streakCalendarDays: [StreakDayState] {
         Self.buildCalendarDays(from: streakDayRecords, today: Self.todayString())
+    }
+
+    /// Today + the 6 days before it, oldest first, today last — for the post-quiz "redo an earlier
+    /// day" picker. Unlike `streakCalendarDays`, callers need the date string itself (to know which
+    /// day a tap means), not just its state.
+    var lastSevenDays: [(date: String, state: StreakDayState)] {
+        Self.buildLastSevenDays(from: streakDayRecords, today: Self.todayString())
     }
 }

@@ -25,4 +25,40 @@ enum DailyEdition {
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
     }
+
+    /// Parses a `yyyy-MM-dd` calendar-day key (the same convention `todayKey` produces) back into
+    /// a `Date` for display formatting. `nil` for a malformed key.
+    private static func date(from dateKey: String, timeZone: TimeZone) -> Date? {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = timeZone
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.date(from: dateKey)
+    }
+
+    /// Full weekday name ("Friday") for a `yyyy-MM-dd` key — e.g. the past-editions redo button's
+    /// "Sit Friday's" copy. Empty string for a malformed key (never reachable from real streak-day
+    /// data, but keeps this a total function for callers).
+    static func weekdayName(for dateKey: String, timeZone: TimeZone = .current) -> String {
+        guard let parsed = date(from: dateKey, timeZone: timeZone) else { return "" }
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.timeZone = timeZone
+        formatter.dateFormat = "EEEE"
+        return formatter.string(from: parsed)
+    }
+
+    /// Three-letter weekday abbreviation ("Fri") for a `yyyy-MM-dd` key — the compact day-block
+    /// labels on the past-editions redo row.
+    static func shortWeekdayName(for dateKey: String, timeZone: TimeZone = .current) -> String {
+        guard let parsed = date(from: dateKey, timeZone: timeZone) else { return "" }
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.timeZone = timeZone
+        formatter.dateFormat = "EEE"
+        return formatter.string(from: parsed)
+    }
 }

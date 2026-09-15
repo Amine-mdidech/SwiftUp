@@ -40,4 +40,19 @@ struct DailyEditionTests {
         #expect(DailyEdition.todayKey(for: utcEvening, timeZone: Self.utc) == "2026-09-07")
         #expect(DailyEdition.todayKey(for: utcEvening, timeZone: tokyo) == "2026-09-08")
     }
+
+    @Test func weekdayNameReturnsFullWeekday() throws {
+        #expect(DailyEdition.weekdayName(for: "2026-09-07", timeZone: Self.utc) == "Monday")
+        #expect(DailyEdition.weekdayName(for: "2026-09-10", timeZone: Self.utc) == "Thursday")
+    }
+
+    @Test func shortWeekdayNameReturnsThreeLetterAbbreviation() throws {
+        #expect(DailyEdition.shortWeekdayName(for: "2026-09-07", timeZone: Self.utc) == "Mon")
+        #expect(DailyEdition.shortWeekdayName(for: "2026-09-10", timeZone: Self.utc) == "Thu")
+    }
+
+    @Test func weekdayNameReturnsEmptyStringForAnUnparseableKey() {
+        #expect(DailyEdition.weekdayName(for: "not-a-date", timeZone: Self.utc) == "")
+        #expect(DailyEdition.shortWeekdayName(for: "not-a-date", timeZone: Self.utc) == "")
+    }
 }

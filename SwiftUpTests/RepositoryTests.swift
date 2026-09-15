@@ -163,4 +163,21 @@ struct RepositoryTests {
         #expect(days.count == 112)
         #expect(days.allSatisfy { $0 == .missed })
     }
+
+    @MainActor
+    @Test func profileRepositoryBuildsLastSevenDaysOldestFirstTodayLastWithGapsAsMissed() {
+        let records: [String: StreakDayState] = [
+            "2026-01-08": .done,
+            "2026-01-09": .freeze,
+            // 2026-01-10 (today) intentionally has no entry — a fresh completion never lands before
+            // this screen renders (see spec §11).
+        ]
+        let days = ProfileRepository.buildLastSevenDays(from: records, today: "2026-01-10")
+        #expect(days.count == 7)
+        #expect(days.map(\.date) == ["2026-01-04", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-10"])
+        #expect(days[4].state == .done)   // 2026-01-08
+        #expect(days[5].state == .freeze) // 2026-01-09
+        #expect(days[6].state == .missed) // 2026-01-10, today, no record
+        #expect(days[0].state == .missed) // 2026-01-04, no record
+    }
 }

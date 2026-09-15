@@ -10,6 +10,7 @@ final class QuestionRepository {
     private(set) var editionNumber: Int?
     private(set) var isLoading = false
     private(set) var levelOverride: SkillLevel?
+    private(set) var effectiveLevel: SkillLevel = .junior
 
     init() {}
 
@@ -77,6 +78,7 @@ final class QuestionRepository {
 
         todayQuestions = daily.questions(for: effectiveLevel)
         editionNumber = daily.edition
+        self.effectiveLevel = effectiveLevel
     }
 
     private func fetchBank(level: SkillLevel) async throws -> [Question] {
@@ -90,6 +92,15 @@ final class QuestionRepository {
     private func fetchDailyQuiz() async throws -> DailyQuizDocument {
         try await Firestore.firestore()
             .collection("dailyQuizzes").document(DailyEdition.todayKey())
+            .getDocument(as: DailyQuizDocument.self)
+    }
+
+    /// A past date's shared daily quiz, for replay/practice — same document shape as today's, just a
+    /// different `dailyQuizzes/{date}` key. `nil` if that date was never seeded (predates the app, or
+    /// fell outside the seed script's rolling window) — the caller treats this as "nothing to redo."
+    func fetchPastQuiz(for dateKey: String) async -> DailyQuizDocument? {
+        try? await Firestore.firestore()
+            .collection("dailyQuizzes").document(dateKey)
             .getDocument(as: DailyQuizDocument.self)
     }
 
