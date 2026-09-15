@@ -103,6 +103,7 @@ struct TodayFlowView: View {
 
     private func finish() {
         session = nil
+        practiceSession = nil   // the .question stage prefers practiceSession — never leave a stale one
         stage = .entry
     }
 }

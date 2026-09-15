@@ -7,12 +7,16 @@ import Foundation
 protocol RewardedAdPresenting {
     /// `completion(true)` if the ad played (or there was nothing to block on) and the gated action
     /// should proceed; `completion(false)` to abandon it (e.g. the user backed out of the ad).
-    func presentAd(completion: @escaping (Bool) -> Void)
+    /// Called on the main actor — `startReplay`'s closure mutates SwiftUI `@State` directly inside
+    /// this callback, so any real conforming type (a future ad SDK wrapper) must hop back to the
+    /// main actor before invoking `completion`, not assume it's already there.
+    func presentAd(completion: @escaping @MainActor @Sendable (Bool) -> Void)
 }
 
 /// Today's stand-in — always proceeds immediately. No ad SDK is integrated yet.
 struct NoOpAdPresenter: RewardedAdPresenting {
-    func presentAd(completion: @escaping (Bool) -> Void) {
+    @MainActor
+    func presentAd(completion: @escaping @MainActor @Sendable (Bool) -> Void) {
         completion(true)
     }
 }
