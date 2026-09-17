@@ -10,6 +10,9 @@ packages:
   GoogleSignIn:
     url: https://github.com/google/GoogleSignIn-iOS
     from: 7.0.0
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
+    from: 13.0.0
 targets:
   SwiftUp:
     type: application
@@ -26,6 +29,13 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLSchemes:
               - com.googleusercontent.apps.815470112228-jp18qpb16m9eh1ktuamap25edg2qe3ja
+        # TEST App ID (Google's published sample) — swap for your real AdMob App ID
+        # once you register this app at https://apps.admob.com
+        GADApplicationIdentifier: ca-app-pub-3940256099942544~1458002511
+        SKAdNetworkItems:
+          - SKAdNetworkIdentifier: cstr6suwn9.skadnetwork   # Google's own network — functional minimum.
+                                                              # Paste Google's full partner list here before a real launch:
+                                                              # https://developers.google.com/admob/ios/choosing-networks
     entitlements:
       path: Generated/SwiftUp.entitlements
       properties:
@@ -53,6 +63,8 @@ targets:
         product: FirebaseCore
       - package: GoogleSignIn
         product: GoogleSignIn
+      - package: GoogleMobileAds
+        product: GoogleMobileAds
   SwiftUpTests:
     type: bundle.unit-test
     platform: iOS
