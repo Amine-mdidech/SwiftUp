@@ -10,6 +10,9 @@ struct AuthView: View {
     @State private var currentNonce = ""
     @State private var isSubmitting = false
     @State private var validationMessage: String?
+    // `@State`, not constructed inline in the NavigationLink closure below — see SettingsView's
+    // `adPresenter` for why (same fix, same reason).
+    @State private var adPresenter = AdMobRewardedAdPresenter()
 
     var body: some View {
         ScrollView {
@@ -89,7 +92,7 @@ struct AuthView: View {
                 .padding(.top, 32)
 
                 NavigationLink {
-                    SupportView(adPresenter: AdMobRewardedAdPresenter())
+                    SupportView(adPresenter: adPresenter)
                 } label: {
                     VStack(spacing: 14) {
                         Rectangle().fill(Theme.Colors.divider).frame(height: 1)

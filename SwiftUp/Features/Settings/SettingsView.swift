@@ -5,6 +5,11 @@ struct SettingsView: View {
     @State private var cacheOffline = true
     @State private var showOnLeaderboards = true
     @State private var shareStats = false
+    // `@State`, not constructed inline in the NavigationLink closure below: that closure isn't
+    // guaranteed to run only once, and a fresh `AdMobRewardedAdPresenter()` each time would never
+    // have had time to preload an ad before the user taps "Watch one now" (see MainTabView's
+    // `adPresenter` for the same fix applied to the practice-redo flow).
+    @State private var adPresenter = AdMobRewardedAdPresenter()
     @Environment(AuthRepository.self) private var authRepository
     @Environment(QuestionRepository.self) private var questionRepository
 
@@ -24,7 +29,7 @@ struct SettingsView: View {
                     RuledRow(showBottomRule: true, minHeight: 46) {
                         Text("Support SwiftUp").font(Theme.Fonts.body(15))
                         Spacer()
-                        NavigationLink("Donate →") { SupportView(adPresenter: AdMobRewardedAdPresenter()) }
+                        NavigationLink("Donate →") { SupportView(adPresenter: adPresenter) }
                             .font(.system(size: 13.5)).foregroundStyle(Theme.Colors.accent700)
                     }
                 }
