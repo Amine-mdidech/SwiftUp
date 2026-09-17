@@ -41,7 +41,12 @@ struct SupportView: View {
                     title: "Watch an ad, at will", tag: "30 seconds",
                     detail: "Start one whenever you feel like helping out. Never shown unprompted.",
                     buttonTitle: "Watch one now", primary: false,
-                    action: { adPresenter.presentAd { _ in } }
+                    action: {
+                        print("[AdPresenter] WATCH BUTTON TAPPED")
+                        adPresenter.presentAd { earned in
+                            print("[AdPresenter] presentAd completion fired, earned=\(earned)")
+                        }
+                    }
                 )
                 .padding(.top, 20)
 
