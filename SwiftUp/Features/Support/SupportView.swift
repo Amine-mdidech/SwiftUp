@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct SupportView: View {
+    var adPresenter: RewardedAdPresenting = NoOpAdPresenter()
+
     private let promises = [
         "No subscription. Everything is free, and stays free.",
         "No unwanted ads. Nothing plays unless you start it.",
@@ -38,7 +40,8 @@ struct SupportView: View {
                 donationBlock(
                     title: "Watch an ad, at will", tag: "30 seconds",
                     detail: "Start one whenever you feel like helping out. Never shown unprompted.",
-                    buttonTitle: "Watch one now", primary: false
+                    buttonTitle: "Watch one now", primary: false,
+                    action: { adPresenter.presentAd { _ in } }
                 )
                 .padding(.top, 20)
 
@@ -56,7 +59,7 @@ struct SupportView: View {
     }
 
     @ViewBuilder
-    private func donationBlock(title: String, tag: String, detail: String, buttonTitle: String, primary: Bool) -> some View {
+    private func donationBlock(title: String, tag: String, detail: String, buttonTitle: String, primary: Bool, action: @escaping () -> Void = {}) -> some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack {
                 Text(title).font(Theme.Fonts.heading(19))
@@ -64,7 +67,7 @@ struct SupportView: View {
                 EyebrowLabel(tag)
             }
             Text(detail).font(Theme.Fonts.body(13.5)).foregroundStyle(Theme.Colors.neutral700)
-            Button {} label: {
+            Button(action: action) {
                 Text(buttonTitle)
                     .font(.system(size: 16))
                     .frame(maxWidth: .infinity)

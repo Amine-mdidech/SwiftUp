@@ -89,7 +89,7 @@ struct AuthView: View {
                 .padding(.top, 32)
 
                 NavigationLink {
-                    SupportView()
+                    SupportView(adPresenter: AdMobRewardedAdPresenter())
                 } label: {
                     VStack(spacing: 14) {
                         Rectangle().fill(Theme.Colors.divider).frame(height: 1)

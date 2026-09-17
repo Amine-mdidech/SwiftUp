@@ -24,7 +24,7 @@ struct SettingsView: View {
                     RuledRow(showBottomRule: true, minHeight: 46) {
                         Text("Support SwiftUp").font(Theme.Fonts.body(15))
                         Spacer()
-                        NavigationLink("Donate →") { SupportView() }
+                        NavigationLink("Donate →") { SupportView(adPresenter: AdMobRewardedAdPresenter()) }
                             .font(.system(size: 13.5)).foregroundStyle(Theme.Colors.accent700)
                     }
                 }
