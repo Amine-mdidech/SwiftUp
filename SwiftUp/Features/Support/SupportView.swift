@@ -76,6 +76,7 @@ struct SupportView: View {
             .background(primary ? Theme.Colors.accent : Color.clear)
             .foregroundStyle(primary ? Theme.Colors.bg : Theme.Colors.text)
             .overlay(primary ? nil : RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
+            .contentShape(Rectangle())
             .padding(.top, 5)
         }
         .padding(.top, 16)
