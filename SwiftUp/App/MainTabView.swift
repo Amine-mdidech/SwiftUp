@@ -27,6 +27,7 @@ struct MainTabView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             CustomTabBar(selection: $selectedTab)
         }
+        .task { await adPresenter.preload() }
     }
 }
 

@@ -108,6 +108,7 @@ struct AuthView: View {
             .padding(24)
         }
         .background(Theme.Colors.bg)
+        .task { await adPresenter.preload() }
     }
 
     private var emailFields: some View {

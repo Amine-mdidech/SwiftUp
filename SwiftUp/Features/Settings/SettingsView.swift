@@ -103,6 +103,7 @@ struct SettingsView: View {
         .onAppear {
             difficulty = questionRepository.levelOverride?.rawValue ?? "Adaptive"
         }
+        .task { await adPresenter.preload() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink("Notifications") { NotificationSettingsView() }

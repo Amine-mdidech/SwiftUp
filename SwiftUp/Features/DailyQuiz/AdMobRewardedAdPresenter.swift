@@ -19,23 +19,41 @@ final class AdMobRewardedAdPresenter: NSObject, RewardedAdPresenting {
     private var pendingCompletion: (@MainActor @Sendable (Bool) -> Void)?
     private var didEarnReward = false
 
+    /// Side-effect-free on purpose: this type is typically constructed as a `@State` default
+    /// value (`@State private var adPresenter = AdMobRewardedAdPresenter()`), and SwiftUI does
+    /// NOT guarantee a `@State` default-value expression runs only once — only that its storage
+    /// is initialized once. An `init` that kicks off a network load got evaluated 4 times at a
+    /// single launch in testing, each one starting its own independent, mostly-wasted ad load.
+    /// The real preload is triggered explicitly via `preload()`, called from the owning view's
+    /// `.task` — which SwiftUI does guarantee runs exactly once per view identity.
     init(adUnitID: String = AdMobRewardedAdPresenter.testAdUnitID) {
         self.adUnitID = adUnitID
-        super.init()
-        Task { await loadAd() }
+    }
+
+    func preload() async {
+        print("[AdPresenter] preload() called")
+        await loadAd()
     }
 
     @MainActor
     func presentAd(completion: @escaping @MainActor @Sendable (Bool) -> Void) {
-        guard let rewardedAd, let root = Self.topViewController() else {
+        guard let rewardedAd else {
+            print("[AdPresenter] presentAd: no ad loaded yet — failing open")
             completion(true)
             Task { await loadAd() }
             return
         }
+        guard let root = Self.topViewController() else {
+            print("[AdPresenter] presentAd: ad WAS loaded but no root view controller found — failing open")
+            completion(true)
+            return
+        }
+        print("[AdPresenter] presentAd: presenting from \(root)")
         didEarnReward = false
         pendingCompletion = completion
         rewardedAd.fullScreenContentDelegate = self
         rewardedAd.present(from: root) { [weak self] in
+            print("[AdPresenter] reward earned callback fired")
             self?.didEarnReward = true
         }
     }
@@ -43,22 +61,32 @@ final class AdMobRewardedAdPresenter: NSObject, RewardedAdPresenting {
     private func loadAd() async {
         do {
             rewardedAd = try await RewardedAd.load(with: adUnitID, request: Request())
+            print("[AdPresenter] loadAd: succeeded, ad ready")
         } catch {
             rewardedAd = nil
+            print("[AdPresenter] loadAd: FAILED — \(error)")
         }
     }
 
+    /// Walks down the `presentedViewController` chain to the true frontmost VC — presenting from
+    /// a mere `.rootViewController` can silently no-op if anything (a sheet, another modal) is
+    /// already presented on top of it.
     private static func topViewController() -> UIViewController? {
-        UIApplication.shared.connectedScenes
+        var top = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .flatMap(\.windows)
             .first(where: \.isKeyWindow)?
             .rootViewController
+        while let presented = top?.presentedViewController {
+            top = presented
+        }
+        return top
     }
 }
 
 extension AdMobRewardedAdPresenter: FullScreenContentDelegate {
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
+        print("[AdPresenter] adDidDismissFullScreenContent, earned=\(didEarnReward)")
         rewardedAd = nil
         let completion = pendingCompletion
         let earned = didEarnReward
@@ -68,6 +96,7 @@ extension AdMobRewardedAdPresenter: FullScreenContentDelegate {
     }
 
     func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        print("[AdPresenter] didFailToPresentFullScreenContentWithError: \(error)")
         rewardedAd = nil
         let completion = pendingCompletion
         pendingCompletion = nil
