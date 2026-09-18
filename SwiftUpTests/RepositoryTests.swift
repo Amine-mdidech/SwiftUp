@@ -332,7 +332,7 @@ struct RepositoryTests {
             let content = try #require(bundle.stageContent.first { $0.stageID == stage.id })
             if stage.kind == .assessment {
                 #expect(content.slides.isEmpty)
-                #expect(content.quiz.count == 8)
+                #expect(content.quiz.count == 10)
             } else {
                 #expect(content.slides.count == 4)
                 #expect(content.quiz.count == 5)

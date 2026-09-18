@@ -48,7 +48,7 @@ def build_slide(stage_id: str, slide_index: int, stage_title: str, track_title: 
 def build_stage_content(stage: dict, track_title: str) -> dict:
     stage_id = stage["id"]
     if stage["kind"] == "assessment":
-        quiz = [build_quiz_question(stage_id, i, stage["title"]) for i in range(1, 9)]
+        quiz = [build_quiz_question(stage_id, i, stage["title"]) for i in range(1, 11)]
         return {"stageID": stage_id, "slides": [], "quiz": quiz}
     slides = [build_slide(stage_id, i, stage["title"], track_title) for i in range(1, 5)]
     quiz = [build_quiz_question(stage_id, i, stage["title"]) for i in range(1, 6)]

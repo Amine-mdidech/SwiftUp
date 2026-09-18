@@ -17,12 +17,16 @@ struct PathRegradeQuizView: View {
             if let quiz {
                 PathQuizView(
                     title: "Regrade quiz",
-                    session: PathQuizSession(questions: quiz.questions),
-                    onPassed: {
-                        guard let uid = authRepo.currentUser?.uid else { return }
-                        await pathRepo.promoteGrade(from: grade, for: uid)
-                    },
-                    onFinished: { dismiss() }
+                    questions: quiz.questions,
+                    onPassed: {},
+                    onFinished: {
+                        Task {
+                            if let uid = authRepo.currentUser?.uid {
+                                await pathRepo.promoteGrade(from: grade, for: uid)
+                            }
+                            dismiss()
+                        }
+                    }
                 )
             } else if isLoading {
                 ProgressView()

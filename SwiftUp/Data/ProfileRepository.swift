@@ -149,7 +149,7 @@ final class ProfileRepository {
             // written here survive, exactly as the dotted paths did.
             var userUpdates: [String: Any] = [
                 "totalXP": newTotalXP,
-                "xpBalance": newXPBalance,
+                "xpBalance": FieldValue.increment(Int64(session.totalXPEarned)),
                 "totalQuestionsAnswered": newTotalAnswered,
                 "perfectDayCount": newPerfectDayCount,
                 "streakDays": streakResult.streakDays,

@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Pushed from `PathWheelView` when a reachable or closed track is tapped. Read-only for this
-/// pass — the "Spend N xp · start stage M" button is a real, styled, enabled button whose action
-/// is an empty closure; spending and taking a stage's slides+quiz is a later sub-project's job.
+/// Pushed from `PathWheelView` when a reachable or closed track is tapped. Tapping the spend
+/// button unlocks the next stage — a one-time xp cost, see `PathRepository.startStage` — then
+/// opens its slides (lesson stages) or quiz (assessment stages) directly.
 struct TrackLadderView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(ProfileRepository.self) private var profileRepo
@@ -85,7 +85,9 @@ struct TrackLadderView: View {
 
                 if let nextStage {
                     Button(action: { spend(nextStage) }) {
-                        Text("Spend \(nextStage.xpCost) xp · start stage \(String(format: "%02d", nextStage.order))")
+                        Text(pathRepo.isStageStarted(nextStage)
+                            ? "Continue stage \(String(format: "%02d", nextStage.order)) · no further charge"
+                            : "Spend \(nextStage.xpCost) xp · start stage \(String(format: "%02d", nextStage.order))")
                             .font(Theme.Fonts.heading(17))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
@@ -105,7 +107,7 @@ struct TrackLadderView: View {
             if attempt.stage.kind == .assessment {
                 PathQuizView(
                     title: attempt.stage.title,
-                    session: PathQuizSession(questions: attempt.content.quiz),
+                    questions: attempt.content.quiz,
                     onPassed: { await pathRepo.completeStage(attempt.stage, for: authRepo.currentUser?.uid ?? "") },
                     onFinished: { activeAttempt = nil }
                 )
@@ -265,4 +267,5 @@ private enum SpendAlert: Identifiable {
     }
     .environment(ProfileRepository.preview())
     .environment(pathRepo)
+    .environment(AuthRepository(isPreview: true, signedIn: true))
 }

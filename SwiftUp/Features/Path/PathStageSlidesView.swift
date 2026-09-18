@@ -35,7 +35,7 @@ struct PathStageSlidesView: View {
         .navigationDestination(isPresented: $showQuiz) {
             PathQuizView(
                 title: stage.title,
-                session: PathQuizSession(questions: content.quiz),
+                questions: content.quiz,
                 onPassed: onPassed,
                 onFinished: onFinished
             )

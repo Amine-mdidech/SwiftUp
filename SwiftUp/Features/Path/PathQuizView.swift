@@ -8,9 +8,17 @@ import SwiftUI
 /// wherever this view was pushed from.
 struct PathQuizView: View {
     let title: String
-    let session: PathQuizSession
     let onPassed: () async -> Void
     let onFinished: () -> Void
+
+    @State private var session: PathQuizSession
+
+    init(title: String, questions: [PathQuizQuestion], onPassed: @escaping () async -> Void, onFinished: @escaping () -> Void) {
+        self.title = title
+        self.onPassed = onPassed
+        self.onFinished = onFinished
+        _session = State(initialValue: PathQuizSession(questions: questions))
+    }
 
     var body: some View {
         Group {
@@ -189,5 +197,5 @@ struct PathQuizView: View {
             correctOptionID: "A"
         )
     ]
-    return PathQuizView(title: "Preview stage", session: PathQuizSession(questions: questions), onPassed: {}, onFinished: {})
+    return PathQuizView(title: "Preview stage", questions: questions, onPassed: {}, onFinished: {})
 }

@@ -169,7 +169,7 @@ final class PathRepository {
         let newBalance = currentBalance - cost
         do {
             try await userRef.setData(
-                ["xpBalance": newBalance, "startedPathStageIDs": [stage.id: FieldValue.serverTimestamp()]],
+                ["xpBalance": FieldValue.increment(Int64(-cost)), "startedPathStageIDs": [stage.id: FieldValue.serverTimestamp()]],
                 merge: true
             )
             startedStageIDs.insert(stage.id)
