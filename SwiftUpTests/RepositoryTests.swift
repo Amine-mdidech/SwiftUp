@@ -376,4 +376,68 @@ struct RepositoryTests {
         await repo.promoteGrade(from: .distinguished, for: "any-uid")
         #expect(repo.grade == .junior)
     }
+
+    @Test func pathQuizSessionScorePercentAndPassedBoundary() {
+        func question(_ id: String) -> PathQuizQuestion {
+            PathQuizQuestion(
+                id: id, prompt: "P",
+                options: [QuestionOption(id: "A", text: "Correct answer"), QuestionOption(id: "B", text: "Incorrect answer 1")],
+                correctOptionID: "A"
+            )
+        }
+        let questions = (1...5).map { question("q\($0)") }
+        let session = PathQuizSession(questions: questions)
+
+        for _ in 0..<4 {
+            session.selectOption("A")   // correct
+            session.advance()
+        }
+        session.selectOption("B")   // wrong, 5th question
+        session.advance()
+
+        #expect(session.isFinished == true)
+        #expect(session.correctCount == 4)
+        #expect(session.scorePercent == 80)
+        #expect(session.passed == true)
+    }
+
+    @Test func pathQuizSessionBelowEightyPercentFails() {
+        func question(_ id: String) -> PathQuizQuestion {
+            PathQuizQuestion(
+                id: id, prompt: "P",
+                options: [QuestionOption(id: "A", text: "Correct answer"), QuestionOption(id: "B", text: "Incorrect answer 1")],
+                correctOptionID: "A"
+            )
+        }
+        let questions = (1...5).map { question("q\($0)") }
+        let session = PathQuizSession(questions: questions)
+
+        session.selectOption("A"); session.advance()
+        session.selectOption("A"); session.advance()
+        session.selectOption("A"); session.advance()
+        session.selectOption("B"); session.advance()
+        session.selectOption("B"); session.advance()
+
+        #expect(session.scorePercent == 60)
+        #expect(session.passed == false)
+    }
+
+    @Test func pathQuizSessionRetryResetsAnswersButKeepsTheSameQuestions() {
+        func question(_ id: String) -> PathQuizQuestion {
+            PathQuizQuestion(id: id, prompt: "P", options: [QuestionOption(id: "A", text: "Correct answer")], correctOptionID: "A")
+        }
+        let questions = [question("q1"), question("q2")]
+        let session = PathQuizSession(questions: questions)
+
+        session.selectOption("A"); session.advance()
+        session.selectOption("A"); session.advance()
+        #expect(session.isFinished == true)
+
+        session.retry()
+
+        #expect(session.isFinished == false)
+        #expect(session.currentIndex == 0)
+        #expect(session.isAnswered(questions[0]) == false)
+        #expect(session.questions.count == 2)
+    }
 }
