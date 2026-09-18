@@ -18,6 +18,8 @@ struct PathWheelView: View {
                     .background(Theme.Colors.bg)
             } else if isAtTopGrade {
                 topGradeContent
+            } else if isReadyToRegrade {
+                readyToRegradeContent
             } else {
                 wheelContent
             }
@@ -31,8 +33,14 @@ struct PathWheelView: View {
 
     private var currentGradeTracks: [PathTrack] { pathRepo.tracks(for: pathRepo.grade) }
     private var closedCount: Int { currentGradeTracks.filter(pathRepo.isTrackClosed).count }
+    private var allCurrentGradeTracksClosed: Bool {
+        !currentGradeTracks.isEmpty && currentGradeTracks.allSatisfy(pathRepo.isTrackClosed)
+    }
     private var isAtTopGrade: Bool {
-        pathRepo.grade == .distinguished && !currentGradeTracks.isEmpty && currentGradeTracks.allSatisfy(pathRepo.isTrackClosed)
+        pathRepo.grade == .distinguished && allCurrentGradeTracksClosed
+    }
+    private var isReadyToRegrade: Bool {
+        pathRepo.grade != .distinguished && allCurrentGradeTracksClosed
     }
 
     private var wheelContent: some View {
@@ -208,6 +216,44 @@ struct PathWheelView: View {
     }
 
     private var totalTracksEverywhere: Int { pathRepo.tracks.count }
+
+    // MARK: - Ready-to-regrade state (all of the current grade's tracks are closed, but this
+    // isn't the top grade — the regrade quiz promotes to `pathRepo.grade.next`)
+
+    private var readyToRegradeContent: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                Rectangle().fill(Theme.Colors.text).frame(height: 3)
+                HStack {
+                    EyebrowLabel(pathRepo.grade.rawValue)
+                    Spacer()
+                }
+                .padding(.vertical, 7)
+                Rectangle().fill(Theme.Colors.text).frame(height: 1)
+
+                Text("Ready to\nregrade.").font(Theme.Fonts.heading(34)).padding(.top, 22)
+                Text("All \(currentGradeTracks.count) \(pathRepo.grade.rawValue) tracks are closed. Pass the regrade quiz to become \(pathRepo.grade.next?.rawValue ?? "—").")
+                    .font(Theme.Fonts.body(15))
+                    .foregroundStyle(Theme.Colors.neutral800)
+                    .padding(.top, 14)
+
+                NavigationLink {
+                    PathRegradeQuizView(grade: pathRepo.grade)
+                } label: {
+                    Text("Start the regrade quiz")
+                        .font(Theme.Fonts.heading(17))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                }
+                .background(Theme.Colors.accent)
+                .foregroundStyle(Theme.Colors.bg)
+                .padding(.top, 26)
+
+                Spacer(minLength: 20)
+            }
+            .padding(24)
+        }
+    }
 
     private func gradeSeal(size: CGFloat) -> some View {
         ZStack {
