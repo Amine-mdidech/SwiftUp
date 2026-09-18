@@ -175,6 +175,21 @@ struct RepositoryTests {
         #expect(days[0].state == .missed) // 2026-01-04, no record
     }
 
+    @MainActor
+    @Test func profileRepositoryApplyExternalXPBalanceUpdatesOnlyXPBalance() {
+        let repo = ProfileRepository.preview(bundle: testBundle)
+        let originalXP = repo.profile.xp
+        let originalLevel = repo.profile.level
+        let originalName = repo.profile.name
+
+        repo.applyExternalXPBalance(500)
+
+        #expect(repo.profile.xpBalance == 500)
+        #expect(repo.profile.xp == originalXP)
+        #expect(repo.profile.level == originalLevel)
+        #expect(repo.profile.name == originalName)
+    }
+
     @Test func quizSessionDefaultsToNotPracticeAndStoresExplicitFlag() {
         let question = Question(
             id: "q1", topic: "Swift", level: .junior, format: .multipleChoice, prompt: "?",

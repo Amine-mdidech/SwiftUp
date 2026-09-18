@@ -194,6 +194,18 @@ final class ProfileRepository {
         }
     }
 
+    /// Updates only the in-memory `xpBalance` mirror after `PathRepository.startStage` has
+    /// already written the real decrement to Firestore — avoids a full `load(for:)` round trip
+    /// just to reflect a balance this repository didn't itself compute (design doc §3).
+    func applyExternalXPBalance(_ newBalance: Int) {
+        profile = UserProfile(
+            name: profile.name, initials: profile.initials, level: profile.level, levelTitle: profile.levelTitle,
+            xp: profile.xp, xpBalance: newBalance, xpForCurrentLevel: profile.xpForCurrentLevel, xpForNextLevel: profile.xpForNextLevel,
+            streakDays: profile.streakDays, freezesAvailable: profile.freezesAvailable, freezesTotal: profile.freezesTotal,
+            answeredCount: profile.answeredCount, accuracyPercent: profile.accuracyPercent, memberSinceDisplay: profile.memberSinceDisplay
+        )
+    }
+
     // MARK: - Firestore decode helpers
 
     private func apply(snapshot: DocumentSnapshot, recentCompletions: [(date: String, correctCount: Int)]) {
