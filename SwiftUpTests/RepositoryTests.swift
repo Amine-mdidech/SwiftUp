@@ -304,4 +304,46 @@ struct RepositoryTests {
             }
         }
     }
+
+    @Test func pathStageContentBundledFixtureDecodesAllStagesWithCorrectQuizSizes() throws {
+        let bundle = try #require(decodeJSONResource(PathContentBundle.self, filename: "path_content", bundle: testBundle))
+        #expect(bundle.stageContent.count == 141)
+
+        let tracks = decodeJSONResource([PathTrack].self, filename: "path_tracks", bundle: testBundle) ?? []
+        let allStages = tracks.flatMap(\.stages)
+        #expect(allStages.count == 141)
+
+        for stage in allStages {
+            let content = try #require(bundle.stageContent.first { $0.stageID == stage.id })
+            if stage.kind == .assessment {
+                #expect(content.slides.isEmpty)
+                #expect(content.quiz.count == 8)
+            } else {
+                #expect(content.slides.count == 4)
+                #expect(content.quiz.count == 5)
+            }
+        }
+
+        #expect(bundle.regradeQuizzes.count == 3)
+        #expect(Set(bundle.regradeQuizzes.map(\.grade)) == [.junior, .mid, .senior])
+        for quiz in bundle.regradeQuizzes {
+            #expect(quiz.questions.count == 10)
+        }
+    }
+
+    @Test func pathQuizQuestionsAlwaysHaveTheirCorrectOptionIDAmongTheirOwnFourOptions() throws {
+        let bundle = try #require(decodeJSONResource(PathContentBundle.self, filename: "path_content", bundle: testBundle))
+        for content in bundle.stageContent {
+            for question in content.quiz {
+                #expect(question.options.count == 4)
+                #expect(question.options.contains { $0.id == question.correctOptionID })
+            }
+        }
+        for quiz in bundle.regradeQuizzes {
+            for question in quiz.questions {
+                #expect(question.options.count == 4)
+                #expect(question.options.contains { $0.id == question.correctOptionID })
+            }
+        }
+    }
 }
