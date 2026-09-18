@@ -33,6 +33,7 @@
 - Delete: `SwiftUp/Data/QuestionSelector.swift`
 - Delete: `SwiftUpTests/QuestionSelectorTests.swift`
 - Test: `SwiftUpTests/RepositoryTests.swift`
+- Test: `SwiftUpTests/ModelDecodingTests.swift`
 
 **Interfaces:**
 - Produces (consumed by Task 3/4 indirectly, since `PathTrack.grade` is typed `SkillLevel`): `SkillLevel` with 4 cases (`.junior`, `.mid`, `.senior`, `.distinguished`), `SkillLevel.next: SkillLevel?`, `SkillLevel.onboardingChoices: [SkillLevel]`.
