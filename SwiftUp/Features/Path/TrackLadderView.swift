@@ -7,7 +7,11 @@ struct TrackLadderView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(ProfileRepository.self) private var profileRepo
     @Environment(PathRepository.self) private var pathRepo
+    @Environment(AuthRepository.self) private var authRepo
     let track: PathTrack
+
+    @State private var activeAttempt: StageAttempt?
+    @State private var spendAlert: SpendAlert?
 
     var body: some View {
         ScrollView {
@@ -80,7 +84,7 @@ struct TrackLadderView: View {
                 .overlay(Rectangle().fill(Theme.Colors.text).frame(height: 1), alignment: .top)
 
                 if let nextStage {
-                    Button(action: {}) {
+                    Button(action: { spend(nextStage) }) {
                         Text("Spend \(nextStage.xpCost) xp · start stage \(String(format: "%02d", nextStage.order))")
                             .font(Theme.Fonts.heading(17))
                             .frame(maxWidth: .infinity)
@@ -97,6 +101,25 @@ struct TrackLadderView: View {
         }
         .background(Theme.Colors.bg)
         .navigationBarBackButtonHidden()
+        .navigationDestination(item: $activeAttempt) { attempt in
+            if attempt.stage.kind == .assessment {
+                PathQuizView(
+                    title: attempt.stage.title,
+                    session: PathQuizSession(questions: attempt.content.quiz),
+                    onPassed: { await pathRepo.completeStage(attempt.stage, for: authRepo.currentUser?.uid ?? "") },
+                    onFinished: { activeAttempt = nil }
+                )
+            } else {
+                PathStageSlidesView(
+                    stage: attempt.stage, content: attempt.content,
+                    onPassed: { await pathRepo.completeStage(attempt.stage, for: authRepo.currentUser?.uid ?? "") },
+                    onFinished: { activeAttempt = nil }
+                )
+            }
+        }
+        .alert(item: $spendAlert) { alert in
+            Alert(title: Text("Can't start this stage"), message: Text(alert.message))
+        }
     }
 
     private var xpBalanceChip: some View {
@@ -123,6 +146,32 @@ struct TrackLadderView: View {
     }
     private var nextStage: PathStage? {
         track.stages.first { !pathRepo.isStageCompleted($0) }
+    }
+
+    private func spend(_ stage: PathStage) {
+        guard let uid = authRepo.currentUser?.uid else { return }
+        Task {
+            let result = await pathRepo.startStage(stage, cost: stage.xpCost, for: uid)
+            switch result {
+            case .started(let newBalance):
+                profileRepo.applyExternalXPBalance(newBalance)
+                await openContent(for: stage)
+            case .alreadyStarted:
+                await openContent(for: stage)
+            case .insufficientXP(let balance):
+                spendAlert = .insufficientXP(balance: balance, cost: stage.xpCost)
+            case .failed:
+                spendAlert = .writeFailed
+            }
+        }
+    }
+
+    private func openContent(for stage: PathStage) async {
+        guard let content = await pathRepo.fetchStageContent(for: stage) else {
+            spendAlert = .contentUnavailable
+            return
+        }
+        activeAttempt = StageAttempt(stage: stage, content: content)
     }
 
     private func segmentColor(for stage: PathStage) -> Color {
@@ -174,6 +223,37 @@ struct TrackLadderView: View {
         .padding(.horizontal, isNext ? 9 : 0)
         .background(isNext ? Theme.Colors.accent100 : Color.clear)
         .overlay(isNext ? Rectangle().fill(Theme.Colors.accent).frame(width: 3) : nil, alignment: .leading)
+    }
+}
+
+/// Bundles a stage with the content already fetched for it, so `TrackLadderView`'s single
+/// `.navigationDestination(item:)` has everything it needs to route to slides (lesson) or
+/// straight to a quiz (assessment) without a second async fetch mid-navigation.
+private struct StageAttempt: Identifiable, Hashable {
+    let stage: PathStage
+    let content: PathStageContent
+    var id: String { stage.id }
+}
+
+private enum SpendAlert: Identifiable {
+    case insufficientXP(balance: Int, cost: Int)
+    case contentUnavailable
+    case writeFailed
+
+    var id: String {
+        switch self {
+        case .insufficientXP: "insufficientXP"
+        case .contentUnavailable: "contentUnavailable"
+        case .writeFailed: "writeFailed"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .insufficientXP(let balance, let cost): "You have \(balance) xp — this stage costs \(cost)."
+        case .contentUnavailable: "This stage's content isn't available right now. Try again in a moment."
+        case .writeFailed: "Couldn't reach the server. Try again."
+        }
     }
 }
 
