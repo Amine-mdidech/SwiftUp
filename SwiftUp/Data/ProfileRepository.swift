@@ -19,7 +19,7 @@ final class ProfileRepository {
         let level = LevelCalculator.level(for: 0, ladder: levels)
         profile = UserProfile(
             name: "", initials: "", level: level.number, levelTitle: level.title,
-            xp: 0, xpForCurrentLevel: level.xpForCurrentLevel, xpForNextLevel: level.xpForNextLevel,
+            xp: 0, xpBalance: 0, xpForCurrentLevel: level.xpForCurrentLevel, xpForNextLevel: level.xpForNextLevel,
             streakDays: 0, freezesAvailable: 0, freezesTotal: 3,
             answeredCount: 0, accuracyPercent: 0, memberSinceDisplay: ""
         )
@@ -119,6 +119,8 @@ final class ProfileRepository {
             let displayName = (rawDisplayName?.isEmpty == false) ? rawDisplayName! : "SwiftUp user"
 
             let newTotalXP = ((snapshot.get("totalXP") as? Int) ?? 0) + session.totalXPEarned
+            let previousXPBalance = (snapshot.get("xpBalance") as? Int) ?? ((snapshot.get("totalXP") as? Int) ?? 0)
+            let newXPBalance = previousXPBalance + session.totalXPEarned
             let newTotalAnswered = ((snapshot.get("totalQuestionsAnswered") as? Int) ?? 0) + session.questions.count
             let isPerfectDay = session.correctCount == session.questions.count
             let newPerfectDayCount = ((snapshot.get("perfectDayCount") as? Int) ?? 0) + (isPerfectDay ? 1 : 0)
@@ -147,6 +149,7 @@ final class ProfileRepository {
             // written here survive, exactly as the dotted paths did.
             var userUpdates: [String: Any] = [
                 "totalXP": newTotalXP,
+                "xpBalance": newXPBalance,
                 "totalQuestionsAnswered": newTotalAnswered,
                 "perfectDayCount": newPerfectDayCount,
                 "streakDays": streakResult.streakDays,
@@ -184,7 +187,7 @@ final class ProfileRepository {
             profile = Self.buildProfile(
                 displayName: displayName,
                 createdAt: snapshot.get("createdAt") as? Timestamp,
-                freezesAvailable: freezesAvailable, stats: stats, level: level
+                freezesAvailable: freezesAvailable, xpBalance: newXPBalance, stats: stats, level: level
             )
             topics = topicStats.map { TopicAccuracy(name: $0.key, accuracyPercent: Self.accuracy($0.value)) }.sorted { $0.name < $1.name }
             achievements = AchievementEngine.evaluate(catalog: catalog, stats: stats, earnedAt: earnedAt)
@@ -201,6 +204,11 @@ final class ProfileRepository {
 
     private func apply(snapshot: DocumentSnapshot, recentCompletions: [(date: String, correctCount: Int)]) {
         let totalXP = (snapshot.get("totalXP") as? Int) ?? 0
+        // Backfill-on-read only (no write here — `load(for:)` is read-only today): a user with
+        // `totalXP` but no `xpBalance` yet hasn't spent anything, so their full lifetime total is
+        // still spendable. The real backfill-and-persist happens in `recordCompletion` below, the
+        // next time this user earns anything.
+        let xpBalance = (snapshot.get("xpBalance") as? Int) ?? totalXP
         let totalQuestionsAnswered = (snapshot.get("totalQuestionsAnswered") as? Int) ?? 0
         let perfectDayCount = (snapshot.get("perfectDayCount") as? Int) ?? 0
         let streakDays = (snapshot.get("streakDays") as? Int) ?? 0
@@ -218,20 +226,20 @@ final class ProfileRepository {
         profile = Self.buildProfile(
             displayName: snapshot.get("displayName") as? String,
             createdAt: snapshot.get("createdAt") as? Timestamp,
-            freezesAvailable: freezesAvailable, stats: stats, level: level
+            freezesAvailable: freezesAvailable, xpBalance: xpBalance, stats: stats, level: level
         )
         topics = topicStats.map { TopicAccuracy(name: $0.key, accuracyPercent: Self.accuracy($0.value)) }.sorted { $0.name < $1.name }
         achievements = AchievementEngine.evaluate(catalog: catalog, stats: stats, earnedAt: earnedAt)
     }
 
     private static func buildProfile(
-        displayName: String?, createdAt: Timestamp?, freezesAvailable: Int, stats: UserStats,
+        displayName: String?, createdAt: Timestamp?, freezesAvailable: Int, xpBalance: Int, stats: UserStats,
         level: (number: Int, title: String, xpForCurrentLevel: Int, xpForNextLevel: Int)
     ) -> UserProfile {
         let name = (displayName?.isEmpty == false) ? displayName! : "SwiftUp user"
         return UserProfile(
             name: name, initials: initials(from: name), level: level.number, levelTitle: level.title,
-            xp: stats.totalXP, xpForCurrentLevel: level.xpForCurrentLevel, xpForNextLevel: level.xpForNextLevel,
+            xp: stats.totalXP, xpBalance: xpBalance, xpForCurrentLevel: level.xpForCurrentLevel, xpForNextLevel: level.xpForNextLevel,
             streakDays: stats.streakDays, freezesAvailable: freezesAvailable, freezesTotal: 3,
             answeredCount: stats.totalQuestionsAnswered, accuracyPercent: overallAccuracy(stats.topicStats),
             memberSinceDisplay: memberSinceDisplay(createdAt)

@@ -6,6 +6,11 @@ struct UserProfile: Codable {
     let level: Int
     let levelTitle: String
     let xp: Int
+    /// Spendable XP balance — separate from `xp` (lifetime earned, drives the Level ladder above
+    /// and must never decrease). This is what Path spending debits; every earn event credits both
+    /// by the same amount. See `ProfileRepository.recordCompletion` for the backfill-on-first-touch
+    /// rule for users who don't have this field yet.
+    let xpBalance: Int
     let xpForCurrentLevel: Int
     let xpForNextLevel: Int
     let streakDays: Int

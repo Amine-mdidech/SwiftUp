@@ -36,7 +36,7 @@ struct ModelDecodingTests {
         {
           "name": "Maya Reyes", "initials": "MR", "level": 7,
           "levelTitle": "Concurrency Compositor", "xp": 3240,
-          "xpForCurrentLevel": 2200, "xpForNextLevel": 3700,
+          "xpForCurrentLevel": 2200, "xpForNextLevel": 3700, "xpBalance": 3240,
           "streakDays": 42, "freezesAvailable": 1, "freezesTotal": 3,
           "answeredCount": 585, "accuracyPercent": 81,
           "memberSinceDisplay": "Since 14 May"
@@ -44,6 +44,7 @@ struct ModelDecodingTests {
         """.data(using: .utf8)!
         let p = try JSONDecoder().decode(UserProfile.self, from: json)
         #expect(p.xpToNextLevel == 460)
+        #expect(p.xpBalance == 3240)
     }
 
     @Test func decodesDailyQuizDocumentAndLooksUpByLevel() throws {
