@@ -307,7 +307,6 @@ git commit -m "Add Distinguished grade to SkillLevel, remove silent auto-promoti
 - Modify: `SwiftUp/Resources/profile.json`
 - Modify: `SwiftUpTests/Fixtures/profile.json`
 - Modify: `SwiftUpTests/ModelDecodingTests.swift`
-- Test: `SwiftUpTests/RepositoryTests.swift`
 
 **Interfaces:**
 - Consumes: nothing from Task 1.
