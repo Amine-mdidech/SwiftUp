@@ -1,6 +1,6 @@
 import Foundation
 
-struct PathStage: Codable, Identifiable {
+struct PathStage: Codable, Identifiable, Hashable {
     enum Kind: String, Codable { case lesson, assessment }
     let id: String
     let order: Int
@@ -9,7 +9,7 @@ struct PathStage: Codable, Identifiable {
     let kind: Kind
 }
 
-struct PathTrack: Codable, Identifiable {
+struct PathTrack: Codable, Identifiable, Hashable {
     let id: String
     let grade: SkillLevel
     let order: Int
