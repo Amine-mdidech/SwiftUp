@@ -155,9 +155,9 @@ struct PathWheelView: View {
                     .padding(.top, 14)
 
                 HStack(alignment: .bottom, spacing: 14) {
-                    gradeSeal(size: 44, filled: true)
-                    gradeSeal(size: 52, filled: true)
-                    gradeSeal(size: 60, filled: true)
+                    gradeSeal(size: 44)
+                    gradeSeal(size: 52)
+                    gradeSeal(size: 60)
                     distinguishedSeal(size: 76)
                 }
                 .padding(.top, 26)
@@ -209,7 +209,7 @@ struct PathWheelView: View {
 
     private var totalTracksEverywhere: Int { pathRepo.tracks.count }
 
-    private func gradeSeal(size: CGFloat, filled: Bool) -> some View {
+    private func gradeSeal(size: CGFloat) -> some View {
         ZStack {
             Circle().fill(Theme.Colors.text)
             Path { path in

@@ -37,9 +37,9 @@ struct TrackLadderView: View {
                 .padding(.top, 8)
 
                 HStack(spacing: 4) {
-                    ForEach(Array(track.stages.enumerated()), id: \.element.id) { index, stage in
+                    ForEach(track.stages) { stage in
                         Rectangle()
-                            .fill(segmentColor(for: stage, index: index))
+                            .fill(segmentColor(for: stage))
                             .frame(height: 8)
                     }
                 }
@@ -68,11 +68,7 @@ struct TrackLadderView: View {
                         Text("\(remainingXP) xp")
                             .font(Theme.Fonts.heading(15))
                     }
-                    HStack(spacing: 3) {
-                        Rectangle().fill(Theme.Colors.accent).frame(height: 7)
-                            .frame(width: closedFraction * 200)
-                        Rectangle().fill(Theme.Colors.neutral200).frame(height: 7)
-                    }
+                    ThinProgressBar(fraction: closedFraction, height: 7)
                     HStack {
                         EyebrowLabel("\(remainingXP) to close", color: Theme.Colors.accent700)
                         Spacer()
@@ -100,6 +96,7 @@ struct TrackLadderView: View {
             .padding(24)
         }
         .background(Theme.Colors.bg)
+        .navigationBarBackButtonHidden()
     }
 
     private var xpBalanceChip: some View {
@@ -116,9 +113,9 @@ struct TrackLadderView: View {
     private var closedStageCount: Int { track.stages.filter(pathRepo.isStageCompleted).count }
     private var bankedXP: Int { track.stages.filter(pathRepo.isStageCompleted).reduce(0) { $0 + $1.xpCost } }
     private var remainingXP: Int { track.stages.filter { !pathRepo.isStageCompleted($0) }.reduce(0) { $0 + $1.xpCost } }
-    private var closedFraction: CGFloat {
+    private var closedFraction: Double {
         guard !track.stages.isEmpty else { return 0 }
-        return CGFloat(closedStageCount) / CGFloat(track.stages.count)
+        return Double(closedStageCount) / Double(track.stages.count)
     }
     private var remainingSummary: String {
         let left = track.stages.count - closedStageCount
@@ -128,7 +125,7 @@ struct TrackLadderView: View {
         track.stages.first { !pathRepo.isStageCompleted($0) }
     }
 
-    private func segmentColor(for stage: PathStage, index: Int) -> Color {
+    private func segmentColor(for stage: PathStage) -> Color {
         if pathRepo.isStageCompleted(stage) { return Theme.Colors.text }
         if stage.id == nextStage?.id { return Theme.Colors.accent }
         return Theme.Colors.neutral200

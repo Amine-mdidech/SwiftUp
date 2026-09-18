@@ -25,14 +25,22 @@ final class PathRepository {
     /// Fetches every track across all four grades — a fixed, small collection (20 tracks), the
     /// same "load it all at once" approach `InterviewRepository` already takes for its bank — plus
     /// this user's completed stage IDs.
+    ///
+    /// Guarded at entry: `PathWheelView` and `ProfileHomeView` both call this from their own
+    /// `.task`, and `MainTabView` constructs all four tabs at once (hidden via `.opacity`, not
+    /// conditional construction), so both `.task`s fire on the same cold launch. Skipping when a
+    /// load is already in progress or has already succeeded keeps every caller safe without
+    /// needing call-site changes — the same "only load once" idea `InterviewBankView` applies at
+    /// its own call site (`repo.categories.isEmpty ? repo.load() : ()`), just enforced here instead
+    /// so it covers every caller.
     func load(for uid: String) async {
+        guard !isLoading, tracks.isEmpty else { return }
         isLoading = true
         defer { isLoading = false }
 
         async let tracksResult = Self.fetchTracks()
-        async let completedResult = Self.fetchCompletedStageIDs(uid: uid)
-        async let gradeResult = Self.fetchGrade(uid: uid)
-        let (fetchedTracks, fetchedCompleted, fetchedGrade) = await (tracksResult, completedResult, gradeResult)
+        async let userDocResult = Self.fetchUserDocument(uid: uid)
+        let (fetchedTracks, userDoc) = await (tracksResult, userDocResult)
 
         if fetchedTracks.isEmpty {
             tracks = Self.loadBundledFallback()
@@ -41,8 +49,8 @@ final class PathRepository {
             tracks = fetchedTracks
             usedBundledFallback = false
         }
-        completedStageIDs = fetchedCompleted
-        grade = fetchedGrade
+        completedStageIDs = Self.completedStageIDs(from: userDoc)
+        grade = Self.grade(from: userDoc)
     }
 
     func tracks(for grade: SkillLevel) -> [PathTrack] {
@@ -85,10 +93,15 @@ final class PathRepository {
         return snapshot.documents.compactMap { try? $0.data(as: PathTrack.self) }
     }
 
-    private static func fetchCompletedStageIDs(uid: String) async -> Set<String> {
-        guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument(),
-              let map = snapshot.get("completedPathStageIDs") as? [String: Timestamp]
-        else {
+    /// Fetches the `users/{uid}` document once so both `completedPathStageIDs` and `skillLevel`
+    /// can be derived from the same snapshot, rather than reading the document twice (design doc
+    /// §3).
+    private static func fetchUserDocument(uid: String) async -> DocumentSnapshot? {
+        try? await Firestore.firestore().collection("users").document(uid).getDocument()
+    }
+
+    private static func completedStageIDs(from snapshot: DocumentSnapshot?) -> Set<String> {
+        guard let map = snapshot?.get("completedPathStageIDs") as? [String: Timestamp] else {
             return []
         }
         return Set(map.keys)
@@ -98,9 +111,8 @@ final class PathRepository {
     /// second, independent read of the same field, not a shared cache. That's fine: it's one
     /// cheap field read, and it keeps `PathRepository` self-contained rather than depending on
     /// `QuestionRepository`'s internal state.
-    private static func fetchGrade(uid: String) async -> SkillLevel {
-        guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument(),
-              let raw = snapshot.get("skillLevel") as? String,
+    private static func grade(from snapshot: DocumentSnapshot?) -> SkillLevel {
+        guard let raw = snapshot?.get("skillLevel") as? String,
               let level = SkillLevel(rawValue: raw)
         else {
             return .junior

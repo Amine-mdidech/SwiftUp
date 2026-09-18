@@ -14,7 +14,7 @@ struct FourGradesView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                Button("← The path") { dismiss() }
+                Button("← Back") { dismiss() }
                     .font(.system(size: 15))
                     .foregroundStyle(Theme.Colors.accent700)
                     .frame(minHeight: 44, alignment: .leading)
@@ -52,6 +52,7 @@ struct FourGradesView: View {
             .padding(24)
         }
         .background(Theme.Colors.bg)
+        .navigationBarBackButtonHidden()
     }
 
     private var totalTracks: Int { pathRepo.tracks.count }
@@ -62,7 +63,9 @@ struct FourGradesView: View {
     }
 
     private func topicList(for grade: SkillLevel) -> String {
-        pathRepo.tracks(for: grade).map(\.title).joined(separator: ", ") + "."
+        let titles = pathRepo.tracks(for: grade).map(\.title)
+        guard !titles.isEmpty else { return "" }
+        return titles.joined(separator: ", ") + "."
     }
 
     @ViewBuilder
@@ -85,12 +88,8 @@ struct FourGradesView: View {
                 .font(Theme.Fonts.body(13))
                 .foregroundStyle(Theme.Colors.neutral800)
             if isCurrent && tracksInGrade > 0 {
-                HStack(spacing: 3) {
-                    Rectangle().fill(Theme.Colors.accent).frame(height: 7)
-                        .frame(width: CGFloat(closed) / CGFloat(tracksInGrade) * 200)
-                    Rectangle().fill(Theme.Colors.neutral300).frame(height: 7)
-                }
-                .padding(.top, 6)
+                ThinProgressBar(fraction: Double(closed) / Double(tracksInGrade), trackColor: Theme.Colors.neutral300, height: 7)
+                    .padding(.top, 6)
             }
         }
         .padding(isCurrent ? 13 : 0)

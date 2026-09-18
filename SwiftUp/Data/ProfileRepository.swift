@@ -175,12 +175,6 @@ final class ProfileRepository {
                 let frozenRef = userRef.collection("dailyCompletions").document(frozenDate)
                 batch.setData(["frozen": true], forDocument: frozenRef, merge: true)
             }
-            let leaderboardRef = Firestore.firestore().collection("leaderboardEntries").document(uid)
-            batch.setData([
-                "displayName": displayName,
-                "totalXP": newTotalXP,
-                "updatedAt": FieldValue.serverTimestamp(),
-            ], forDocument: leaderboardRef, merge: true)
             try await batch.commit()
 
             let freezesAvailable = streakResult.freezesAvailable

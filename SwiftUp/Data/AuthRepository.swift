@@ -199,21 +199,6 @@ final class AuthRepository {
             if !data.isEmpty {
                 try await doc.setData(data, merge: true)
             }
-
-            // `leaderboardEntries/{uid}` keeps its own denormalized copy of the name, normally
-            // refreshed only once a day when a daily quiz completes (ProfileRepository.recordCompletion)
-            // — so a name just captured or corrected here can stay stale on the leaderboard for a
-            // while. Keep it in sync on every sign-in too, but only for a user who already has an
-            // entry there (one is created lazily on first quiz completion; writing one early with a
-            // name but no XP would just be filtered out of every ranking query anyway).
-            let resolvedDisplayName = (data["displayName"] as? String) ?? existingDisplayName
-            if let resolvedDisplayName, !resolvedDisplayName.isEmpty {
-                let leaderboardRef = Firestore.firestore().collection("leaderboardEntries").document(uid)
-                if let leaderboardSnapshot = try? await leaderboardRef.getDocument(), leaderboardSnapshot.exists,
-                   leaderboardSnapshot.get("displayName") as? String != resolvedDisplayName {
-                    try? await leaderboardRef.setData(["displayName": resolvedDisplayName], merge: true)
-                }
-            }
         } catch {
             // Non-blocking: isSignedIn reflects Firebase Auth state only (spec §6).
             // The doc gets created/backfilled lazily the next time this runs, e.g. next launch.

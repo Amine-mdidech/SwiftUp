@@ -68,7 +68,9 @@ struct PathWheelDiagram: View {
         .frame(width: canvasSize, height: canvasSize)
     }
 
-    private func nodePosition(at index: Int) -> CGPoint {
+    // Not `private`: `SwiftUpTests` (`@testable import`) calls this directly rather than
+    // maintaining a duplicate copy of the formula. Still not part of any public API surface.
+    func nodePosition(at index: Int) -> CGPoint {
         guard !tracks.isEmpty else { return center }
         let angle = Angle.degrees(-90 + Double(index) * (360.0 / Double(tracks.count)))
         return CGPoint(
