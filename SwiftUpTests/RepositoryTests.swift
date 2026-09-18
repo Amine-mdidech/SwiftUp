@@ -216,4 +216,38 @@ struct RepositoryTests {
         #expect(junior02.stages.last?.kind == .assessment)
         #expect(junior02.stages.last?.title == "Track assessment")
     }
+
+    @Test func pathRepositoryTrackIsClosedOnlyWhenEveryStageIsCompleted() {
+        let stages = [
+            PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson),
+            PathStage(id: "t-s02", order: 2, title: "Two", xpCost: 50, kind: .lesson),
+            PathStage(id: "t-s03", order: 3, title: "Assessment", xpCost: 400, kind: .assessment),
+        ]
+        let track = PathTrack(id: "t", grade: .junior, order: 1, title: "Track", stages: stages)
+        let repo = PathRepository()
+
+        #expect(repo.isTrackClosed(track) == false)
+    }
+
+    @Test func pathRepositoryStageUnlocksOnlyAfterEveryEarlierStageInItsTrackIsDone() {
+        let stages = [
+            PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson),
+            PathStage(id: "t-s02", order: 2, title: "Two", xpCost: 50, kind: .lesson),
+            PathStage(id: "t-s03", order: 3, title: "Assessment", xpCost: 400, kind: .assessment),
+        ]
+        let track = PathTrack(id: "t", grade: .junior, order: 1, title: "Track", stages: stages)
+        let repo = PathRepository()
+
+        #expect(repo.isStageUnlocked(stages[0], in: track) == true)
+        #expect(repo.isStageUnlocked(stages[1], in: track) == false)
+        #expect(repo.isStageUnlocked(stages[2], in: track) == false)
+    }
+
+    @Test func pathRepositoryTracksForGradeFiltersAndSortsByOrder() {
+        let repo = PathRepository.preview(bundle: testBundle)
+        let juniorTracks = repo.tracks(for: .junior)
+        #expect(juniorTracks.count == 5)
+        #expect(juniorTracks.map(\.order) == [1, 2, 3, 4, 5])
+        #expect(juniorTracks.allSatisfy { $0.grade == .junior })
+    }
 }
