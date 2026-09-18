@@ -5,6 +5,7 @@ import FirebaseFirestore
 final class PathRepository {
     private(set) var tracks: [PathTrack] = []
     private(set) var completedStageIDs: Set<String> = []
+    private(set) var startedStageIDs: Set<String> = []
     private(set) var isLoading = false
     private(set) var usedBundledFallback = false
     private(set) var grade: SkillLevel = .junior
@@ -55,6 +56,7 @@ final class PathRepository {
             usedBundledFallback = false
         }
         completedStageIDs = Self.completedStageIDs(from: userDoc)
+        startedStageIDs = Self.startedStageIDs(from: userDoc)
         grade = Self.grade(from: userDoc)
         loadedUID = uid
     }
@@ -65,6 +67,10 @@ final class PathRepository {
 
     func isStageCompleted(_ stage: PathStage) -> Bool {
         completedStageIDs.contains(stage.id)
+    }
+
+    func isStageStarted(_ stage: PathStage) -> Bool {
+        startedStageIDs.contains(stage.id)
     }
 
     func isTrackClosed(_ track: PathTrack) -> Bool {
@@ -113,6 +119,13 @@ final class PathRepository {
         return Set(map.keys)
     }
 
+    private static func startedStageIDs(from snapshot: DocumentSnapshot?) -> Set<String> {
+        guard let map = snapshot?.get("startedPathStageIDs") as? [String: Timestamp] else {
+            return []
+        }
+        return Set(map.keys)
+    }
+
     /// Reads the same `users/{uid}.skillLevel` field `QuestionRepository` already reads — a
     /// second, independent read of the same field, not a shared cache. That's fine: it's one
     /// cheap field read, and it keeps `PathRepository` self-contained rather than depending on
@@ -124,5 +137,102 @@ final class PathRepository {
             return .junior
         }
         return level
+    }
+
+    enum SpendResult: Equatable {
+        case started(newBalance: Int)
+        case alreadyStarted
+        case insufficientXP(balance: Int)
+        case failed
+    }
+
+    /// Spends `cost` xp to unlock `stage`, or returns `.alreadyStarted` for free if it's already
+    /// unlocked (or already completed) — spending is a one-time cost, never repeated for the same
+    /// stage (design doc §3). The already-started/already-completed check happens before any
+    /// Firestore access, so a retry never even attempts a re-charge.
+    ///
+    /// Not independently unit-tested beyond `isStageStarted`'s own coverage: every other branch
+    /// here requires live Firestore state, matching the accepted limitation already in place for
+    /// every other Firestore write in this project (see design doc §7).
+    func startStage(_ stage: PathStage, cost: Int, for uid: String) async -> SpendResult {
+        if completedStageIDs.contains(stage.id) || startedStageIDs.contains(stage.id) {
+            return .alreadyStarted
+        }
+
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        guard let snapshot = try? await userRef.getDocument() else { return .failed }
+
+        let totalXP = (snapshot.get("totalXP") as? Int) ?? 0
+        let currentBalance = (snapshot.get("xpBalance") as? Int) ?? totalXP
+        guard currentBalance >= cost else { return .insufficientXP(balance: currentBalance) }
+
+        let newBalance = currentBalance - cost
+        do {
+            try await userRef.setData(
+                ["xpBalance": newBalance, "startedPathStageIDs": [stage.id: FieldValue.serverTimestamp()]],
+                merge: true
+            )
+            startedStageIDs.insert(stage.id)
+            return .started(newBalance: newBalance)
+        } catch {
+            return .failed
+        }
+    }
+
+    /// Marks `stage` as completed after a passing quiz attempt. No XP is written here — passing
+    /// grants no XP (design doc §3); this call only records progress.
+    func completeStage(_ stage: PathStage, for uid: String) async {
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        do {
+            try await userRef.setData(
+                ["completedPathStageIDs": [stage.id: FieldValue.serverTimestamp()]],
+                merge: true
+            )
+            completedStageIDs.insert(stage.id)
+        } catch {
+            // Non-blocking — matches this project's accepted best-effort posture for Firestore writes.
+        }
+    }
+
+    /// Promotes the user to `currentGrade.next` after a passing regrade quiz — the only place
+    /// `SkillLevel` is written outside onboarding (design doc §6). A no-op at the top grade
+    /// (`.distinguished.next == nil`), returning before touching Firestore.
+    func promoteGrade(from currentGrade: SkillLevel, for uid: String) async {
+        guard let next = currentGrade.next else { return }
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        do {
+            try await userRef.setData(["skillLevel": next.rawValue], merge: true)
+            grade = next
+        } catch {
+            // Non-blocking — matches this project's accepted best-effort posture for Firestore writes.
+        }
+    }
+
+    /// Fetches one stage's slide/quiz content, falling back to the bundled placeholder content
+    /// (mirroring `fetchTracks`' own bundled-fallback pattern) if Firestore is unreachable.
+    func fetchStageContent(for stage: PathStage) async -> PathStageContent? {
+        if let snapshot = try? await Firestore.firestore().collection("pathStageContent").document(stage.id).getDocument(),
+           let content = try? snapshot.data(as: PathStageContent.self) {
+            return content
+        }
+        return Self.loadBundledStageContent().first { $0.stageID == stage.id }
+    }
+
+    /// Fetches one grade's regrade quiz, same bundled-fallback pattern as `fetchStageContent`.
+    func fetchRegradeQuiz(for grade: SkillLevel) async -> PathRegradeQuiz? {
+        let docID = grade.rawValue.lowercased()
+        if let snapshot = try? await Firestore.firestore().collection("pathRegradeQuizzes").document(docID).getDocument(),
+           let quiz = try? snapshot.data(as: PathRegradeQuiz.self) {
+            return quiz
+        }
+        return Self.loadBundledRegradeQuizzes().first { $0.grade == grade }
+    }
+
+    private static func loadBundledStageContent(bundle: Bundle = .main) -> [PathStageContent] {
+        decodeJSONResource(PathContentBundle.self, filename: "path_content", bundle: bundle)?.stageContent ?? []
+    }
+
+    private static func loadBundledRegradeQuizzes(bundle: Bundle = .main) -> [PathRegradeQuiz] {
+        decodeJSONResource(PathContentBundle.self, filename: "path_content", bundle: bundle)?.regradeQuizzes ?? []
     }
 }

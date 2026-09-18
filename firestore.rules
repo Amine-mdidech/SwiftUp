@@ -29,6 +29,14 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if false;
     }
+    match /pathStageContent/{stageId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+    match /pathRegradeQuizzes/{grade} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
     // The leaderboard feature has been removed from the app; nothing reads or writes this
     // collection anymore. Deny access explicitly rather than deleting the rule block outright — a
     // stray `leaderboardEntries` collection from before this change may still exist in production

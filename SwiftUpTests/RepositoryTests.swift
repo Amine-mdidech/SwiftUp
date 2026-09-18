@@ -346,4 +346,19 @@ struct RepositoryTests {
             }
         }
     }
+
+    @Test func pathRepositoryIsStageStartedFalseOnAFreshRepository() {
+        let stage = PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson)
+        let repo = PathRepository()
+        #expect(repo.isStageStarted(stage) == false)
+    }
+
+    @Test func pathRepositoryPromoteGradeIsANoOpAtTheTopGrade() async {
+        // `.distinguished.next` is `nil`, so `promoteGrade` returns before touching Firestore —
+        // the one branch of this method safely testable without a live network call (same
+        // limitation already accepted for every other Firestore write in this project).
+        let repo = PathRepository()
+        await repo.promoteGrade(from: .distinguished, for: "any-uid")
+        #expect(repo.grade == .junior)
+    }
 }
