@@ -1,0 +1,1149 @@
+[
+  {
+    "id": "junior-01",
+    "grade": "Junior",
+    "order": 1,
+    "title": "Swift fundamentals",
+    "stages": [
+      {
+        "id": "junior-01-s01",
+        "order": 1,
+        "title": "Swift fundamentals \u2014 lesson 1 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-01-s02",
+        "order": 2,
+        "title": "Swift fundamentals \u2014 lesson 2 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-01-s03",
+        "order": 3,
+        "title": "Swift fundamentals \u2014 lesson 3 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-01-s04",
+        "order": 4,
+        "title": "Swift fundamentals \u2014 lesson 4 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-01-s05",
+        "order": 5,
+        "title": "Swift fundamentals \u2014 lesson 5 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-01-s06",
+        "order": 6,
+        "title": "Swift fundamentals \u2014 lesson 6 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-01-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 400,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "junior-02",
+    "grade": "Junior",
+    "order": 2,
+    "title": "Object-oriented Swift",
+    "stages": [
+      {
+        "id": "junior-02-s01",
+        "order": 1,
+        "title": "Classes, structs and value semantics",
+        "xpCost": 45,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-02-s02",
+        "order": 2,
+        "title": "Initialisers and inheritance",
+        "xpCost": 45,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-02-s03",
+        "order": 3,
+        "title": "Protocols as interfaces",
+        "xpCost": 45,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-02-s04",
+        "order": 4,
+        "title": "Protocol-oriented design",
+        "xpCost": 200,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-02-s05",
+        "order": 5,
+        "title": "Generics and associated types",
+        "xpCost": 200,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-02-s06",
+        "order": 6,
+        "title": "Composition over inheritance",
+        "xpCost": 200,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-02-s07",
+        "order": 7,
+        "title": "Error handling and typed throws",
+        "xpCost": 200,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-02-s08",
+        "order": 8,
+        "title": "Track assessment",
+        "xpCost": 400,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "junior-03",
+    "grade": "Junior",
+    "order": 3,
+    "title": "Architecture basics",
+    "stages": [
+      {
+        "id": "junior-03-s01",
+        "order": 1,
+        "title": "Architecture basics \u2014 lesson 1 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-03-s02",
+        "order": 2,
+        "title": "Architecture basics \u2014 lesson 2 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-03-s03",
+        "order": 3,
+        "title": "Architecture basics \u2014 lesson 3 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-03-s04",
+        "order": 4,
+        "title": "Architecture basics \u2014 lesson 4 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-03-s05",
+        "order": 5,
+        "title": "Architecture basics \u2014 lesson 5 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-03-s06",
+        "order": 6,
+        "title": "Architecture basics \u2014 lesson 6 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-03-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 400,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "junior-04",
+    "grade": "Junior",
+    "order": 4,
+    "title": "Memory & ARC",
+    "stages": [
+      {
+        "id": "junior-04-s01",
+        "order": 1,
+        "title": "Memory & ARC \u2014 lesson 1 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-04-s02",
+        "order": 2,
+        "title": "Memory & ARC \u2014 lesson 2 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-04-s03",
+        "order": 3,
+        "title": "Memory & ARC \u2014 lesson 3 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-04-s04",
+        "order": 4,
+        "title": "Memory & ARC \u2014 lesson 4 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-04-s05",
+        "order": 5,
+        "title": "Memory & ARC \u2014 lesson 5 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-04-s06",
+        "order": 6,
+        "title": "Memory & ARC \u2014 lesson 6 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-04-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 400,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "junior-05",
+    "grade": "Junior",
+    "order": 5,
+    "title": "SwiftUI state",
+    "stages": [
+      {
+        "id": "junior-05-s01",
+        "order": 1,
+        "title": "SwiftUI state \u2014 lesson 1 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-05-s02",
+        "order": 2,
+        "title": "SwiftUI state \u2014 lesson 2 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-05-s03",
+        "order": 3,
+        "title": "SwiftUI state \u2014 lesson 3 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-05-s04",
+        "order": 4,
+        "title": "SwiftUI state \u2014 lesson 4 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-05-s05",
+        "order": 5,
+        "title": "SwiftUI state \u2014 lesson 5 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-05-s06",
+        "order": 6,
+        "title": "SwiftUI state \u2014 lesson 6 of 6",
+        "xpCost": 50,
+        "kind": "lesson"
+      },
+      {
+        "id": "junior-05-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 400,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "mid-01",
+    "grade": "Mid",
+    "order": 1,
+    "title": "Concurrency",
+    "stages": [
+      {
+        "id": "mid-01-s01",
+        "order": 1,
+        "title": "Concurrency \u2014 lesson 1 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-01-s02",
+        "order": 2,
+        "title": "Concurrency \u2014 lesson 2 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-01-s03",
+        "order": 3,
+        "title": "Concurrency \u2014 lesson 3 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-01-s04",
+        "order": 4,
+        "title": "Concurrency \u2014 lesson 4 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-01-s05",
+        "order": 5,
+        "title": "Concurrency \u2014 lesson 5 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-01-s06",
+        "order": 6,
+        "title": "Concurrency \u2014 lesson 6 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-01-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 600,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "mid-02",
+    "grade": "Mid",
+    "order": 2,
+    "title": "Testing",
+    "stages": [
+      {
+        "id": "mid-02-s01",
+        "order": 1,
+        "title": "Testing \u2014 lesson 1 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-02-s02",
+        "order": 2,
+        "title": "Testing \u2014 lesson 2 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-02-s03",
+        "order": 3,
+        "title": "Testing \u2014 lesson 3 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-02-s04",
+        "order": 4,
+        "title": "Testing \u2014 lesson 4 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-02-s05",
+        "order": 5,
+        "title": "Testing \u2014 lesson 5 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-02-s06",
+        "order": 6,
+        "title": "Testing \u2014 lesson 6 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-02-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 600,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "mid-03",
+    "grade": "Mid",
+    "order": 3,
+    "title": "Networking",
+    "stages": [
+      {
+        "id": "mid-03-s01",
+        "order": 1,
+        "title": "Networking \u2014 lesson 1 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-03-s02",
+        "order": 2,
+        "title": "Networking \u2014 lesson 2 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-03-s03",
+        "order": 3,
+        "title": "Networking \u2014 lesson 3 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-03-s04",
+        "order": 4,
+        "title": "Networking \u2014 lesson 4 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-03-s05",
+        "order": 5,
+        "title": "Networking \u2014 lesson 5 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-03-s06",
+        "order": 6,
+        "title": "Networking \u2014 lesson 6 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-03-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 600,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "mid-04",
+    "grade": "Mid",
+    "order": 4,
+    "title": "Persistence",
+    "stages": [
+      {
+        "id": "mid-04-s01",
+        "order": 1,
+        "title": "Persistence \u2014 lesson 1 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-04-s02",
+        "order": 2,
+        "title": "Persistence \u2014 lesson 2 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-04-s03",
+        "order": 3,
+        "title": "Persistence \u2014 lesson 3 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-04-s04",
+        "order": 4,
+        "title": "Persistence \u2014 lesson 4 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-04-s05",
+        "order": 5,
+        "title": "Persistence \u2014 lesson 5 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-04-s06",
+        "order": 6,
+        "title": "Persistence \u2014 lesson 6 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-04-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 600,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "mid-05",
+    "grade": "Mid",
+    "order": 5,
+    "title": "Performance",
+    "stages": [
+      {
+        "id": "mid-05-s01",
+        "order": 1,
+        "title": "Performance \u2014 lesson 1 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-05-s02",
+        "order": 2,
+        "title": "Performance \u2014 lesson 2 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-05-s03",
+        "order": 3,
+        "title": "Performance \u2014 lesson 3 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-05-s04",
+        "order": 4,
+        "title": "Performance \u2014 lesson 4 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-05-s05",
+        "order": 5,
+        "title": "Performance \u2014 lesson 5 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-05-s06",
+        "order": 6,
+        "title": "Performance \u2014 lesson 6 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-05-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 600,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "mid-06",
+    "grade": "Mid",
+    "order": 6,
+    "title": "App lifecycle",
+    "stages": [
+      {
+        "id": "mid-06-s01",
+        "order": 1,
+        "title": "App lifecycle \u2014 lesson 1 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-06-s02",
+        "order": 2,
+        "title": "App lifecycle \u2014 lesson 2 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-06-s03",
+        "order": 3,
+        "title": "App lifecycle \u2014 lesson 3 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-06-s04",
+        "order": 4,
+        "title": "App lifecycle \u2014 lesson 4 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-06-s05",
+        "order": 5,
+        "title": "App lifecycle \u2014 lesson 5 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-06-s06",
+        "order": 6,
+        "title": "App lifecycle \u2014 lesson 6 of 6",
+        "xpCost": 75,
+        "kind": "lesson"
+      },
+      {
+        "id": "mid-06-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 600,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "senior-01",
+    "grade": "Senior",
+    "order": 1,
+    "title": "System design",
+    "stages": [
+      {
+        "id": "senior-01-s01",
+        "order": 1,
+        "title": "System design \u2014 lesson 1 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-01-s02",
+        "order": 2,
+        "title": "System design \u2014 lesson 2 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-01-s03",
+        "order": 3,
+        "title": "System design \u2014 lesson 3 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-01-s04",
+        "order": 4,
+        "title": "System design \u2014 lesson 4 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-01-s05",
+        "order": 5,
+        "title": "System design \u2014 lesson 5 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-01-s06",
+        "order": 6,
+        "title": "System design \u2014 lesson 6 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-01-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 800,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "senior-02",
+    "grade": "Senior",
+    "order": 2,
+    "title": "Module boundaries",
+    "stages": [
+      {
+        "id": "senior-02-s01",
+        "order": 1,
+        "title": "Module boundaries \u2014 lesson 1 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-02-s02",
+        "order": 2,
+        "title": "Module boundaries \u2014 lesson 2 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-02-s03",
+        "order": 3,
+        "title": "Module boundaries \u2014 lesson 3 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-02-s04",
+        "order": 4,
+        "title": "Module boundaries \u2014 lesson 4 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-02-s05",
+        "order": 5,
+        "title": "Module boundaries \u2014 lesson 5 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-02-s06",
+        "order": 6,
+        "title": "Module boundaries \u2014 lesson 6 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-02-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 800,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "senior-03",
+    "grade": "Senior",
+    "order": 3,
+    "title": "Migration strategy",
+    "stages": [
+      {
+        "id": "senior-03-s01",
+        "order": 1,
+        "title": "Migration strategy \u2014 lesson 1 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-03-s02",
+        "order": 2,
+        "title": "Migration strategy \u2014 lesson 2 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-03-s03",
+        "order": 3,
+        "title": "Migration strategy \u2014 lesson 3 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-03-s04",
+        "order": 4,
+        "title": "Migration strategy \u2014 lesson 4 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-03-s05",
+        "order": 5,
+        "title": "Migration strategy \u2014 lesson 5 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-03-s06",
+        "order": 6,
+        "title": "Migration strategy \u2014 lesson 6 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-03-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 800,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "senior-04",
+    "grade": "Senior",
+    "order": 4,
+    "title": "Code review",
+    "stages": [
+      {
+        "id": "senior-04-s01",
+        "order": 1,
+        "title": "Code review \u2014 lesson 1 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-04-s02",
+        "order": 2,
+        "title": "Code review \u2014 lesson 2 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-04-s03",
+        "order": 3,
+        "title": "Code review \u2014 lesson 3 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-04-s04",
+        "order": 4,
+        "title": "Code review \u2014 lesson 4 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-04-s05",
+        "order": 5,
+        "title": "Code review \u2014 lesson 5 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-04-s06",
+        "order": 6,
+        "title": "Code review \u2014 lesson 6 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-04-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 800,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "senior-05",
+    "grade": "Senior",
+    "order": 5,
+    "title": "Mentoring",
+    "stages": [
+      {
+        "id": "senior-05-s01",
+        "order": 1,
+        "title": "Mentoring \u2014 lesson 1 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-05-s02",
+        "order": 2,
+        "title": "Mentoring \u2014 lesson 2 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-05-s03",
+        "order": 3,
+        "title": "Mentoring \u2014 lesson 3 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-05-s04",
+        "order": 4,
+        "title": "Mentoring \u2014 lesson 4 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-05-s05",
+        "order": 5,
+        "title": "Mentoring \u2014 lesson 5 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-05-s06",
+        "order": 6,
+        "title": "Mentoring \u2014 lesson 6 of 6",
+        "xpCost": 100,
+        "kind": "lesson"
+      },
+      {
+        "id": "senior-05-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 800,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "distinguished-01",
+    "grade": "Distinguished",
+    "order": 1,
+    "title": "Platform strategy",
+    "stages": [
+      {
+        "id": "distinguished-01-s01",
+        "order": 1,
+        "title": "Platform strategy \u2014 lesson 1 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-01-s02",
+        "order": 2,
+        "title": "Platform strategy \u2014 lesson 2 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-01-s03",
+        "order": 3,
+        "title": "Platform strategy \u2014 lesson 3 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-01-s04",
+        "order": 4,
+        "title": "Platform strategy \u2014 lesson 4 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-01-s05",
+        "order": 5,
+        "title": "Platform strategy \u2014 lesson 5 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-01-s06",
+        "order": 6,
+        "title": "Platform strategy \u2014 lesson 6 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-01-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 1000,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "distinguished-02",
+    "grade": "Distinguished",
+    "order": 2,
+    "title": "Cross-team architecture",
+    "stages": [
+      {
+        "id": "distinguished-02-s01",
+        "order": 1,
+        "title": "Cross-team architecture \u2014 lesson 1 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-02-s02",
+        "order": 2,
+        "title": "Cross-team architecture \u2014 lesson 2 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-02-s03",
+        "order": 3,
+        "title": "Cross-team architecture \u2014 lesson 3 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-02-s04",
+        "order": 4,
+        "title": "Cross-team architecture \u2014 lesson 4 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-02-s05",
+        "order": 5,
+        "title": "Cross-team architecture \u2014 lesson 5 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-02-s06",
+        "order": 6,
+        "title": "Cross-team architecture \u2014 lesson 6 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-02-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 1000,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "distinguished-03",
+    "grade": "Distinguished",
+    "order": 3,
+    "title": "Technical direction",
+    "stages": [
+      {
+        "id": "distinguished-03-s01",
+        "order": 1,
+        "title": "Technical direction \u2014 lesson 1 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-03-s02",
+        "order": 2,
+        "title": "Technical direction \u2014 lesson 2 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-03-s03",
+        "order": 3,
+        "title": "Technical direction \u2014 lesson 3 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-03-s04",
+        "order": 4,
+        "title": "Technical direction \u2014 lesson 4 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-03-s05",
+        "order": 5,
+        "title": "Technical direction \u2014 lesson 5 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-03-s06",
+        "order": 6,
+        "title": "Technical direction \u2014 lesson 6 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-03-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 1000,
+        "kind": "assessment"
+      }
+    ]
+  },
+  {
+    "id": "distinguished-04",
+    "grade": "Distinguished",
+    "order": 4,
+    "title": "Engineering culture",
+    "stages": [
+      {
+        "id": "distinguished-04-s01",
+        "order": 1,
+        "title": "Engineering culture \u2014 lesson 1 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-04-s02",
+        "order": 2,
+        "title": "Engineering culture \u2014 lesson 2 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-04-s03",
+        "order": 3,
+        "title": "Engineering culture \u2014 lesson 3 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-04-s04",
+        "order": 4,
+        "title": "Engineering culture \u2014 lesson 4 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-04-s05",
+        "order": 5,
+        "title": "Engineering culture \u2014 lesson 5 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-04-s06",
+        "order": 6,
+        "title": "Engineering culture \u2014 lesson 6 of 6",
+        "xpCost": 125,
+        "kind": "lesson"
+      },
+      {
+        "id": "distinguished-04-s07",
+        "order": 7,
+        "title": "Track assessment",
+        "xpCost": 1000,
+        "kind": "assessment"
+      }
+    ]
+  }
+]

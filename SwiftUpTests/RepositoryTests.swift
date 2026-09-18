@@ -204,4 +204,16 @@ struct RepositoryTests {
     @Test func skillLevelOnboardingChoicesExcludesDistinguished() {
         #expect(SkillLevel.onboardingChoices == [.junior, .mid, .senior])
     }
+
+    @Test func pathTrackBundledFixtureDecodesTwentyTracksWithJunior02HandAuthored() throws {
+        let tracks = decodeJSONResource([PathTrack].self, filename: "path_tracks", bundle: testBundle) ?? []
+        #expect(tracks.count == 20)
+        let junior02 = try #require(tracks.first { $0.id == "junior-02" })
+        #expect(junior02.grade == .junior)
+        #expect(junior02.title == "Object-oriented Swift")
+        #expect(junior02.stages.count == 8)
+        #expect(junior02.stages.map(\.xpCost) == [45, 45, 45, 200, 200, 200, 200, 400])
+        #expect(junior02.stages.last?.kind == .assessment)
+        #expect(junior02.stages.last?.title == "Track assessment")
+    }
 }
