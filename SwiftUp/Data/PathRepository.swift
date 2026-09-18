@@ -8,6 +8,7 @@ final class PathRepository {
     private(set) var isLoading = false
     private(set) var usedBundledFallback = false
     private(set) var grade: SkillLevel = .junior
+    private var loadedUID: String?
 
     init() {}
 
@@ -29,12 +30,16 @@ final class PathRepository {
     /// Guarded at entry: `PathWheelView` and `ProfileHomeView` both call this from their own
     /// `.task`, and `MainTabView` constructs all four tabs at once (hidden via `.opacity`, not
     /// conditional construction), so both `.task`s fire on the same cold launch. Skipping when a
-    /// load is already in progress or has already succeeded keeps every caller safe without
-    /// needing call-site changes — the same "only load once" idea `InterviewBankView` applies at
-    /// its own call site (`repo.categories.isEmpty ? repo.load() : ()`), just enforced here instead
-    /// so it covers every caller.
+    /// load is already in progress, or has already succeeded for this same `uid`, keeps every
+    /// caller safe without needing call-site changes — the same "only load once" idea
+    /// `InterviewBankView` applies at its own call site
+    /// (`repo.categories.isEmpty ? repo.load() : ()`), just enforced here instead so it covers
+    /// every caller. Keying on `uid` (rather than `tracks.isEmpty`) means a sign-out/sign-in into a
+    /// *different* account still triggers a fresh load — `PathRepository` is a long-lived `@State`
+    /// on `RootView` that outlives sign-out, so a load latch keyed only on "have we ever loaded"
+    /// would silently serve one account's grade/tracks to the next.
     func load(for uid: String) async {
-        guard !isLoading, tracks.isEmpty else { return }
+        guard !isLoading, loadedUID != uid else { return }
         isLoading = true
         defer { isLoading = false }
 
@@ -51,6 +56,7 @@ final class PathRepository {
         }
         completedStageIDs = Self.completedStageIDs(from: userDoc)
         grade = Self.grade(from: userDoc)
+        loadedUID = uid
     }
 
     func tracks(for grade: SkillLevel) -> [PathTrack] {
