@@ -1188,24 +1188,9 @@ private struct PathIcon: View {
 
 - [ ] **Step 4: Wire `PathWheelView` into `MainTabView`**
 
+`PathWheelView` (Task 5) already owns its own navigation state internally (`@State private var selectedTrack` + `.navigationDestination(item:)`), so `MainTabView` needs no additional state of its own for this — only the tab-content swap below.
+
 In `SwiftUp/App/MainTabView.swift`, replace:
-
-```swift
-struct MainTabView: View {
-    @State private var selectedTab: AppTab = .today
-```
-
-with:
-
-```swift
-struct MainTabView: View {
-    @State private var selectedTab: AppTab = .today
-    @State private var pathSelectedTrack: PathTrack?
-```
-
-(`pathSelectedTrack` is declared here but unused in this task — remove this line if you find `PathWheelView`'s own `@State private var selectedTrack` from Task 5 already fully owns its navigation state and `MainTabView` doesn't need a mirror of it. Check `PathWheelView.swift` first: if it already manages `selectedTrack` internally via its own `.navigationDestination(item:)`, as Task 5 built it, then `MainTabView` needs no additional state for this — skip adding `pathSelectedTrack` entirely and proceed directly to the tab-content swap below.)
-
-Replace:
 
 ```swift
                 NavigationStack { LeaderboardView() }
