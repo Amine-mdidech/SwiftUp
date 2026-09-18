@@ -250,4 +250,25 @@ struct RepositoryTests {
         #expect(juniorTracks.map(\.order) == [1, 2, 3, 4, 5])
         #expect(juniorTracks.allSatisfy { $0.grade == .junior })
     }
+
+    @Test func pathRepositoryFirstTrackInAGradeIsAlwaysReachable() {
+        let stages = [PathStage(id: "t1-s01", order: 1, title: "One", xpCost: 50, kind: .lesson)]
+        let track1 = PathTrack(id: "t1", grade: .junior, order: 1, title: "One", stages: stages)
+        let repo = PathRepository()
+        #expect(repo.isTrackReachable(track1) == true)
+    }
+
+    @Test func pathRepositorySecondTrackNotReachableBeforeFirstIsClosed() {
+        // isTrackReachable looks up sibling tracks via `self.tracks(for:)`, which is `private(set)`
+        // and only populated by `load(for:)` — with no test seam (same limitation Sub-project A's
+        // isTrackClosed/isStageUnlocked tests already accepted for completedStageIDs). On a fresh,
+        // never-loaded repo, `tracks(for:)` returns empty, so `track1` is invisible to `track2`'s
+        // reachability check — meaning track2 correctly reads as unreachable, but for the "can't
+        // see any predecessor at all" reason rather than "predecessor exists but isn't closed."
+        // Both reasons produce the same `false`, which is what this test actually verifies.
+        let stage2 = PathStage(id: "t2-s01", order: 1, title: "Two", xpCost: 50, kind: .lesson)
+        let track2 = PathTrack(id: "t2", grade: .junior, order: 2, title: "Two", stages: [stage2])
+        let repo = PathRepository()
+        #expect(repo.isTrackReachable(track2) == false)
+    }
 }

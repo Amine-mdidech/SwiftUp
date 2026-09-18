@@ -7,6 +7,7 @@ final class PathRepository {
     private(set) var completedStageIDs: Set<String> = []
     private(set) var isLoading = false
     private(set) var usedBundledFallback = false
+    private(set) var grade: SkillLevel = .junior
 
     init() {}
 
@@ -30,7 +31,8 @@ final class PathRepository {
 
         async let tracksResult = Self.fetchTracks()
         async let completedResult = Self.fetchCompletedStageIDs(uid: uid)
-        let (fetchedTracks, fetchedCompleted) = await (tracksResult, completedResult)
+        async let gradeResult = Self.fetchGrade(uid: uid)
+        let (fetchedTracks, fetchedCompleted, fetchedGrade) = await (tracksResult, completedResult, gradeResult)
 
         if fetchedTracks.isEmpty {
             tracks = Self.loadBundledFallback()
@@ -40,6 +42,7 @@ final class PathRepository {
             usedBundledFallback = false
         }
         completedStageIDs = fetchedCompleted
+        grade = fetchedGrade
     }
 
     func tracks(for grade: SkillLevel) -> [PathTrack] {
@@ -63,6 +66,18 @@ final class PathRepository {
         return track.stages.filter { $0.order < stage.order }.allSatisfy { isStageCompleted($0) }
     }
 
+    /// A track unlocks once every earlier track (by `order`) in the same grade is closed. The
+    /// first track in a grade is always reachable.
+    func isTrackReachable(_ track: PathTrack) -> Bool {
+        let earlierTracks = tracks(for: track.grade).filter { $0.order < track.order }
+        // If we're looking for earlier tracks but found none, and we're not the first track,
+        // we're not reachable (prerequisites can't be verified)
+        if earlierTracks.isEmpty && track.order > 1 {
+            return false
+        }
+        return earlierTracks.allSatisfy { isTrackClosed($0) }
+    }
+
     private static func fetchTracks() async -> [PathTrack] {
         guard let snapshot = try? await Firestore.firestore().collection("pathTracks").getDocuments() else {
             return []
@@ -77,5 +92,19 @@ final class PathRepository {
             return []
         }
         return Set(map.keys)
+    }
+
+    /// Reads the same `users/{uid}.skillLevel` field `QuestionRepository` already reads — a
+    /// second, independent read of the same field, not a shared cache. That's fine: it's one
+    /// cheap field read, and it keeps `PathRepository` self-contained rather than depending on
+    /// `QuestionRepository`'s internal state.
+    private static func fetchGrade(uid: String) async -> SkillLevel {
+        guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument(),
+              let raw = snapshot.get("skillLevel") as? String,
+              let level = SkillLevel(rawValue: raw)
+        else {
+            return .junior
+        }
+        return level
     }
 }
