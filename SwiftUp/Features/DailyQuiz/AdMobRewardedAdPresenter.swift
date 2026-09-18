@@ -31,29 +31,24 @@ final class AdMobRewardedAdPresenter: NSObject, RewardedAdPresenting {
     }
 
     func preload() async {
-        print("[AdPresenter] preload() called")
         await loadAd()
     }
 
     @MainActor
     func presentAd(completion: @escaping @MainActor @Sendable (Bool) -> Void) {
         guard let rewardedAd else {
-            print("[AdPresenter] presentAd: no ad loaded yet — failing open")
             completion(true)
             Task { await loadAd() }
             return
         }
         guard let root = Self.topViewController() else {
-            print("[AdPresenter] presentAd: ad WAS loaded but no root view controller found — failing open")
             completion(true)
             return
         }
-        print("[AdPresenter] presentAd: presenting from \(root)")
         didEarnReward = false
         pendingCompletion = completion
         rewardedAd.fullScreenContentDelegate = self
         rewardedAd.present(from: root) { [weak self] in
-            print("[AdPresenter] reward earned callback fired")
             self?.didEarnReward = true
         }
     }
@@ -61,10 +56,8 @@ final class AdMobRewardedAdPresenter: NSObject, RewardedAdPresenting {
     private func loadAd() async {
         do {
             rewardedAd = try await RewardedAd.load(with: adUnitID, request: Request())
-            print("[AdPresenter] loadAd: succeeded, ad ready")
         } catch {
             rewardedAd = nil
-            print("[AdPresenter] loadAd: FAILED — \(error)")
         }
     }
 
@@ -86,7 +79,6 @@ final class AdMobRewardedAdPresenter: NSObject, RewardedAdPresenting {
 
 extension AdMobRewardedAdPresenter: FullScreenContentDelegate {
     func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
-        print("[AdPresenter] adDidDismissFullScreenContent, earned=\(didEarnReward)")
         rewardedAd = nil
         let completion = pendingCompletion
         let earned = didEarnReward
@@ -96,7 +88,6 @@ extension AdMobRewardedAdPresenter: FullScreenContentDelegate {
     }
 
     func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
-        print("[AdPresenter] didFailToPresentFullScreenContentWithError: \(error)")
         rewardedAd = nil
         let completion = pendingCompletion
         pendingCompletion = nil

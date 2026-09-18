@@ -41,12 +41,7 @@ struct SupportView: View {
                     title: "Watch an ad, at will", tag: "30 seconds",
                     detail: "Start one whenever you feel like helping out. Never shown unprompted.",
                     buttonTitle: "Watch one now", primary: false,
-                    action: {
-                        print("[AdPresenter] WATCH BUTTON TAPPED")
-                        adPresenter.presentAd { earned in
-                            print("[AdPresenter] presentAd completion fired, earned=\(earned)")
-                        }
-                    }
+                    action: { adPresenter.presentAd { _ in } }
                 )
                 .padding(.top, 20)
 
@@ -81,11 +76,15 @@ struct SupportView: View {
             .background(primary ? Theme.Colors.accent : Color.clear)
             .foregroundStyle(primary ? Theme.Colors.bg : Theme.Colors.text)
             .overlay(primary ? nil : RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
-            .contentShape(Rectangle())
             .padding(.top, 5)
         }
         .padding(.top, 16)
-        .overlay(Rectangle().fill(Theme.Colors.divider), alignment: .top)
+        // `.frame(height: 1)` is load-bearing, not decoration: without it this Rectangle expands
+        // to fill the whole card (its own natural size, unconstrained) and — being a z-order
+        // `.overlay`, drawn on top of the Button below — silently absorbed every tap on both
+        // donation buttons. Root cause of a genuinely hard-to-find bug: both buttons were no-ops
+        // before this file wired up real actions, so nothing ever surfaced it.
+        .overlay(Rectangle().fill(Theme.Colors.divider).frame(height: 1), alignment: .top)
     }
 }
 

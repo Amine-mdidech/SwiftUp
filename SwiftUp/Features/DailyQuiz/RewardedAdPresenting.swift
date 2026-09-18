@@ -17,7 +17,6 @@ protocol RewardedAdPresenting {
 struct NoOpAdPresenter: RewardedAdPresenting {
     @MainActor
     func presentAd(completion: @escaping @MainActor @Sendable (Bool) -> Void) {
-        print("[AdPresenter] NoOpAdPresenter.presentAd called — this means adPresenter is NOT the real AdMobRewardedAdPresenter")
         completion(true)
     }
 }
