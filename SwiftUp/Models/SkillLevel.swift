@@ -1,5 +1,7 @@
 import Foundation
 
+/// `CaseIterable`'s `allCases` includes `.distinguished` — for any UI offering a level to pick
+/// from (not just display it), use `onboardingChoices` instead, which deliberately excludes it.
 enum SkillLevel: String, CaseIterable, Identifiable, Codable {
     case junior = "Junior", mid = "Mid", senior = "Senior", distinguished = "Distinguished"
     var id: String { rawValue }

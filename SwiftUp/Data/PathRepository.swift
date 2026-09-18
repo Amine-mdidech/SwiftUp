@@ -6,6 +6,7 @@ final class PathRepository {
     private(set) var tracks: [PathTrack] = []
     private(set) var completedStageIDs: Set<String> = []
     private(set) var isLoading = false
+    private(set) var usedBundledFallback = false
 
     init() {}
 
@@ -31,7 +32,13 @@ final class PathRepository {
         async let completedResult = Self.fetchCompletedStageIDs(uid: uid)
         let (fetchedTracks, fetchedCompleted) = await (tracksResult, completedResult)
 
-        tracks = fetchedTracks.isEmpty ? Self.loadBundledFallback() : fetchedTracks
+        if fetchedTracks.isEmpty {
+            tracks = Self.loadBundledFallback()
+            usedBundledFallback = true
+        } else {
+            tracks = fetchedTracks
+            usedBundledFallback = false
+        }
         completedStageIDs = fetchedCompleted
     }
 
@@ -52,7 +59,8 @@ final class PathRepository {
     /// itself is reachable (e.g. "you need 3 of 5 Junior tracks closed before this one shows") is
     /// a later sub-project's concern, not this repository's.
     func isStageUnlocked(_ stage: PathStage, in track: PathTrack) -> Bool {
-        track.stages.filter { $0.order < stage.order }.allSatisfy { isStageCompleted($0) }
+        guard track.stages.contains(where: { $0.id == stage.id }) else { return false }
+        return track.stages.filter { $0.order < stage.order }.allSatisfy { isStageCompleted($0) }
     }
 
     private static func fetchTracks() async -> [PathTrack] {

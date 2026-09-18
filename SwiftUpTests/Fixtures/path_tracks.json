@@ -8,42 +8,42 @@
       {
         "id": "junior-01-s01",
         "order": 1,
-        "title": "Swift fundamentals \u2014 lesson 1 of 6",
+        "title": "Swift fundamentals — lesson 1 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s02",
         "order": 2,
-        "title": "Swift fundamentals \u2014 lesson 2 of 6",
+        "title": "Swift fundamentals — lesson 2 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s03",
         "order": 3,
-        "title": "Swift fundamentals \u2014 lesson 3 of 6",
+        "title": "Swift fundamentals — lesson 3 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s04",
         "order": 4,
-        "title": "Swift fundamentals \u2014 lesson 4 of 6",
+        "title": "Swift fundamentals — lesson 4 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s05",
         "order": 5,
-        "title": "Swift fundamentals \u2014 lesson 5 of 6",
+        "title": "Swift fundamentals — lesson 5 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s06",
         "order": 6,
-        "title": "Swift fundamentals \u2014 lesson 6 of 6",
+        "title": "Swift fundamentals — lesson 6 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
@@ -129,42 +129,42 @@
       {
         "id": "junior-03-s01",
         "order": 1,
-        "title": "Architecture basics \u2014 lesson 1 of 6",
+        "title": "Architecture basics — lesson 1 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s02",
         "order": 2,
-        "title": "Architecture basics \u2014 lesson 2 of 6",
+        "title": "Architecture basics — lesson 2 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s03",
         "order": 3,
-        "title": "Architecture basics \u2014 lesson 3 of 6",
+        "title": "Architecture basics — lesson 3 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s04",
         "order": 4,
-        "title": "Architecture basics \u2014 lesson 4 of 6",
+        "title": "Architecture basics — lesson 4 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s05",
         "order": 5,
-        "title": "Architecture basics \u2014 lesson 5 of 6",
+        "title": "Architecture basics — lesson 5 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s06",
         "order": 6,
-        "title": "Architecture basics \u2014 lesson 6 of 6",
+        "title": "Architecture basics — lesson 6 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
@@ -186,42 +186,42 @@
       {
         "id": "junior-04-s01",
         "order": 1,
-        "title": "Memory & ARC \u2014 lesson 1 of 6",
+        "title": "Memory & ARC — lesson 1 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s02",
         "order": 2,
-        "title": "Memory & ARC \u2014 lesson 2 of 6",
+        "title": "Memory & ARC — lesson 2 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s03",
         "order": 3,
-        "title": "Memory & ARC \u2014 lesson 3 of 6",
+        "title": "Memory & ARC — lesson 3 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s04",
         "order": 4,
-        "title": "Memory & ARC \u2014 lesson 4 of 6",
+        "title": "Memory & ARC — lesson 4 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s05",
         "order": 5,
-        "title": "Memory & ARC \u2014 lesson 5 of 6",
+        "title": "Memory & ARC — lesson 5 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s06",
         "order": 6,
-        "title": "Memory & ARC \u2014 lesson 6 of 6",
+        "title": "Memory & ARC — lesson 6 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
@@ -243,42 +243,42 @@
       {
         "id": "junior-05-s01",
         "order": 1,
-        "title": "SwiftUI state \u2014 lesson 1 of 6",
+        "title": "SwiftUI state — lesson 1 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s02",
         "order": 2,
-        "title": "SwiftUI state \u2014 lesson 2 of 6",
+        "title": "SwiftUI state — lesson 2 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s03",
         "order": 3,
-        "title": "SwiftUI state \u2014 lesson 3 of 6",
+        "title": "SwiftUI state — lesson 3 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s04",
         "order": 4,
-        "title": "SwiftUI state \u2014 lesson 4 of 6",
+        "title": "SwiftUI state — lesson 4 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s05",
         "order": 5,
-        "title": "SwiftUI state \u2014 lesson 5 of 6",
+        "title": "SwiftUI state — lesson 5 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s06",
         "order": 6,
-        "title": "SwiftUI state \u2014 lesson 6 of 6",
+        "title": "SwiftUI state — lesson 6 of 6",
         "xpCost": 50,
         "kind": "lesson"
       },
@@ -300,42 +300,42 @@
       {
         "id": "mid-01-s01",
         "order": 1,
-        "title": "Concurrency \u2014 lesson 1 of 6",
+        "title": "Concurrency — lesson 1 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s02",
         "order": 2,
-        "title": "Concurrency \u2014 lesson 2 of 6",
+        "title": "Concurrency — lesson 2 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s03",
         "order": 3,
-        "title": "Concurrency \u2014 lesson 3 of 6",
+        "title": "Concurrency — lesson 3 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s04",
         "order": 4,
-        "title": "Concurrency \u2014 lesson 4 of 6",
+        "title": "Concurrency — lesson 4 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s05",
         "order": 5,
-        "title": "Concurrency \u2014 lesson 5 of 6",
+        "title": "Concurrency — lesson 5 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s06",
         "order": 6,
-        "title": "Concurrency \u2014 lesson 6 of 6",
+        "title": "Concurrency — lesson 6 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -357,42 +357,42 @@
       {
         "id": "mid-02-s01",
         "order": 1,
-        "title": "Testing \u2014 lesson 1 of 6",
+        "title": "Testing — lesson 1 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s02",
         "order": 2,
-        "title": "Testing \u2014 lesson 2 of 6",
+        "title": "Testing — lesson 2 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s03",
         "order": 3,
-        "title": "Testing \u2014 lesson 3 of 6",
+        "title": "Testing — lesson 3 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s04",
         "order": 4,
-        "title": "Testing \u2014 lesson 4 of 6",
+        "title": "Testing — lesson 4 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s05",
         "order": 5,
-        "title": "Testing \u2014 lesson 5 of 6",
+        "title": "Testing — lesson 5 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s06",
         "order": 6,
-        "title": "Testing \u2014 lesson 6 of 6",
+        "title": "Testing — lesson 6 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -414,42 +414,42 @@
       {
         "id": "mid-03-s01",
         "order": 1,
-        "title": "Networking \u2014 lesson 1 of 6",
+        "title": "Networking — lesson 1 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s02",
         "order": 2,
-        "title": "Networking \u2014 lesson 2 of 6",
+        "title": "Networking — lesson 2 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s03",
         "order": 3,
-        "title": "Networking \u2014 lesson 3 of 6",
+        "title": "Networking — lesson 3 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s04",
         "order": 4,
-        "title": "Networking \u2014 lesson 4 of 6",
+        "title": "Networking — lesson 4 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s05",
         "order": 5,
-        "title": "Networking \u2014 lesson 5 of 6",
+        "title": "Networking — lesson 5 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s06",
         "order": 6,
-        "title": "Networking \u2014 lesson 6 of 6",
+        "title": "Networking — lesson 6 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -471,42 +471,42 @@
       {
         "id": "mid-04-s01",
         "order": 1,
-        "title": "Persistence \u2014 lesson 1 of 6",
+        "title": "Persistence — lesson 1 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s02",
         "order": 2,
-        "title": "Persistence \u2014 lesson 2 of 6",
+        "title": "Persistence — lesson 2 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s03",
         "order": 3,
-        "title": "Persistence \u2014 lesson 3 of 6",
+        "title": "Persistence — lesson 3 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s04",
         "order": 4,
-        "title": "Persistence \u2014 lesson 4 of 6",
+        "title": "Persistence — lesson 4 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s05",
         "order": 5,
-        "title": "Persistence \u2014 lesson 5 of 6",
+        "title": "Persistence — lesson 5 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s06",
         "order": 6,
-        "title": "Persistence \u2014 lesson 6 of 6",
+        "title": "Persistence — lesson 6 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -528,42 +528,42 @@
       {
         "id": "mid-05-s01",
         "order": 1,
-        "title": "Performance \u2014 lesson 1 of 6",
+        "title": "Performance — lesson 1 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s02",
         "order": 2,
-        "title": "Performance \u2014 lesson 2 of 6",
+        "title": "Performance — lesson 2 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s03",
         "order": 3,
-        "title": "Performance \u2014 lesson 3 of 6",
+        "title": "Performance — lesson 3 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s04",
         "order": 4,
-        "title": "Performance \u2014 lesson 4 of 6",
+        "title": "Performance — lesson 4 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s05",
         "order": 5,
-        "title": "Performance \u2014 lesson 5 of 6",
+        "title": "Performance — lesson 5 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s06",
         "order": 6,
-        "title": "Performance \u2014 lesson 6 of 6",
+        "title": "Performance — lesson 6 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -585,42 +585,42 @@
       {
         "id": "mid-06-s01",
         "order": 1,
-        "title": "App lifecycle \u2014 lesson 1 of 6",
+        "title": "App lifecycle — lesson 1 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s02",
         "order": 2,
-        "title": "App lifecycle \u2014 lesson 2 of 6",
+        "title": "App lifecycle — lesson 2 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s03",
         "order": 3,
-        "title": "App lifecycle \u2014 lesson 3 of 6",
+        "title": "App lifecycle — lesson 3 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s04",
         "order": 4,
-        "title": "App lifecycle \u2014 lesson 4 of 6",
+        "title": "App lifecycle — lesson 4 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s05",
         "order": 5,
-        "title": "App lifecycle \u2014 lesson 5 of 6",
+        "title": "App lifecycle — lesson 5 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s06",
         "order": 6,
-        "title": "App lifecycle \u2014 lesson 6 of 6",
+        "title": "App lifecycle — lesson 6 of 6",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -642,42 +642,42 @@
       {
         "id": "senior-01-s01",
         "order": 1,
-        "title": "System design \u2014 lesson 1 of 6",
+        "title": "System design — lesson 1 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s02",
         "order": 2,
-        "title": "System design \u2014 lesson 2 of 6",
+        "title": "System design — lesson 2 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s03",
         "order": 3,
-        "title": "System design \u2014 lesson 3 of 6",
+        "title": "System design — lesson 3 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s04",
         "order": 4,
-        "title": "System design \u2014 lesson 4 of 6",
+        "title": "System design — lesson 4 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s05",
         "order": 5,
-        "title": "System design \u2014 lesson 5 of 6",
+        "title": "System design — lesson 5 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s06",
         "order": 6,
-        "title": "System design \u2014 lesson 6 of 6",
+        "title": "System design — lesson 6 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -699,42 +699,42 @@
       {
         "id": "senior-02-s01",
         "order": 1,
-        "title": "Module boundaries \u2014 lesson 1 of 6",
+        "title": "Module boundaries — lesson 1 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s02",
         "order": 2,
-        "title": "Module boundaries \u2014 lesson 2 of 6",
+        "title": "Module boundaries — lesson 2 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s03",
         "order": 3,
-        "title": "Module boundaries \u2014 lesson 3 of 6",
+        "title": "Module boundaries — lesson 3 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s04",
         "order": 4,
-        "title": "Module boundaries \u2014 lesson 4 of 6",
+        "title": "Module boundaries — lesson 4 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s05",
         "order": 5,
-        "title": "Module boundaries \u2014 lesson 5 of 6",
+        "title": "Module boundaries — lesson 5 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s06",
         "order": 6,
-        "title": "Module boundaries \u2014 lesson 6 of 6",
+        "title": "Module boundaries — lesson 6 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -756,42 +756,42 @@
       {
         "id": "senior-03-s01",
         "order": 1,
-        "title": "Migration strategy \u2014 lesson 1 of 6",
+        "title": "Migration strategy — lesson 1 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s02",
         "order": 2,
-        "title": "Migration strategy \u2014 lesson 2 of 6",
+        "title": "Migration strategy — lesson 2 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s03",
         "order": 3,
-        "title": "Migration strategy \u2014 lesson 3 of 6",
+        "title": "Migration strategy — lesson 3 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s04",
         "order": 4,
-        "title": "Migration strategy \u2014 lesson 4 of 6",
+        "title": "Migration strategy — lesson 4 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s05",
         "order": 5,
-        "title": "Migration strategy \u2014 lesson 5 of 6",
+        "title": "Migration strategy — lesson 5 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s06",
         "order": 6,
-        "title": "Migration strategy \u2014 lesson 6 of 6",
+        "title": "Migration strategy — lesson 6 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -813,42 +813,42 @@
       {
         "id": "senior-04-s01",
         "order": 1,
-        "title": "Code review \u2014 lesson 1 of 6",
+        "title": "Code review — lesson 1 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s02",
         "order": 2,
-        "title": "Code review \u2014 lesson 2 of 6",
+        "title": "Code review — lesson 2 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s03",
         "order": 3,
-        "title": "Code review \u2014 lesson 3 of 6",
+        "title": "Code review — lesson 3 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s04",
         "order": 4,
-        "title": "Code review \u2014 lesson 4 of 6",
+        "title": "Code review — lesson 4 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s05",
         "order": 5,
-        "title": "Code review \u2014 lesson 5 of 6",
+        "title": "Code review — lesson 5 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s06",
         "order": 6,
-        "title": "Code review \u2014 lesson 6 of 6",
+        "title": "Code review — lesson 6 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -870,42 +870,42 @@
       {
         "id": "senior-05-s01",
         "order": 1,
-        "title": "Mentoring \u2014 lesson 1 of 6",
+        "title": "Mentoring — lesson 1 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s02",
         "order": 2,
-        "title": "Mentoring \u2014 lesson 2 of 6",
+        "title": "Mentoring — lesson 2 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s03",
         "order": 3,
-        "title": "Mentoring \u2014 lesson 3 of 6",
+        "title": "Mentoring — lesson 3 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s04",
         "order": 4,
-        "title": "Mentoring \u2014 lesson 4 of 6",
+        "title": "Mentoring — lesson 4 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s05",
         "order": 5,
-        "title": "Mentoring \u2014 lesson 5 of 6",
+        "title": "Mentoring — lesson 5 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s06",
         "order": 6,
-        "title": "Mentoring \u2014 lesson 6 of 6",
+        "title": "Mentoring — lesson 6 of 6",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -927,42 +927,42 @@
       {
         "id": "distinguished-01-s01",
         "order": 1,
-        "title": "Platform strategy \u2014 lesson 1 of 6",
+        "title": "Platform strategy — lesson 1 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s02",
         "order": 2,
-        "title": "Platform strategy \u2014 lesson 2 of 6",
+        "title": "Platform strategy — lesson 2 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s03",
         "order": 3,
-        "title": "Platform strategy \u2014 lesson 3 of 6",
+        "title": "Platform strategy — lesson 3 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s04",
         "order": 4,
-        "title": "Platform strategy \u2014 lesson 4 of 6",
+        "title": "Platform strategy — lesson 4 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s05",
         "order": 5,
-        "title": "Platform strategy \u2014 lesson 5 of 6",
+        "title": "Platform strategy — lesson 5 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s06",
         "order": 6,
-        "title": "Platform strategy \u2014 lesson 6 of 6",
+        "title": "Platform strategy — lesson 6 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
@@ -984,42 +984,42 @@
       {
         "id": "distinguished-02-s01",
         "order": 1,
-        "title": "Cross-team architecture \u2014 lesson 1 of 6",
+        "title": "Cross-team architecture — lesson 1 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s02",
         "order": 2,
-        "title": "Cross-team architecture \u2014 lesson 2 of 6",
+        "title": "Cross-team architecture — lesson 2 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s03",
         "order": 3,
-        "title": "Cross-team architecture \u2014 lesson 3 of 6",
+        "title": "Cross-team architecture — lesson 3 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s04",
         "order": 4,
-        "title": "Cross-team architecture \u2014 lesson 4 of 6",
+        "title": "Cross-team architecture — lesson 4 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s05",
         "order": 5,
-        "title": "Cross-team architecture \u2014 lesson 5 of 6",
+        "title": "Cross-team architecture — lesson 5 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s06",
         "order": 6,
-        "title": "Cross-team architecture \u2014 lesson 6 of 6",
+        "title": "Cross-team architecture — lesson 6 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
@@ -1041,42 +1041,42 @@
       {
         "id": "distinguished-03-s01",
         "order": 1,
-        "title": "Technical direction \u2014 lesson 1 of 6",
+        "title": "Technical direction — lesson 1 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s02",
         "order": 2,
-        "title": "Technical direction \u2014 lesson 2 of 6",
+        "title": "Technical direction — lesson 2 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s03",
         "order": 3,
-        "title": "Technical direction \u2014 lesson 3 of 6",
+        "title": "Technical direction — lesson 3 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s04",
         "order": 4,
-        "title": "Technical direction \u2014 lesson 4 of 6",
+        "title": "Technical direction — lesson 4 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s05",
         "order": 5,
-        "title": "Technical direction \u2014 lesson 5 of 6",
+        "title": "Technical direction — lesson 5 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s06",
         "order": 6,
-        "title": "Technical direction \u2014 lesson 6 of 6",
+        "title": "Technical direction — lesson 6 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
@@ -1098,42 +1098,42 @@
       {
         "id": "distinguished-04-s01",
         "order": 1,
-        "title": "Engineering culture \u2014 lesson 1 of 6",
+        "title": "Engineering culture — lesson 1 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s02",
         "order": 2,
-        "title": "Engineering culture \u2014 lesson 2 of 6",
+        "title": "Engineering culture — lesson 2 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s03",
         "order": 3,
-        "title": "Engineering culture \u2014 lesson 3 of 6",
+        "title": "Engineering culture — lesson 3 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s04",
         "order": 4,
-        "title": "Engineering culture \u2014 lesson 4 of 6",
+        "title": "Engineering culture — lesson 4 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s05",
         "order": 5,
-        "title": "Engineering culture \u2014 lesson 5 of 6",
+        "title": "Engineering culture — lesson 5 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s06",
         "order": 6,
-        "title": "Engineering culture \u2014 lesson 6 of 6",
+        "title": "Engineering culture — lesson 6 of 6",
         "xpCost": 125,
         "kind": "lesson"
       },

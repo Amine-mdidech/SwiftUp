@@ -103,7 +103,8 @@ final class QuestionRepository {
         }
     }
 
-    /// Records today's five as answered (seen), so they're excluded from future "unseen" picks.
+    /// Records today's five as answered. Written on every completion, but currently has no reader —
+    /// the auto-promotion check that used to read this map was removed; nothing else consumes it yet.
     func recordAnswered(_ questions: [Question], for uid: String) async {
         guard !questions.isEmpty else { return }
         var updates: [String: Any] = [:]

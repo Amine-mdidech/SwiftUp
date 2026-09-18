@@ -63,9 +63,17 @@ def main() -> None:
                 "title": title,
                 "stages": build_stages(track_id, title, multiplier),
             })
-    out_path = Path(__file__).resolve().parent / "path-tracks.json"
-    out_path.write_text(json.dumps(tracks, indent=2) + "\n")
-    print(f"Wrote {len(tracks)} tracks to {out_path}")
+    content = json.dumps(tracks, indent=2, ensure_ascii=False) + "\n"
+    script_dir = Path(__file__).resolve().parent
+    repo_root = script_dir.parent
+    out_paths = [
+        script_dir / "path-tracks.json",
+        repo_root / "SwiftUp" / "Resources" / "path_tracks.json",
+        repo_root / "SwiftUpTests" / "Fixtures" / "path_tracks.json",
+    ]
+    for out_path in out_paths:
+        out_path.write_text(content)
+    print(f"Wrote {len(tracks)} tracks to {len(out_paths)} files: " + ", ".join(str(p) for p in out_paths))
 
 
 if __name__ == "__main__":
