@@ -440,4 +440,22 @@ struct RepositoryTests {
         #expect(session.isAnswered(questions[0]) == false)
         #expect(session.questions.count == 2)
     }
+
+    @Test func pathLessonSessionAdvanceAndGoBackStayWithinBounds() {
+        let slides = (1...3).map { PathSlide(id: "s\($0)", order: $0, title: "T\($0)", body: "B", example: nil) }
+        let session = PathLessonSession(slides: slides)
+
+        #expect(session.isFirstSlide == true)
+        session.goBack()
+        #expect(session.isFirstSlide == true)   // already at slide 0, goBack is a no-op
+
+        session.advance()
+        session.advance()
+        #expect(session.isLastSlide == true)
+        #expect(session.isFinished == false)
+
+        session.advance()
+        #expect(session.isFinished == true)
+        #expect(session.currentSlide == nil)
+    }
 }
