@@ -28,8 +28,8 @@ struct SkillAssessmentView: View {
                 .padding(.top, 10)
 
             VStack(spacing: 0) {
-                ForEach(SkillLevel.allCases) { level in
-                    RuledRow(showBottomRule: level == SkillLevel.allCases.last, minHeight: 60) {
+                ForEach(SkillLevel.onboardingChoices) { level in
+                    RuledRow(showBottomRule: level == SkillLevel.onboardingChoices.last, minHeight: 60) {
                         Circle()
                             .strokeBorder(selection == level ? Theme.Colors.accent : Theme.Colors.divider, lineWidth: 1.5)
                             .background(Circle().fill(selection == level ? Theme.Colors.accent : Color.clear))

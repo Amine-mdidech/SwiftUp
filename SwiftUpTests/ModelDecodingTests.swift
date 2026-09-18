@@ -69,6 +69,22 @@ struct ModelDecodingTests {
         #expect(doc.questions(for: .senior).map(\.id) == ["sr1"])
     }
 
+    @Test func dailyQuizDocumentRoutesDistinguishedToSeniorQuestions() throws {
+        func question(_ id: String) -> String {
+            """
+            {"id":"\(id)","topic":"t","level":"Senior","format":"multipleChoice","prompt":"p",
+             "codeSnippet":null,"options":[{"id":"A","text":"a"}],"correctOptionID":"A",
+             "explanation":"e","xp":10}
+            """
+        }
+        let json = """
+        {"edition":1,"junior":[],"mid":[],"senior":[\(question("s1"))]}
+        """.data(using: .utf8)!
+        let doc = try JSONDecoder().decode(DailyQuizDocument.self, from: json)
+        #expect(doc.questions(for: .distinguished).map(\.id) == doc.questions(for: .senior).map(\.id))
+        #expect(doc.questions(for: .distinguished).map(\.id) == ["s1"])
+    }
+
     @Test func decodesAchievementDefinitionWithCriterion() throws {
         let json = """
         {

@@ -14,7 +14,7 @@ struct DailyQuizDocument: Codable {
         switch level {
         case .junior: junior
         case .mid: mid
-        case .senior: senior
+        case .senior, .distinguished: senior
         }
     }
 }

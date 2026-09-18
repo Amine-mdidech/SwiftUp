@@ -26,13 +26,11 @@ final class QuestionRepository {
         decodeJSONResource([Question].self, filename: "questions", bundle: bundle) ?? []
     }
 
-    /// Fetches today's shared daily quiz for `uid`: reads their skill level/override/answer
-    /// history from Firestore, promotes them to the next level if their current level's full
-    /// question bank is exhausted, then reads today's edition — the same edition number and same
-    /// questions every user at that level sees today — from `dailyQuizzes/{today}`
-    /// (`DailyEdition.todayKey()`), authored server-side by `scripts/seed_daily_quizzes.py`.
-    /// Falls back to the bundled set only if that document is unreachable (offline, not yet
-    /// seeded) with nothing cached locally yet.
+    /// Fetches today's shared daily quiz for `uid`: reads their skill level/override from Firestore,
+    /// then reads today's edition — the same edition number and same questions every user at that
+    /// level sees today — from `dailyQuizzes/{today}` (`DailyEdition.todayKey()`), authored
+    /// server-side by `scripts/seed_daily_quizzes.py`. Falls back to the bundled set only if that
+    /// document is unreachable (offline, not yet seeded) with nothing cached locally yet.
     func load(for uid: String) async {
         isLoading = true
         defer { isLoading = false }
@@ -41,7 +39,6 @@ final class QuestionRepository {
 
         var storedLevel = SkillLevel.junior
         var override: SkillLevel?
-        var answered: [String: Date] = [:]
 
         do {
             let snapshot = try await userDoc.getDocument()
@@ -51,24 +48,12 @@ final class QuestionRepository {
             if let raw = snapshot.get("levelOverride") as? String, let level = SkillLevel(rawValue: raw) {
                 override = level
             }
-            if let map = snapshot.get("answeredQuestionIDs") as? [String: Timestamp] {
-                answered = map.mapValues { $0.dateValue() }
-            }
         } catch {
             // No user doc data available (offline, first launch) — proceed with defaults.
         }
 
         levelOverride = override
-        var effectiveLevel = override ?? storedLevel
-
-        // Promotion is best-effort: a failed bank fetch just skips the check rather than
-        // blocking today's quiz, which comes from `dailyQuizzes` regardless.
-        if let bank = try? await fetchBank(level: effectiveLevel), !bank.isEmpty,
-           QuestionSelector.shouldPromote(bank: bank, answered: answered), let next = effectiveLevel.next {
-            effectiveLevel = next
-            storedLevel = next
-            try? await userDoc.updateData(["skillLevel": next.rawValue])
-        }
+        let effectiveLevel = override ?? storedLevel
 
         guard let daily = try? await fetchDailyQuiz() else {
             todayQuestions = Self.loadBundledFallback()
@@ -79,14 +64,6 @@ final class QuestionRepository {
         todayQuestions = daily.questions(for: effectiveLevel)
         editionNumber = daily.edition
         self.effectiveLevel = effectiveLevel
-    }
-
-    private func fetchBank(level: SkillLevel) async throws -> [Question] {
-        let snapshot = try await Firestore.firestore()
-            .collection("questions")
-            .whereField("level", isEqualTo: level.rawValue)
-            .getDocuments()
-        return snapshot.documents.compactMap { try? $0.data(as: Question.self) }
     }
 
     private func fetchDailyQuiz() async throws -> DailyQuizDocument {

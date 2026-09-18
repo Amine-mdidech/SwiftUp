@@ -193,4 +193,15 @@ struct RepositoryTests {
         let practice = QuizSession(questions: [question], isPractice: true)
         #expect(practice.isPractice == true)
     }
+
+    @Test func skillLevelNextClimbsAllFourGradesThenCeilings() {
+        #expect(SkillLevel.junior.next == .mid)
+        #expect(SkillLevel.mid.next == .senior)
+        #expect(SkillLevel.senior.next == .distinguished)
+        #expect(SkillLevel.distinguished.next == nil)
+    }
+
+    @Test func skillLevelOnboardingChoicesExcludesDistinguished() {
+        #expect(SkillLevel.onboardingChoices == [.junior, .mid, .senior])
+    }
 }
