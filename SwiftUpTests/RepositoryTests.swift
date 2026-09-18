@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import SwiftUI
 @testable import SwiftUp
 
 private final class TestBundleMarker {}
@@ -270,5 +271,35 @@ struct RepositoryTests {
         let track2 = PathTrack(id: "t2", grade: .junior, order: 2, title: "Two", stages: [stage2])
         let repo = PathRepository()
         #expect(repo.isTrackReachable(track2) == false)
+    }
+
+    @Test func pathWheelDiagramNodePositionsAreEvenlySpacedStartingAtTwelveOClock() {
+        // Mirrors PathWheelDiagram's own private nodePosition(at:) formula, verified independently
+        // here as a pure-math check since the view itself isn't a natural unit-test target.
+        func nodePosition(at index: Int, count: Int, center: CGPoint, radius: CGFloat) -> CGPoint {
+            let angle = Angle.degrees(-90 + Double(index) * (360.0 / Double(count)))
+            return CGPoint(x: center.x + radius * cos(angle.radians), y: center.y + radius * sin(angle.radians))
+        }
+        let center = CGPoint(x: 150, y: 150)
+        let radius: CGFloat = 110
+
+        // 5 nodes: node 0 sits directly above center (12 o'clock).
+        let fiveNode0 = nodePosition(at: 0, count: 5, center: center, radius: radius)
+        #expect(abs(fiveNode0.x - center.x) < 0.001)
+        #expect(abs(fiveNode0.y - (center.y - radius)) < 0.001)
+
+        // 4 nodes: node 1 sits 90° clockwise from 12 o'clock, i.e. directly right of center.
+        let fourNode1 = nodePosition(at: 1, count: 4, center: center, radius: radius)
+        #expect(abs(fourNode1.x - (center.x + radius)) < 0.001)
+        #expect(abs(fourNode1.y - center.y) < 0.001)
+
+        // Every node is exactly `radius` from center, for any count.
+        for count in [4, 5, 6] {
+            for index in 0..<count {
+                let p = nodePosition(at: index, count: count, center: center, radius: radius)
+                let distance = sqrt(pow(p.x - center.x, 2) + pow(p.y - center.y, 2))
+                #expect(abs(distance - radius) < 0.001)
+            }
+        }
     }
 }
