@@ -3,7 +3,7 @@ import SwiftUI
 enum AppTab: String, CaseIterable {
     case today = "Today"
     case prep = "Prep"
-    case ranks = "Ranks"
+    case path = "Path"
     case record = "Record"
 }
 
@@ -63,7 +63,7 @@ private struct TabBarIcon: View {
         switch tab {
         case .today: TodayIcon()
         case .prep: PrepIcon()
-        case .ranks: RanksIcon()
+        case .path: PathIcon()
         case .record: RecordIcon()
         }
     }
@@ -106,15 +106,38 @@ private struct PrepIcon: View {
     }
 }
 
-private struct RanksIcon: View {
+private struct PathIcon: View {
     var body: some View {
         Canvas { context, _ in
+            var stem = Path()
+            stem.move(to: CGPoint(x: 9, y: 15.5))
+            stem.addLine(to: CGPoint(x: 9, y: 10.5))
+            context.stroke(stem, with: .foreground, lineWidth: 1.5)
+
+            var leftBranch = Path()
+            leftBranch.move(to: CGPoint(x: 9, y: 10.5))
+            leftBranch.addLine(to: CGPoint(x: 3.5, y: 10.5))
+            leftBranch.addLine(to: CGPoint(x: 3.5, y: 6))
+            context.stroke(leftBranch, with: .foreground, lineWidth: 1.5)
+
+            var rightBranch = Path()
+            rightBranch.move(to: CGPoint(x: 9, y: 10.5))
+            rightBranch.addLine(to: CGPoint(x: 14.5, y: 10.5))
+            rightBranch.addLine(to: CGPoint(x: 14.5, y: 6))
+            context.stroke(rightBranch, with: .foreground, lineWidth: 1.5)
+
+            var bottomNode = Path()
+            bottomNode.addEllipse(in: CGRect(x: 7.2, y: 14.2, width: 3.6, height: 3.6))
+            context.fill(bottomNode, with: .foreground)
+
             context.opacity = 0.45
-            context.fill(Path(CGRect(x: 2, y: 10, width: 3.6, height: 5.5)), with: .foreground)
-            context.opacity = 1
-            context.fill(Path(CGRect(x: 7.2, y: 6, width: 3.6, height: 9.5)), with: .foreground)
-            context.opacity = 0.45
-            context.fill(Path(CGRect(x: 12.4, y: 2.5, width: 3.6, height: 13)), with: .foreground)
+            var leftNode = Path()
+            leftNode.addEllipse(in: CGRect(x: 1.3, y: 2.2, width: 4.4, height: 4.4))
+            context.fill(leftNode, with: .foreground)
+
+            var rightNode = Path()
+            rightNode.addEllipse(in: CGRect(x: 12.3, y: 2.2, width: 4.4, height: 4.4))
+            context.fill(rightNode, with: .foreground)
         }
     }
 }

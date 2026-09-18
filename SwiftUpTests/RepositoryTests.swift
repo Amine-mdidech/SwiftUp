@@ -125,13 +125,6 @@ struct RepositoryTests {
         #expect(InterviewRepository.dueDate(for: .missed, from: fixedDate) == "2026-09-13")
     }
 
-    @Test func leaderboardRepositoryPreviewLoadsEntriesSortedByRank() {
-        let repo = LeaderboardRepository.preview(bundle: testBundle)
-        #expect(repo.topEntries.count == 8)
-        #expect(repo.topEntries.first?.rank == 1)
-        #expect(repo.topEntries.first?.totalXP == 640)
-    }
-
     @MainActor
     @Test func profileRepositoryBuildsCalendarDaysOldestFirstWithGapsAsMissed() {
         let records: [String: StreakDayState] = [

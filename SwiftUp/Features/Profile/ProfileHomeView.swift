@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProfileHomeView: View {
     @Environment(ProfileRepository.self) private var repo
-    @Environment(LeaderboardRepository.self) private var leaderboardRepo
+    @Environment(PathRepository.self) private var pathRepo
     @Environment(AuthRepository.self) private var authRepo
 
     var body: some View {
@@ -24,14 +24,11 @@ struct ProfileHomeView: View {
         }
         .task {
             guard let uid = authRepo.currentUser?.uid else { return }
-            await leaderboardRepo.load(for: uid)
+            await pathRepo.load(for: uid)
         }
     }
 
-    private var mastheadRank: String {
-        guard let percentile = leaderboardRepo.myPercentile else { return "Not yet ranked" }
-        return "Top \(percentile)% all-time"
-    }
+    private var mastheadRank: String { pathRepo.grade.rawValue }
 
     private var profileContent: some View {
         ScrollView {
@@ -56,6 +53,14 @@ struct ProfileHomeView: View {
                     EyebrowLabel("\(repo.profile.xpToNextLevel) xp to level \(repo.profile.level + 1)", color: Theme.Colors.accent700)
                     Spacer()
                     NavigationLink("All 12 levels →") { AllLevelsView() }
+                        .font(.system(size: 12)).foregroundStyle(Theme.Colors.accent700)
+                }
+                .padding(.top, 10)
+
+                HStack {
+                    EyebrowLabel("Grade: \(pathRepo.grade.rawValue)")
+                    Spacer()
+                    NavigationLink("All four grades →") { FourGradesView() }
                         .font(.system(size: 12)).foregroundStyle(Theme.Colors.accent700)
                 }
                 .padding(.top, 10)
@@ -162,6 +167,6 @@ struct ProfileHomeView: View {
 #Preview {
     NavigationStack { ProfileHomeView() }
         .environment(ProfileRepository.preview())
-        .environment(LeaderboardRepository.preview())
+        .environment(PathRepository.preview())
         .environment(AuthRepository(isPreview: true, signedIn: true))
 }
