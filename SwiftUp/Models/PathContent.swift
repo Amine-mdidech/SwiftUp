@@ -13,6 +13,7 @@ struct PathQuizQuestion: Codable, Identifiable, Hashable {
     let prompt: String
     let options: [QuestionOption]
     let correctOptionID: String
+    let explanation: String
 }
 
 struct PathStageContent: Codable, Hashable {

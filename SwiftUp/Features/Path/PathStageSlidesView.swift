@@ -109,7 +109,8 @@ struct PathStageSlidesView: View {
             PathQuizQuestion(
                 id: "q1", prompt: "Preview question?",
                 options: [QuestionOption(id: "A", text: "Correct answer"), QuestionOption(id: "B", text: "Incorrect answer 1")],
-                correctOptionID: "A"
+                correctOptionID: "A",
+                explanation: "This is a placeholder explanation."
             )
         ]
     )

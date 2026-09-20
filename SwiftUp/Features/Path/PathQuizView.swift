@@ -69,10 +69,15 @@ struct PathQuizView: View {
             .padding(.top, 30)
 
             if answered {
-                Text(isCorrect ? "Correct." : "Not quite.")
-                    .font(Theme.Fonts.heading(20))
-                    .foregroundStyle(isCorrect ? Theme.Colors.accent700 : Theme.Colors.accent2800)
-                    .padding(.top, 20)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(isCorrect ? "Correct." : "Not quite.")
+                        .font(Theme.Fonts.heading(20))
+                        .foregroundStyle(isCorrect ? Theme.Colors.accent700 : Theme.Colors.accent2800)
+                    Text(question.explanation)
+                        .font(Theme.Fonts.body(14.5))
+                        .foregroundStyle(Theme.Colors.neutral800)
+                }
+                .padding(.top, 20)
 
                 Button(action: { session.advance() }) {
                     Text(session.currentIndex == session.questions.count - 1 ? "See results" : "Next question")
@@ -194,7 +199,8 @@ struct PathQuizView: View {
                 QuestionOption(id: "C", text: "Incorrect answer 2"),
                 QuestionOption(id: "D", text: "Incorrect answer 3"),
             ],
-            correctOptionID: "A"
+            correctOptionID: "A",
+            explanation: "This is a placeholder explanation shown after answering."
         )
     ]
     return PathQuizView(title: "Preview stage", questions: questions, onPassed: {}, onFinished: {})

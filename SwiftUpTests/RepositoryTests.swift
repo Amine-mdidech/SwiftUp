@@ -382,7 +382,8 @@ struct RepositoryTests {
             PathQuizQuestion(
                 id: id, prompt: "P",
                 options: [QuestionOption(id: "A", text: "Correct answer"), QuestionOption(id: "B", text: "Incorrect answer 1")],
-                correctOptionID: "A"
+                correctOptionID: "A",
+                explanation: "Explanation."
             )
         }
         let questions = (1...5).map { question("q\($0)") }
@@ -406,7 +407,8 @@ struct RepositoryTests {
             PathQuizQuestion(
                 id: id, prompt: "P",
                 options: [QuestionOption(id: "A", text: "Correct answer"), QuestionOption(id: "B", text: "Incorrect answer 1")],
-                correctOptionID: "A"
+                correctOptionID: "A",
+                explanation: "Explanation."
             )
         }
         let questions = (1...5).map { question("q\($0)") }
@@ -424,7 +426,7 @@ struct RepositoryTests {
 
     @Test func pathQuizSessionRetryResetsAnswersButKeepsTheSameQuestions() {
         func question(_ id: String) -> PathQuizQuestion {
-            PathQuizQuestion(id: id, prompt: "P", options: [QuestionOption(id: "A", text: "Correct answer")], correctOptionID: "A")
+            PathQuizQuestion(id: id, prompt: "P", options: [QuestionOption(id: "A", text: "Correct answer")], correctOptionID: "A", explanation: "Explanation.")
         }
         let questions = [question("q1"), question("q2")]
         let session = PathQuizSession(questions: questions)
