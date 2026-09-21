@@ -15,6 +15,8 @@ struct AdUnlockSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Spacer(minLength: 0)
+
             Rectangle().fill(Theme.Colors.text).frame(height: 3)
 
             Text(canWatchAd ? "Not quite enough xp" : "Already unlocked today")
@@ -55,6 +57,7 @@ struct AdUnlockSheet: View {
             Spacer(minLength: 0)
         }
         .padding(24)
+        .frame(maxHeight: .infinity)
         .background(Theme.Colors.bg)
     }
 }
