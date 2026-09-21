@@ -14,6 +14,7 @@ struct TrackLadderView: View {
     @State private var activeAttempt: StageAttempt?
     @State private var spendAlert: SpendAlert?
     @State private var adUnlockOffer: PathStage?
+    @State private var isSpending = false
 
     var body: some View {
         ScrollView {
@@ -96,6 +97,8 @@ struct TrackLadderView: View {
                     }
                     .background(Theme.Colors.accent)
                     .foregroundStyle(Theme.Colors.bg)
+                    .opacity(isSpending ? 0.6 : 1)
+                    .disabled(isSpending)
                     .padding(.top, 16)
                 }
 
@@ -111,13 +114,15 @@ struct TrackLadderView: View {
                     title: attempt.stage.title,
                     questions: attempt.content.quiz,
                     onPassed: { await pathRepo.completeStage(attempt.stage, for: authRepo.currentUser?.uid ?? "") },
-                    onFinished: { activeAttempt = nil }
+                    onFinished: { activeAttempt = nil },
+                    onAbandon: { activeAttempt = nil }
                 )
             } else {
                 PathStageSlidesView(
                     stage: attempt.stage, content: attempt.content,
                     onPassed: { await pathRepo.completeStage(attempt.stage, for: authRepo.currentUser?.uid ?? "") },
-                    onFinished: { activeAttempt = nil }
+                    onFinished: { activeAttempt = nil },
+                    onAbandon: { activeAttempt = nil }
                 )
             }
         }
@@ -161,7 +166,9 @@ struct TrackLadderView: View {
 
     private func spend(_ stage: PathStage) {
         guard let uid = authRepo.currentUser?.uid else { return }
+        isSpending = true
         Task {
+            defer { isSpending = false }
             let result = await pathRepo.startStage(stage, cost: stage.xpCost, for: uid)
             switch result {
             case .started(let newBalance):
@@ -169,7 +176,8 @@ struct TrackLadderView: View {
                 await openContent(for: stage)
             case .alreadyStarted:
                 await openContent(for: stage)
-            case .insufficientXP:
+            case .insufficientXP(let balance):
+                profileRepo.applyExternalXPBalance(balance)
                 adUnlockOffer = stage
             case .failed:
                 spendAlert = .writeFailed

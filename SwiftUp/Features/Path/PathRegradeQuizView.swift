@@ -26,7 +26,8 @@ struct PathRegradeQuizView: View {
                             }
                             dismiss()
                         }
-                    }
+                    },
+                    onAbandon: { dismiss() }
                 )
             } else if isLoading {
                 ProgressView()

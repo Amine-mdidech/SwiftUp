@@ -11,15 +11,17 @@ struct PathStageSlidesView: View {
     let content: PathStageContent
     let onPassed: () async -> Void
     let onFinished: () -> Void
+    let onAbandon: () -> Void
 
     @State private var session: PathLessonSession
     @State private var showQuiz = false
 
-    init(stage: PathStage, content: PathStageContent, onPassed: @escaping () async -> Void, onFinished: @escaping () -> Void) {
+    init(stage: PathStage, content: PathStageContent, onPassed: @escaping () async -> Void, onFinished: @escaping () -> Void, onAbandon: @escaping () -> Void) {
         self.stage = stage
         self.content = content
         self.onPassed = onPassed
         self.onFinished = onFinished
+        self.onAbandon = onAbandon
         _session = State(initialValue: PathLessonSession(slides: content.slides))
     }
 
@@ -37,7 +39,8 @@ struct PathStageSlidesView: View {
                 title: stage.title,
                 questions: content.quiz,
                 onPassed: onPassed,
-                onFinished: onFinished
+                onFinished: onFinished,
+                onAbandon: onAbandon
             )
         }
     }
@@ -78,6 +81,9 @@ struct PathStageSlidesView: View {
                 Button("Back") { session.goBack() }
                     .disabled(session.isFirstSlide)
                     .frame(minHeight: 44)
+                Button("Give up") { onAbandon() }
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.Colors.neutral700)
                 Spacer()
                 Button(action: {
                     if session.isLastSlide {
@@ -116,6 +122,6 @@ struct PathStageSlidesView: View {
     )
     let stage = PathStage(id: "preview-s01", order: 1, title: "Value semantics", xpCost: 50, kind: .lesson)
     return NavigationStack {
-        PathStageSlidesView(stage: stage, content: content, onPassed: {}, onFinished: {})
+        PathStageSlidesView(stage: stage, content: content, onPassed: {}, onFinished: {}, onAbandon: {})
     }
 }

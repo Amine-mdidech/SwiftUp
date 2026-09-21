@@ -10,13 +10,15 @@ struct PathQuizView: View {
     let title: String
     let onPassed: () async -> Void
     let onFinished: () -> Void
+    let onAbandon: () -> Void
 
     @State private var session: PathQuizSession
 
-    init(title: String, questions: [PathQuizQuestion], onPassed: @escaping () async -> Void, onFinished: @escaping () -> Void) {
+    init(title: String, questions: [PathQuizQuestion], onPassed: @escaping () async -> Void, onFinished: @escaping () -> Void, onAbandon: @escaping () -> Void) {
         self.title = title
         self.onPassed = onPassed
         self.onFinished = onFinished
+        self.onAbandon = onAbandon
         _session = State(initialValue: PathQuizSession(questions: questions))
     }
 
@@ -46,6 +48,11 @@ struct PathQuizView: View {
                 Text("Question \(String(format: "%02d", session.currentIndex + 1)) / \(String(format: "%02d", session.questions.count))")
                     .font(.system(size: 10)).foregroundStyle(Theme.Colors.neutral700)
             }
+
+            Button("Give up") { onAbandon() }
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.Colors.neutral700)
+                .padding(.top, 6)
 
             HStack(spacing: 4) {
                 ForEach(0..<session.questions.count, id: \.self) { i in
@@ -175,6 +182,11 @@ struct PathQuizView: View {
                 .background(Theme.Colors.accent)
                 .foregroundStyle(Theme.Colors.bg)
                 .padding(.top, 24)
+
+                Button("Give up") { onAbandon() }
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.Colors.neutral700)
+                    .padding(.top, 14)
             }
             Spacer(minLength: 20)
         }
@@ -203,5 +215,5 @@ struct PathQuizView: View {
             explanation: "This is a placeholder explanation shown after answering."
         )
     ]
-    return PathQuizView(title: "Preview stage", questions: questions, onPassed: {}, onFinished: {})
+    return PathQuizView(title: "Preview stage", questions: questions, onPassed: {}, onFinished: {}, onAbandon: {})
 }
