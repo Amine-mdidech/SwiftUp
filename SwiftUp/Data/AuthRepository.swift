@@ -50,9 +50,10 @@ final class AuthRepository {
 
     // MARK: - Email/password
 
-    /// No separate sign-in/sign-up choice is shown to the user — this tries
-    /// signing in first, and silently creates the account on the one error
-    /// that means "no such user," so a single button covers both cases.
+    /// No separate sign-in/sign-up choice is shown to the user — this tries signing in first, and
+    /// silently creates the account on any error that might mean "no such user" (see
+    /// `isSignInFailureThatMightMeanNoAccount` for why that's more than one error code on this
+    /// project), so a single button covers both cases.
     func continueWithEmail(email: String, password: String) async {
         guard !isPreview else { return }
         errorMessage = nil
