@@ -72,7 +72,6 @@ struct TodayFlowView: View {
     /// never reaches this method (see `advancePractice`).
     private func recordCompletion() {
         guard let session, let uid = authRepo.currentUser?.uid else { return }
-        Task { await questionRepo.recordAnswered(session.questions, for: uid) }
         Task { await profileRepo.recordCompletion(session, for: uid) }
     }
 

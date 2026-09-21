@@ -2,6 +2,7 @@ import Foundation
 import FirebaseFirestore
 
 @Observable
+@MainActor
 final class PathRepository {
     private(set) var tracks: [PathTrack] = []
     private(set) var completedStageIDs: Set<String> = []
@@ -11,6 +12,7 @@ final class PathRepository {
     private(set) var grade: SkillLevel = .junior
     private(set) var lastAdUnlockDate: String?
     private var loadedUID: String?
+    private var pendingSpendStageIDs: Set<String> = []
 
     init() {}
 
@@ -160,6 +162,13 @@ final class PathRepository {
         if completedStageIDs.contains(stage.id) || startedStageIDs.contains(stage.id) {
             return .alreadyStarted
         }
+        // Guards against a rapid double-tap: startedStageIDs is only updated after the Firestore
+        // round-trip below, so without this a second call for the same stage could pass the guard
+        // above too and double-charge. This in-memory set closes that window immediately, before
+        // any network access.
+        guard !pendingSpendStageIDs.contains(stage.id) else { return .alreadyStarted }
+        pendingSpendStageIDs.insert(stage.id)
+        defer { pendingSpendStageIDs.remove(stage.id) }
 
         let userRef = Firestore.firestore().collection("users").document(uid)
         guard let snapshot = try? await userRef.getDocument() else { return .failed }
@@ -184,7 +193,7 @@ final class PathRepository {
     /// Whether the once-a-day ad unlock is still available today — `true` on a user who has
     /// never used it, or whose last use was on an earlier calendar day than today.
     var hasAdUnlockAvailableToday: Bool {
-        lastAdUnlockDate != Self.todayString()
+        lastAdUnlockDate != DailyEdition.todayKey()
     }
 
     /// Unlocks `stage` for free after a watched rewarded ad — no xp is spent or credited, this is
@@ -197,7 +206,7 @@ final class PathRepository {
         guard hasAdUnlockAvailableToday else { return false }
         guard !completedStageIDs.contains(stage.id), !startedStageIDs.contains(stage.id) else { return false }
 
-        let today = Self.todayString()
+        let today = DailyEdition.todayKey()
         let userRef = Firestore.firestore().collection("users").document(uid)
         do {
             try await userRef.setData(
@@ -212,14 +221,6 @@ final class PathRepository {
         }
     }
 
-    private static func todayString(_ date: Date = Date()) -> String {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
-    }
 
     /// Marks `stage` as completed after a passing quiz attempt. No XP is written here — passing
     /// grants no XP (design doc §3); this call only records progress.

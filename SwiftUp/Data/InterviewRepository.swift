@@ -2,11 +2,13 @@ import Foundation
 import FirebaseFirestore
 
 @Observable
+@MainActor
 final class InterviewRepository {
     private(set) var categories: [InterviewCategoryContent] = []
     private(set) var isLoading = false
     private(set) var bookmarkedIDs: Set<String> = []
     private(set) var reviewState: [String: FlashcardReviewState] = [:]
+    private var loadedUID: String?
 
     init() {}
 
@@ -98,7 +100,9 @@ final class InterviewRepository {
     /// directly unit-testable without touching Firestore.
     static func dueDate(for rating: FlashcardRating, from date: Date = Date()) -> String {
         let daysUntilDue = rating == .nailed ? 4 : 1
-        let due = Calendar.current.date(byAdding: .day, value: daysUntilDue, to: date) ?? date
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .current
+        let due = calendar.date(byAdding: .day, value: daysUntilDue, to: date) ?? date
         return DailyEdition.todayKey(for: due)
     }
 
@@ -106,6 +110,12 @@ final class InterviewRepository {
     /// Non-blocking on failure — keeps whatever state is already held rather than flashing to
     /// empty on a transient error, same shape as `ProfileRepository.load(for:)`.
     func loadUserState(for uid: String) async {
+        if loadedUID != uid {
+            bookmarkedIDs = []
+            reviewState = [:]
+        }
+        loadedUID = uid
+
         async let bookmarkDocs = Firestore.firestore()
             .collection("users").document(uid).collection("bookmarks").getDocuments()
         async let reviewDocs = Firestore.firestore()

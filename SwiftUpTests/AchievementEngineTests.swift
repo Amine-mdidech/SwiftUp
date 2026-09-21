@@ -52,11 +52,15 @@ struct AchievementEngineTests {
     }
 
     @Test func topicMasteryNotEarnedWhenCountTooLow() {
-        // 100% accuracy but only 5 answered, needs 40.
+        // 100% accuracy but only 5 answered, needs 40. Progress must report the answered-count
+        // gap (5 of 40), not the already-satisfied accuracy constraint (100 of 90) — otherwise the
+        // progress bar would read as maxed-out on an unearned achievement (regression: see
+        // AchievementEngine.evaluateCriterion's "topicMastery" case).
         let stats = UserStats(totalXP: 0, currentLevel: 1, streakDays: 0, totalQuestionsAnswered: 5, perfectDayCount: 0, topicStats: ["Concurrency": (correct: 5, total: 5)], recentCompletions: [], today: "2026-01-15")
         let result = AchievementEngine.evaluate(catalog: [definition("a1", kind: "topicMastery", topic: "Concurrency", minAccuracy: 90, minAnswered: 40)], stats: stats, earnedAt: [:])
         #expect(result.first?.status == .inReach)
-        #expect(result.first?.progressCurrent == 100)
+        #expect(result.first?.progressCurrent == 5)
+        #expect(result.first?.progressTarget == 40)
     }
 
     @Test func perfectWeekEarnedWithSixOfSevenGoodDays() {

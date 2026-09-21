@@ -2,6 +2,7 @@ import Foundation
 import FirebaseFirestore
 
 @Observable
+@MainActor
 final class QuestionRepository {
     private(set) var todayQuestions: [Question] = []
     /// Today's edition number, read straight from `dailyQuizzes/{today}`. `nil` when that
@@ -11,6 +12,8 @@ final class QuestionRepository {
     private(set) var isLoading = false
     private(set) var levelOverride: SkillLevel?
     private(set) var effectiveLevel: SkillLevel = .junior
+    private var storedLevel: SkillLevel = .junior
+    private var loadedUID: String?
 
     init() {}
 
@@ -35,15 +38,28 @@ final class QuestionRepository {
         isLoading = true
         defer { isLoading = false }
 
+        if loadedUID != uid {
+            todayQuestions = []
+            editionNumber = nil
+            levelOverride = nil
+            effectiveLevel = .junior
+            // Not in the original fix spec, but required by it: `storedLevel` used to be a local
+            // variable inside this method (recomputed fresh on every call) until Fix 8 hoisted it
+            // to instance state for `setLevelOverride`'s benefit. Left unreset here, a failed fetch
+            // for a new uid would keep serving the previous account's stored skill level through
+            // `effectiveLevel` below — reintroducing the exact leak this block exists to close.
+            storedLevel = .junior
+        }
+        loadedUID = uid
+
         let userDoc = Firestore.firestore().collection("users").document(uid)
 
-        var storedLevel = SkillLevel.junior
         var override: SkillLevel?
 
         do {
             let snapshot = try await userDoc.getDocument()
             if let raw = snapshot.get("skillLevel") as? String, let level = SkillLevel(rawValue: raw) {
-                storedLevel = level
+                self.storedLevel = level
             }
             if let raw = snapshot.get("levelOverride") as? String, let level = SkillLevel(rawValue: raw) {
                 override = level
@@ -53,7 +69,8 @@ final class QuestionRepository {
         }
 
         levelOverride = override
-        let effectiveLevel = override ?? storedLevel
+        let effectiveLevel = override ?? self.storedLevel
+        self.effectiveLevel = effectiveLevel
 
         guard let daily = try? await fetchDailyQuiz() else {
             todayQuestions = Self.loadBundledFallback()
@@ -63,7 +80,6 @@ final class QuestionRepository {
 
         todayQuestions = daily.questions(for: effectiveLevel)
         editionNumber = daily.edition
-        self.effectiveLevel = effectiveLevel
     }
 
     private func fetchDailyQuiz() async throws -> DailyQuizDocument {
@@ -94,28 +110,15 @@ final class QuestionRepository {
 
     /// Called from Settings when the user picks a specific difficulty, or clears back to "Adaptive".
     func setLevelOverride(_ level: SkillLevel?, for uid: String) async {
-        levelOverride = level
         do {
             try await Firestore.firestore().collection("users").document(uid)
                 .setData(["levelOverride": level?.rawValue as Any], merge: true)
+            levelOverride = level
+            effectiveLevel = level ?? storedLevel
         } catch {
-            // Non-blocking.
-        }
-    }
-
-    /// Records today's five as answered. Written on every completion, but currently has no reader —
-    /// the auto-promotion check that used to read this map was removed; nothing else consumes it yet.
-    func recordAnswered(_ questions: [Question], for uid: String) async {
-        guard !questions.isEmpty else { return }
-        var updates: [String: Any] = [:]
-        let now = Timestamp(date: Date())
-        for question in questions {
-            updates["answeredQuestionIDs.\(question.id)"] = now
-        }
-        do {
-            try await Firestore.firestore().collection("users").document(uid).updateData(updates)
-        } catch {
-            // Non-blocking — worst case one of today's questions can be re-selected later.
+            // Local state left untouched on failure — matches the mirror-only-on-success
+            // convention this project uses elsewhere (e.g. PathRepository.startStage), so a
+            // failed write doesn't show a picker selection that silently reverts next launch.
         }
     }
 }

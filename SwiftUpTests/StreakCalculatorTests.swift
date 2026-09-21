@@ -147,4 +147,20 @@ struct StreakCalculatorTests {
         let result = StreakCalculator.apply(lastCompletedDate: nil, streakDays: 0, freezesAvailable: 0, today: "2026-01-10")
         #expect(result.frozenDate == nil)
     }
+
+    // MARK: - currentStreak
+
+    @Test func currentStreakStaysAtLastValueWithinOneDayGap() {
+        #expect(StreakCalculator.currentStreak(lastCompletedDate: "2026-09-20", streakDays: 12, freezesAvailable: 0, today: "2026-09-21") == 12)
+        #expect(StreakCalculator.currentStreak(lastCompletedDate: "2026-09-21", streakDays: 12, freezesAvailable: 0, today: "2026-09-21") == 12)
+    }
+
+    @Test func currentStreakForgivesATwoDayGapWithAFreezeBanked() {
+        #expect(StreakCalculator.currentStreak(lastCompletedDate: "2026-09-19", streakDays: 12, freezesAvailable: 1, today: "2026-09-21") == 12)
+    }
+
+    @Test func currentStreakLapsesToZeroWithoutAFreeze() {
+        #expect(StreakCalculator.currentStreak(lastCompletedDate: "2026-09-19", streakDays: 12, freezesAvailable: 0, today: "2026-09-21") == 0)
+        #expect(StreakCalculator.currentStreak(lastCompletedDate: "2026-08-01", streakDays: 12, freezesAvailable: 3, today: "2026-09-21") == 0)
+    }
 }

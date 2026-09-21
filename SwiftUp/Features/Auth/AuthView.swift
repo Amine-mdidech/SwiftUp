@@ -154,7 +154,7 @@ struct AuthView: View {
 
     private func submit() {
         validationMessage = nil
-        authRepository.errorMessage = nil
+        authRepository.clearError()
         guard AuthValidation.isValidEmail(email) else {
             validationMessage = "Enter a valid email address."
             return

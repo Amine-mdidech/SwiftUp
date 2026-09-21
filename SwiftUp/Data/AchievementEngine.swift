@@ -59,7 +59,11 @@ enum AchievementEngine {
             let accuracy = Int((Double(stat.correct) / Double(stat.total) * 100).rounded())
             let minAccuracy = criterion.minAccuracy ?? 0
             let minAnswered = criterion.minAnswered ?? 0
-            return (accuracy >= minAccuracy && stat.total >= minAnswered, (accuracy, minAccuracy))
+            let isEarned = accuracy >= minAccuracy && stat.total >= minAnswered
+            // Report whichever constraint is still binding, so the progress bar doesn't read as
+            // maxed-out on accuracy alone while the answer-count requirement is nowhere close.
+            let progress = accuracy >= minAccuracy ? (min(stat.total, minAnswered), minAnswered) : (accuracy, minAccuracy)
+            return (isEarned, progress)
 
         case "perfectWeek":
             let dates = lastNDates(before: stats.today, count: 7)

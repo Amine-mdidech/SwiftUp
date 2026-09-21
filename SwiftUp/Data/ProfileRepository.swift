@@ -12,17 +12,37 @@ final class ProfileRepository {
     private(set) var achievements: [Achievement] = []
     private(set) var isLoading = false
     private(set) var streakDayRecords: [String: StreakDayState] = [:]
+    private var loadedUID: String?
 
     init(bundle: Bundle = .main) {
         levels = decodeJSONResource([LevelInfo].self, filename: "levels", bundle: bundle) ?? []
         catalog = decodeJSONResource([AchievementDefinition].self, filename: "achievement_catalog", bundle: bundle) ?? []
+        profile = Self.defaultProfile(levels: levels)
+    }
+
+    /// The single definition of "the empty profile" — used by `init` (before any user has ever
+    /// loaded) and by `resetToSignedOutDefaults()` (when a *different* uid is about to load, see
+    /// `load(for:)`) so both produce exactly the same zeroed state rather than two copies that
+    /// could silently drift apart.
+    private static func defaultProfile(levels: [LevelInfo]) -> UserProfile {
         let level = LevelCalculator.level(for: 0, ladder: levels)
-        profile = UserProfile(
+        return UserProfile(
             name: "", initials: "", level: level.number, levelTitle: level.title,
             xp: 0, xpBalance: 0, xpForCurrentLevel: level.xpForCurrentLevel, xpForNextLevel: level.xpForNextLevel,
             streakDays: 0, freezesAvailable: 0, freezesTotal: 3,
             answeredCount: 0, accuracyPercent: 0, memberSinceDisplay: ""
         )
+    }
+
+    /// Resets per-account state to the same empty state `init` produces — called from `load(for:)`
+    /// the moment a *different* uid is about to load, so that if the fetch then fails (offline,
+    /// transient error), the previous account's name/XP/level/achievements/streak calendar can't
+    /// keep showing under the new account. A successful fetch overwrites this as normal.
+    private func resetToSignedOutDefaults() {
+        profile = Self.defaultProfile(levels: levels)
+        topics = []
+        achievements = []
+        streakDayRecords = [:]
     }
 
     /// Synchronously loads bundled fallback content — safe for #Preview, never touches Firestore.
@@ -39,7 +59,7 @@ final class ProfileRepository {
         let stats = UserStats(
             totalXP: fallbackProfile.xp, currentLevel: level.number, streakDays: fallbackProfile.streakDays,
             totalQuestionsAnswered: fallbackProfile.answeredCount, perfectDayCount: 0,
-            topicStats: [:], recentCompletions: [], today: Self.todayString()
+            topicStats: [:], recentCompletions: [], today: DailyEdition.todayKey()
         )
         profile = fallbackProfile
         topics = fallbackTopics
@@ -56,6 +76,11 @@ final class ProfileRepository {
     func load(for uid: String) async {
         isLoading = true
         defer { isLoading = false }
+
+        if loadedUID != uid {
+            resetToSignedOutDefaults()
+        }
+        loadedUID = uid
 
         let userRef = Firestore.firestore().collection("users").document(uid)
         // Started before the `do` block and awaited after it, independently of `snapshot`/
@@ -93,7 +118,7 @@ final class ProfileRepository {
 
         do {
             let snapshot = try await userRef.getDocument()
-            let today = Self.todayString()
+            let today = DailyEdition.todayKey()
             guard snapshot.get("lastCompletedDate") as? String != today else { return }
 
             let existingRecent = try await Self.fetchRecentCompletions(uid: uid)
@@ -140,6 +165,9 @@ final class ProfileRepository {
             let newlyEarned = evaluatedBeforeNewEarns.filter { $0.status == .earned && earnedAt[$0.id] == nil }
             let now = Date()
             for achievement in newlyEarned { earnedAt[achievement.id] = now }
+            // Credited to Firestore below; the local mirror picks it up on the next load rather
+            // than being recomputed here, to keep this fix contained.
+            let achievementXPReward = newlyEarned.reduce(0) { $0 + $1.xpReward }
 
             // Nested (not dotted-path) keys, written with `setData(merge:)` rather than
             // `updateData`: `updateData` fails the whole batch if `users/{uid}` doesn't exist yet,
@@ -148,10 +176,10 @@ final class ProfileRepository {
             // and deep-merges nested maps — so `topicStats`/`earnedAchievementIDs` entries not
             // written here survive, exactly as the dotted paths did.
             var userUpdates: [String: Any] = [
-                "totalXP": newTotalXP,
-                "xpBalance": FieldValue.increment(Int64(session.totalXPEarned)),
-                "totalQuestionsAnswered": newTotalAnswered,
-                "perfectDayCount": newPerfectDayCount,
+                "totalXP": FieldValue.increment(Int64(session.totalXPEarned + achievementXPReward)),
+                "xpBalance": FieldValue.increment(Int64(session.totalXPEarned + achievementXPReward)),
+                "totalQuestionsAnswered": FieldValue.increment(Int64(session.questions.count)),
+                "perfectDayCount": FieldValue.increment(Int64(isPerfectDay ? 1 : 0)),
                 "streakDays": streakResult.streakDays,
                 "freezesAvailable": streakResult.freezesAvailable,
                 "lastCompletedDate": today,
@@ -161,9 +189,8 @@ final class ProfileRepository {
                 userUpdates["topicStats"] = topicStats.mapValues { ["correct": $0.correct, "total": $0.total] }
             }
             if !newlyEarned.isEmpty {
-                let nowTimestamp = Timestamp(date: now)
-                userUpdates["earnedAchievementIDs"] = newlyEarned.reduce(into: [String: Timestamp]()) {
-                    $0[$1.id] = nowTimestamp
+                userUpdates["earnedAchievementIDs"] = newlyEarned.reduce(into: [String: Any]()) {
+                    $0[$1.id] = FieldValue.serverTimestamp()
                 }
             }
 
@@ -217,8 +244,12 @@ final class ProfileRepository {
         let xpBalance = (snapshot.get("xpBalance") as? Int) ?? totalXP
         let totalQuestionsAnswered = (snapshot.get("totalQuestionsAnswered") as? Int) ?? 0
         let perfectDayCount = (snapshot.get("perfectDayCount") as? Int) ?? 0
-        let streakDays = (snapshot.get("streakDays") as? Int) ?? 0
         let freezesAvailable = (snapshot.get("freezesAvailable") as? Int) ?? 0
+        let streakDays = StreakCalculator.currentStreak(
+            lastCompletedDate: snapshot.get("lastCompletedDate") as? String,
+            streakDays: (snapshot.get("streakDays") as? Int) ?? 0,
+            freezesAvailable: freezesAvailable, today: DailyEdition.todayKey()
+        )
         let topicStats = Self.decodeTopicStats(snapshot)
         let earnedAt = Self.decodeEarnedAt(snapshot)
         let level = LevelCalculator.level(for: totalXP, ladder: levels)
@@ -226,7 +257,7 @@ final class ProfileRepository {
         let stats = UserStats(
             totalXP: totalXP, currentLevel: level.number, streakDays: streakDays,
             totalQuestionsAnswered: totalQuestionsAnswered, perfectDayCount: perfectDayCount,
-            topicStats: topicStats, recentCompletions: recentCompletions, today: Self.todayString()
+            topicStats: topicStats, recentCompletions: recentCompletions, today: DailyEdition.todayKey()
         )
 
         profile = Self.buildProfile(
@@ -301,7 +332,7 @@ final class ProfileRepository {
     }
 
     private static func fetchStreakDayRecords(uid: String) async throws -> [String: StreakDayState] {
-        let today = todayString()
+        let today = DailyEdition.todayKey()
         guard let startDate = StreakCalculator.dateOffset(-111, from: today) else { return [:] }
         let snapshot = try await Firestore.firestore()
             .collection("users").document(uid).collection("dailyCompletions")
@@ -314,15 +345,6 @@ final class ProfileRepository {
                 result[doc.documentID] = .freeze
             }
         }
-    }
-
-    private static func todayString(_ date: Date = Date()) -> String {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
     }
 
     var earnedAchievements: [Achievement] { achievements.filter { $0.status == .earned } }
@@ -351,13 +373,13 @@ final class ProfileRepository {
     }
 
     var streakCalendarDays: [StreakDayState] {
-        Self.buildCalendarDays(from: streakDayRecords, today: Self.todayString())
+        Self.buildCalendarDays(from: streakDayRecords, today: DailyEdition.todayKey())
     }
 
     /// Today + the 6 days before it, oldest first, today last — for the post-quiz "redo an earlier
     /// day" picker. Unlike `streakCalendarDays`, callers need the date string itself (to know which
     /// day a tap means), not just its state.
     var lastSevenDays: [(date: String, state: StreakDayState)] {
-        Self.buildLastSevenDays(from: streakDayRecords, today: Self.todayString())
+        Self.buildLastSevenDays(from: streakDayRecords, today: DailyEdition.todayKey())
     }
 }

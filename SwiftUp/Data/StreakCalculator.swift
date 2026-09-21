@@ -36,6 +36,22 @@ enum StreakCalculator {
         }
     }
 
+    /// Decays a stored streak that's lapsed since `lastCompletedDate` — `apply` only updates the
+    /// streak at completion time; this is what a plain read (`ProfileRepository.load`) uses so a
+    /// lapsed streak doesn't keep showing its last value until the user happens to complete
+    /// another quiz. Mirrors `apply`'s own gap/freeze rule but read-only: a gap of 0 or 1 day is
+    /// still current (today hasn't lapsed it), a gap of exactly 2 with a freeze banked is still
+    /// forgiven, anything wider has lapsed.
+    static func currentStreak(lastCompletedDate: String?, streakDays: Int, freezesAvailable: Int, today: String) -> Int {
+        guard let lastCompletedDate, let gap = daysBetween(lastCompletedDate, today), gap > 1 else {
+            return streakDays
+        }
+        if gap == 2, freezesAvailable > 0 {
+            return streakDays
+        }
+        return 0
+    }
+
     private static func grow(streakDays: Int, freezesAvailable: Int) -> (Int, Int) {
         let newStreak = streakDays + 1
         let freezes = newStreak % 7 == 0 ? min(freezesAvailable + 1, 3) : freezesAvailable

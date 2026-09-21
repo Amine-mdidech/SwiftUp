@@ -6,15 +6,17 @@ import SwiftUI
 private final class TestBundleMarker {}
 private let testBundle = Bundle(for: TestBundleMarker.self)
 
+// `@MainActor` on the whole suite: `ProfileRepository`, `PathRepository`, `QuestionRepository`,
+// and `InterviewRepository` are all main-actor isolated (their `@Observable` state is read by
+// SwiftUI on the main thread), which makes their initializers/static factories/instance methods
+// isolated too — and the large majority of tests below touch at least one of them.
+@MainActor
 struct RepositoryTests {
     @Test func questionRepositoryBundledFallbackLoadsFiveQuestions() {
         let questions = QuestionRepository.loadBundledFallback(bundle: testBundle)
         #expect(questions.count == 5)
     }
 
-    // `@MainActor` because `ProfileRepository` is main-actor isolated (its `@Observable` state is
-    // read by SwiftUI on the main thread), which makes its static `preview(bundle:)` isolated too.
-    @MainActor
     @Test func profileRepositoryLoadsBundledFallback() {
         let repo = ProfileRepository.preview(bundle: testBundle)
         #expect(repo.profile.name == "Maya Reyes")

@@ -1,6 +1,10 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // This app's XP economy (spending, ad-unlock cooldowns, skill-level promotion) is entirely
+    // client-computed and only gated by "is this uid's own document" — a user could in principle
+    // write any value into their own xpBalance/skillLevel/etc. Accepted: nothing here is visible
+    // to or affects any other user, and there's no server component to enforce it against.
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
       match /dailyCompletions/{date} {

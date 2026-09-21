@@ -11,7 +11,7 @@ import CryptoKit
 final class AuthRepository {
     private(set) var isSignedIn: Bool
     private(set) var currentUser: AuthUser?
-    var errorMessage: String?
+    private(set) var errorMessage: String?
 
     private let isPreview: Bool
     // Read in `deinit`, which is nonisolated even for a @MainActor class; this
@@ -57,9 +57,10 @@ final class AuthRepository {
         guard !isPreview else { return }
         errorMessage = nil
         do {
-            _ = try await Auth.auth().signIn(withEmail: email, password: password)
+            let result = try await Auth.auth().signIn(withEmail: email, password: password)
+            await ensureUserDocument(uid: result.user.uid, email: result.user.email, displayName: result.user.displayName)
         } catch {
-            guard Self.isUserNotFound(error) else {
+            guard Self.isSignInFailureThatMightMeanNoAccount(error) else {
                 errorMessage = Self.friendlyMessage(for: error)
                 return
             }
@@ -67,14 +68,36 @@ final class AuthRepository {
                 let result = try await Auth.auth().createUser(withEmail: email, password: password)
                 await ensureUserDocument(uid: result.user.uid, email: result.user.email, displayName: result.user.displayName)
             } catch {
-                errorMessage = Self.friendlyMessage(for: error)
+                let nsError = error as NSError
+                if nsError.domain == AuthErrorDomain, AuthErrorCode(rawValue: nsError.code) == .emailAlreadyInUse {
+                    // The account really does exist — the original sign-in failed for a different
+                    // reason (wrong password), which this project's email-enumeration protection
+                    // deliberately reports identically to "no such user" (see the method below).
+                    errorMessage = "Incorrect email or password."
+                } else {
+                    errorMessage = Self.friendlyMessage(for: error)
+                }
             }
         }
     }
 
-    private static func isUserNotFound(_ error: Error) -> Bool {
+    /// With this project's email-enumeration protection enabled (Firebase console:
+    /// emailPrivacyConfig.enableImprovedEmailPrivacy — confirmed ON for this project), a real
+    /// "no such user" sign-in attempt and a real "wrong password" one are both reported as
+    /// `invalidCredential` — Firebase deliberately makes them indistinguishable by error code
+    /// alone, to prevent attackers enumerating which emails have accounts. Treating both as
+    /// "might mean no account yet" and attempting `createUser` is the only way to tell them
+    /// apart: `createUser` itself throws `emailAlreadyInUse` if the account was real, which the
+    /// caller above turns back into the correct "Incorrect email or password." message.
+    private static func isSignInFailureThatMightMeanNoAccount(_ error: Error) -> Bool {
         let nsError = error as NSError
-        return nsError.domain == AuthErrorDomain && AuthErrorCode(rawValue: nsError.code) == .userNotFound
+        guard nsError.domain == AuthErrorDomain else { return false }
+        switch AuthErrorCode(rawValue: nsError.code) {
+        case .userNotFound, .invalidCredential:
+            return true
+        default:
+            return false
+        }
     }
 
     // MARK: - Sign in with Google
@@ -120,6 +143,10 @@ final class AuthRepository {
             top = presented
         }
         return top
+    }
+
+    func clearError() {
+        errorMessage = nil
     }
 
     func signOut() {
