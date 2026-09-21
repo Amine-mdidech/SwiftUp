@@ -24,6 +24,18 @@ struct FlashcardSessionView: View {
                     }
                 }
                 .padding(24)
+            } else {
+                VStack {
+                    Spacer()
+                    ProgressView()
+                    Text("Session complete.")
+                        .font(Theme.Fonts.body(14))
+                        .foregroundStyle(Theme.Colors.neutral700)
+                        .padding(.top, 8)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                .padding(24)
             }
         }
         .background(Theme.Colors.bg)

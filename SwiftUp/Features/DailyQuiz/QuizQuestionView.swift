@@ -7,6 +7,17 @@ struct QuizQuestionView: View {
     var body: some View {
         if let question = session.currentQuestion {
             content(for: question)
+        } else {
+            VStack {
+                Spacer()
+                Text("Nothing to show right now.")
+                    .font(Theme.Fonts.body(15))
+                    .foregroundStyle(Theme.Colors.neutral700)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(24)
+            .background(Theme.Colors.bg)
         }
     }
 

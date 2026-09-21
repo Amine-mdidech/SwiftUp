@@ -21,23 +21,14 @@ struct QuizSummaryView: View {
 
             Spacer()
 
-            HStack(spacing: 12) {
-                Button(action: onDone) {
-                    Text("Review misses")
-                        .font(.system(size: 16))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                }
-                .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
-                Button(action: onDone) {
-                    Text("Done")
-                        .font(.system(size: 16))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                }
-                .background(Theme.Colors.accent)
-                .foregroundStyle(Theme.Colors.bg)
+            Button(action: onDone) {
+                Text("Done")
+                    .font(.system(size: 16))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
             }
+            .background(Theme.Colors.accent)
+            .foregroundStyle(Theme.Colors.bg)
         }
         .padding(24)
         .background(Theme.Colors.bg)

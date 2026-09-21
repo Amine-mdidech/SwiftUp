@@ -73,6 +73,7 @@ struct SessionSummaryView: View {
         }
         .background(Theme.Colors.bg)
         .navigationBarBackButtonHidden()
+        .interactiveDismissDisabled()
     }
 
     /// Three segments sized proportionally to their share of rated cards — `GeometryReader` sizing

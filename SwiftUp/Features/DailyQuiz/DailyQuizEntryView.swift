@@ -25,7 +25,7 @@ struct DailyQuizEntryView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     EyebrowLabel("Streak")
                     PlateNumeral("\(profileRepo.profile.streakDays)", font: Theme.Fonts.heading(64))
-                    Text("days · \(profileRepo.profile.freezesAvailable) freeze held")
+                    Text("days · \(profileRepo.profile.freezesAvailable) \(profileRepo.profile.freezesAvailable == 1 ? "freeze" : "freezes") held")
                         .font(.system(size: 12))
                         .foregroundStyle(Theme.Colors.neutral600)
                 }
@@ -40,6 +40,13 @@ struct DailyQuizEntryView: View {
                 }
             }
 
+            if questionRepo.todayQuestions.isEmpty {
+                Text("No questions available right now — check back soon.")
+                    .font(Theme.Fonts.body(13))
+                    .foregroundStyle(Theme.Colors.neutral600)
+                    .padding(.top, 12)
+            }
+
             Button(action: onBegin) {
                 Text("Begin today's five")
                     .font(Theme.Fonts.heading(17))
@@ -49,6 +56,7 @@ struct DailyQuizEntryView: View {
             .background(Theme.Colors.accent)
             .foregroundStyle(Theme.Colors.bg)
             .padding(.top, 30)
+            .disabled(questionRepo.todayQuestions.isEmpty)
         }
         .padding(24)
         .background(Theme.Colors.bg)
