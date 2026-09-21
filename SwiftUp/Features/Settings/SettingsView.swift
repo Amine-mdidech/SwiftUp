@@ -10,6 +10,9 @@ struct SettingsView: View {
     // have had time to preload an ad before the user taps "Watch one now" (see MainTabView's
     // `adPresenter` for the same fix applied to the practice-redo flow).
     @State private var adPresenter = AdMobRewardedAdPresenter()
+    @State private var showDeleteConfirmation = false
+    @State private var isDeletingAccount = false
+    @State private var deleteAccountAlert: DeleteAccountAlert?
     @Environment(AuthRepository.self) private var authRepository
     @Environment(QuestionRepository.self) private var questionRepository
 
@@ -91,7 +94,9 @@ struct SettingsView: View {
                 HStack(spacing: 18) {
                     Button("Sign out") { authRepository.signOut() }
                         .font(.system(size: 14)).foregroundStyle(Theme.Colors.accent700)
-                    Text("Delete account").font(.system(size: 14)).foregroundStyle(Theme.Colors.accent2800)
+                    Button("Delete account") { showDeleteConfirmation = true }
+                        .font(.system(size: 14)).foregroundStyle(Theme.Colors.accent2800)
+                        .disabled(isDeletingAccount)
                 }
                 .padding(.top, 20)
 
@@ -108,6 +113,60 @@ struct SettingsView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 NavigationLink("Notifications") { NotificationSettingsView() }
             }
+        }
+        .confirmationDialog(
+            "Delete your account?", isPresented: $showDeleteConfirmation, titleVisibility: .visible
+        ) {
+            Button("Delete account", role: .destructive) { deleteAccount() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently deletes your account and everything in it — xp, streaks, achievements. This can't be undone.")
+        }
+        .alert(item: $deleteAccountAlert) { alert in
+            Alert(title: Text(alert.title), message: Text(alert.message))
+        }
+    }
+
+    private func deleteAccount() {
+        isDeletingAccount = true
+        Task {
+            defer { isDeletingAccount = false }
+            switch await authRepository.deleteAccount() {
+            case .deleted:
+                break // authRepository's own auth-state listener drives RootView back to signed-out.
+            case .requiresRecentSignIn:
+                deleteAccountAlert = .requiresRecentSignIn
+            case .failed:
+                deleteAccountAlert = .failed(authRepository.errorMessage ?? "Something went wrong. Please try again.")
+            }
+        }
+    }
+}
+
+private enum DeleteAccountAlert: Identifiable {
+    case requiresRecentSignIn
+    case failed(String)
+
+    var id: String {
+        switch self {
+        case .requiresRecentSignIn: "requiresRecentSignIn"
+        case .failed: "failed"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .requiresRecentSignIn: "Please sign in again"
+        case .failed: "Couldn't delete account"
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .requiresRecentSignIn:
+            "For your security, deleting your account needs a recent sign-in. Sign out, sign back in, then try again from here."
+        case .failed(let message):
+            message
         }
     }
 }

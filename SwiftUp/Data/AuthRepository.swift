@@ -150,6 +150,67 @@ final class AuthRepository {
         errorMessage = nil
     }
 
+    // MARK: - Delete account
+
+    enum DeleteAccountResult {
+        case deleted
+        case requiresRecentSignIn
+        case failed
+    }
+
+    /// Deletes the signed-in user's Firestore data, then their Firebase Auth account, in that
+    /// order — `firestore.rules` requires `request.auth.uid == uid` for every write here, so the
+    /// Auth account must still exist while the data-deletion writes run. Once `user.delete()`
+    /// succeeds, `authStateHandle`'s listener fires with a `nil` user, flipping `isSignedIn` to
+    /// `false` — `RootView` reacts to that alone, no separate "go back to signed out" step needed.
+    ///
+    /// Firebase requires a "recent" sign-in for an account-deleting operation, and this app's
+    /// three sign-in methods (password/Google/Apple) each need a different credential to
+    /// re-authenticate with. Rather than rebuild all three inline here, `.requiresRecentSignIn`
+    /// asks the caller to have the user sign out and back in through the app's one existing
+    /// sign-in flow, then call this again — simpler than duplicating that flow a second time for
+    /// a rarely-hit case (Firebase's "recent" window is generous; this mainly triggers for a
+    /// session left open a long time).
+    func deleteAccount() async -> DeleteAccountResult {
+        guard !isPreview else { return .deleted }
+        guard let user = Auth.auth().currentUser else { return .failed }
+        do {
+            try await Self.deleteUserData(uid: user.uid)
+            try await user.delete()
+            return .deleted
+        } catch {
+            let nsError = error as NSError
+            if nsError.domain == AuthErrorDomain, AuthErrorCode(rawValue: nsError.code) == .requiresRecentLogin {
+                return .requiresRecentSignIn
+            }
+            errorMessage = Self.friendlyMessage(for: error)
+            return .failed
+        }
+    }
+
+    private static func deleteUserData(uid: String) async throws {
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        for subcollection in ["dailyCompletions", "bookmarks", "flashcardReviews"] {
+            try await deleteAllDocuments(in: userRef.collection(subcollection))
+        }
+        try await userRef.delete()
+    }
+
+    /// Batch-deletes every document in `collection`, chunked to stay under Firestore's 500-write
+    /// batch limit — a long-lived account's `dailyCompletions` (one doc per day) could plausibly
+    /// exceed 500 eventually, even though `bookmarks`/`flashcardReviews` realistically won't.
+    private static func deleteAllDocuments(in collection: CollectionReference) async throws {
+        let snapshot = try await collection.getDocuments()
+        var remaining = snapshot.documents[...]
+        while !remaining.isEmpty {
+            let chunk = remaining.prefix(400)
+            let batch = Firestore.firestore().batch()
+            for doc in chunk { batch.deleteDocument(doc.reference) }
+            try await batch.commit()
+            remaining = remaining.dropFirst(chunk.count)
+        }
+    }
+
     func signOut() {
         guard !isPreview else { return }
         do {
