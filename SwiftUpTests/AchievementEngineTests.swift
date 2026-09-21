@@ -106,6 +106,20 @@ struct AchievementEngineTests {
         #expect(result.first?.status == .earned)
     }
 
+    @Test func levelLockedAtTheStartingLevelWithNoProgressYet() {
+        // Level 1 is the baseline everyone starts from, not "zero progress toward level 10" —
+        // this must read as .locked, not .inReach, from the very first launch.
+        let stats = UserStats(totalXP: 0, currentLevel: 1, streakDays: 0, totalQuestionsAnswered: 0, perfectDayCount: 0, topicStats: [:], recentCompletions: [], today: "2026-01-15")
+        let result = AchievementEngine.evaluate(catalog: [definition("a1", kind: "level", count: 10)], stats: stats, earnedAt: [:])
+        #expect(result.first?.status == .locked)
+    }
+
+    @Test func levelInReachOncePastTheStartingLevel() {
+        let stats = UserStats(totalXP: 500, currentLevel: 3, streakDays: 0, totalQuestionsAnswered: 0, perfectDayCount: 0, topicStats: [:], recentCompletions: [], today: "2026-01-15")
+        let result = AchievementEngine.evaluate(catalog: [definition("a1", kind: "level", count: 10)], stats: stats, earnedAt: [:])
+        #expect(result.first?.status == .inReach)
+    }
+
     @Test func unbuildableAlwaysLockedRegardlessOfStats() {
         let stats = UserStats(totalXP: 999_999, currentLevel: 12, streakDays: 999, totalQuestionsAnswered: 999_999, perfectDayCount: 999, topicStats: [:], recentCompletions: [], today: "2026-01-15")
         let result = AchievementEngine.evaluate(catalog: [definition("a1", kind: "unbuildable")], stats: stats, earnedAt: [:])

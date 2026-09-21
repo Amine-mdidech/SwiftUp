@@ -228,6 +228,28 @@ struct RepositoryTests {
         #expect(junior02.stages.last?.title == "Track assessment")
     }
 
+    @Test func pathTrackSortsStagesByOrderRegardlessOfSourceOrder() throws {
+        // Every consumer (isTrackClosed, isStageUnlocked, TrackLadderView's ladder/progress
+        // segments) assumes `stages` is already in play order — this must hold even if the
+        // source data (Firestore array order, or a hand-built fixture) isn't already sorted.
+        let outOfOrder = [
+            PathStage(id: "t-s03", order: 3, title: "Three", xpCost: 50, kind: .assessment),
+            PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson),
+            PathStage(id: "t-s02", order: 2, title: "Two", xpCost: 50, kind: .lesson),
+        ]
+        let track = PathTrack(id: "t", grade: .junior, order: 1, title: "Track", stages: outOfOrder)
+        #expect(track.stages.map(\.order) == [1, 2, 3])
+        #expect(track.stages.map(\.id) == ["t-s01", "t-s02", "t-s03"])
+
+        let decoded = try JSONDecoder().decode(PathTrack.self, from: Data("""
+        {"id":"t2","grade":"Junior","order":2,"title":"Track 2","stages":[
+            {"id":"t2-s02","order":2,"title":"Two","xpCost":50,"kind":"lesson"},
+            {"id":"t2-s01","order":1,"title":"One","xpCost":50,"kind":"lesson"}
+        ]}
+        """.utf8))
+        #expect(decoded.stages.map(\.id) == ["t2-s01", "t2-s02"])
+    }
+
     @Test func pathRepositoryTrackIsClosedOnlyWhenEveryStageIsCompleted() {
         let stages = [
             PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson),

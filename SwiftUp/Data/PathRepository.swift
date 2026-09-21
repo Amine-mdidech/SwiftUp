@@ -8,7 +8,6 @@ final class PathRepository {
     private(set) var completedStageIDs: Set<String> = []
     private(set) var startedStageIDs: Set<String> = []
     private(set) var isLoading = false
-    private(set) var usedBundledFallback = false
     private(set) var grade: SkillLevel = .junior
     private(set) var lastAdUnlockDate: String?
     private var loadedUID: String?
@@ -51,13 +50,7 @@ final class PathRepository {
         async let userDocResult = Self.fetchUserDocument(uid: uid)
         let (fetchedTracks, userDoc) = await (tracksResult, userDocResult)
 
-        if fetchedTracks.isEmpty {
-            tracks = Self.loadBundledFallback()
-            usedBundledFallback = true
-        } else {
-            tracks = fetchedTracks
-            usedBundledFallback = false
-        }
+        tracks = fetchedTracks.isEmpty ? Self.loadBundledFallback() : fetchedTracks
         completedStageIDs = Self.completedStageIDs(from: userDoc)
         startedStageIDs = Self.startedStageIDs(from: userDoc)
         grade = Self.grade(from: userDoc)
