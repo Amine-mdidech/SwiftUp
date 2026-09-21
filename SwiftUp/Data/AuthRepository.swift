@@ -164,13 +164,11 @@ final class AuthRepository {
     /// succeeds, `authStateHandle`'s listener fires with a `nil` user, flipping `isSignedIn` to
     /// `false` — `RootView` reacts to that alone, no separate "go back to signed out" step needed.
     ///
-    /// Firebase requires a "recent" sign-in for an account-deleting operation, and this app's
-    /// three sign-in methods (password/Google/Apple) each need a different credential to
-    /// re-authenticate with. Rather than rebuild all three inline here, `.requiresRecentSignIn`
-    /// asks the caller to have the user sign out and back in through the app's one existing
-    /// sign-in flow, then call this again — simpler than duplicating that flow a second time for
-    /// a rarely-hit case (Firebase's "recent" window is generous; this mainly triggers for a
-    /// session left open a long time).
+    /// Firebase requires a "recent" sign-in for an account-deleting operation. `.requiresRecentSignIn`
+    /// tells the caller to reauthenticate via whichever of `reauthenticateWithPasswordAndDeleteAccount`/
+    /// `reauthenticateWithGoogleAndDeleteAccount`/`reauthenticateWithAppleAndDeleteAccount` matches
+    /// `reauthMethod`, each of which reauthenticates and then calls this method again — the user
+    /// never has to leave Settings, sign out, and sign back in.
     func deleteAccount() async -> DeleteAccountResult {
         guard !isPreview else { return .deleted }
         guard let user = Auth.auth().currentUser else { return .failed }
@@ -185,6 +183,97 @@ final class AuthRepository {
             }
             errorMessage = Self.friendlyMessage(for: error)
             return .failed
+        }
+    }
+
+    enum ReauthMethod {
+        case password
+        case google
+        case apple
+    }
+
+    /// Which provider the signed-in account uses, so the UI knows what reauthentication step
+    /// `deleteAccount()`'s `.requiresRecentSignIn` needs — `nil` on the (practically unreachable)
+    /// case of no signed-in user, or a provider this app doesn't support signing in with.
+    var reauthMethod: ReauthMethod? {
+        switch Auth.auth().currentUser?.providerData.first?.providerID {
+        case "password": .password
+        case "google.com": .google
+        case "apple.com": .apple
+        default: nil
+        }
+    }
+
+    /// Reauthenticates with a freshly-entered password, then deletes the account — the
+    /// password-provider counterpart to `reauthenticateWithGoogleAndDeleteAccount()` and
+    /// `reauthenticateWithAppleAndDeleteAccount(result:rawNonce:)`. All three exist so
+    /// `deleteAccount()`'s `.requiresRecentSignIn` can be resolved without ever sending the user
+    /// out of Settings to sign out and back in manually.
+    func reauthenticateWithPasswordAndDeleteAccount(password: String) async -> DeleteAccountResult {
+        guard !isPreview else { return .deleted }
+        guard let user = Auth.auth().currentUser, let email = user.email else { return .failed }
+        do {
+            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+            try await user.reauthenticate(with: credential)
+        } catch {
+            errorMessage = Self.friendlyMessage(for: error)
+            return .failed
+        }
+        return await deleteAccount()
+    }
+
+    func reauthenticateWithGoogleAndDeleteAccount() async -> DeleteAccountResult {
+        guard !isPreview else { return .deleted }
+        guard let user = Auth.auth().currentUser else { return .failed }
+        guard let presenter = Self.topViewController() else {
+            errorMessage = "Something went wrong. Please try again."
+            return .failed
+        }
+        do {
+            let googleResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
+            guard let idToken = googleResult.user.idToken?.tokenString else {
+                errorMessage = "Something went wrong. Please try again."
+                return .failed
+            }
+            let credential = GoogleAuthProvider.credential(
+                withIDToken: idToken, accessToken: googleResult.user.accessToken.tokenString
+            )
+            try await user.reauthenticate(with: credential)
+        } catch {
+            if (error as? GIDSignInError)?.code == .canceled { return .failed }
+            errorMessage = Self.friendlyMessage(for: error)
+            return .failed
+        }
+        return await deleteAccount()
+    }
+
+    func reauthenticateWithAppleAndDeleteAccount(result: Result<ASAuthorization, Error>, rawNonce: String) async -> DeleteAccountResult {
+        guard !isPreview else { return .deleted }
+        guard let user = Auth.auth().currentUser else { return .failed }
+        switch result {
+        case .failure(let error):
+            if (error as? ASAuthorizationError)?.code == .canceled { return .failed }
+            errorMessage = "Sign in with Apple failed. Please try again."
+            return .failed
+        case .success(let authorization):
+            guard
+                let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+                let tokenData = credential.identityToken,
+                let idTokenString = String(data: tokenData, encoding: .utf8)
+            else {
+                errorMessage = "Sign in with Apple failed. Please try again."
+                return .failed
+            }
+            let firebaseCredential = OAuthProvider.appleCredential(
+                withIDToken: idTokenString, rawNonce: rawNonce, fullName: credential.fullName
+            )
+            do {
+                try await user.reauthenticate(with: firebaseCredential)
+            } catch {
+                errorMessage = Self.friendlyMessage(for: error)
+                return .failed
+            }
+            return await deleteAccount()
         }
     }
 

@@ -1,4 +1,5 @@
 import SwiftUI
+import AuthenticationServices
 
 struct SettingsView: View {
     @State private var difficulty = "Adaptive"
@@ -13,6 +14,7 @@ struct SettingsView: View {
     @State private var showDeleteConfirmation = false
     @State private var isDeletingAccount = false
     @State private var deleteAccountAlert: DeleteAccountAlert?
+    @State private var reauthPrompt: ReauthenticateSheet.Method?
     @Environment(AuthRepository.self) private var authRepository
     @Environment(QuestionRepository.self) private var questionRepository
 
@@ -123,48 +125,77 @@ struct SettingsView: View {
         .alert(item: $deleteAccountAlert) { alert in
             Alert(title: Text(alert.title), message: Text(alert.message))
         }
+        .sheet(item: $reauthPrompt) { method in
+            ReauthenticateSheet(
+                method: method,
+                isSubmitting: isDeletingAccount,
+                onSubmitPassword: { password in
+                    isDeletingAccount = true
+                    Task {
+                        let result = await authRepository.reauthenticateWithPasswordAndDeleteAccount(password: password)
+                        isDeletingAccount = false
+                        reauthPrompt = nil
+                        await handleDeleteResult(result)
+                    }
+                },
+                onAppleResult: { result, nonce in
+                    reauthPrompt = nil
+                    isDeletingAccount = true
+                    Task {
+                        let deleteResult = await authRepository.reauthenticateWithAppleAndDeleteAccount(result: result, rawNonce: nonce)
+                        isDeletingAccount = false
+                        await handleDeleteResult(deleteResult)
+                    }
+                }
+            )
+        }
     }
 
     private func deleteAccount() {
         isDeletingAccount = true
         Task {
-            defer { isDeletingAccount = false }
-            switch await authRepository.deleteAccount() {
-            case .deleted:
-                break // authRepository's own auth-state listener drives RootView back to signed-out.
-            case .requiresRecentSignIn:
-                deleteAccountAlert = .requiresRecentSignIn
-            case .failed:
-                deleteAccountAlert = .failed(authRepository.errorMessage ?? "Something went wrong. Please try again.")
+            let result = await authRepository.deleteAccount()
+            isDeletingAccount = false
+            await handleDeleteResult(result)
+        }
+    }
+
+    /// Shared by the initial delete attempt and every reauthentication path below — a passing
+    /// reauth always retries the delete itself (see each `AuthRepository.reauthenticateWith...`
+    /// method), so `.requiresRecentSignIn` should never recur here in practice; the switch still
+    /// handles it defensively rather than assuming that.
+    private func handleDeleteResult(_ result: AuthRepository.DeleteAccountResult) async {
+        switch result {
+        case .deleted:
+            break // authRepository's own auth-state listener drives RootView back to signed-out.
+        case .requiresRecentSignIn:
+            switch authRepository.reauthMethod {
+            case .password:
+                reauthPrompt = .password(email: authRepository.currentUser?.email ?? "")
+            case .apple:
+                reauthPrompt = .apple
+            case .google:
+                isDeletingAccount = true
+                let retried = await authRepository.reauthenticateWithGoogleAndDeleteAccount()
+                isDeletingAccount = false
+                await handleDeleteResult(retried)
+            case nil:
+                deleteAccountAlert = .failed("Please sign in again, then try deleting your account from here.")
             }
+        case .failed:
+            deleteAccountAlert = .failed(authRepository.errorMessage ?? "Something went wrong. Please try again.")
         }
     }
 }
 
 private enum DeleteAccountAlert: Identifiable {
-    case requiresRecentSignIn
     case failed(String)
 
-    var id: String {
-        switch self {
-        case .requiresRecentSignIn: "requiresRecentSignIn"
-        case .failed: "failed"
-        }
-    }
-
-    var title: String {
-        switch self {
-        case .requiresRecentSignIn: "Please sign in again"
-        case .failed: "Couldn't delete account"
-        }
-    }
-
+    var id: String { "failed" }
+    var title: String { "Couldn't delete account" }
     var message: String {
         switch self {
-        case .requiresRecentSignIn:
-            "For your security, deleting your account needs a recent sign-in. Sign out, sign back in, then try again from here."
-        case .failed(let message):
-            message
+        case .failed(let message): message
         }
     }
 }
