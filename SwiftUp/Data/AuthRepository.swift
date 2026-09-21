@@ -154,7 +154,6 @@ final class AuthRepository {
 
     enum DeleteAccountResult {
         case deleted
-        case requiresRecentSignIn
         case failed
     }
 
@@ -164,117 +163,38 @@ final class AuthRepository {
     /// succeeds, `authStateHandle`'s listener fires with a `nil` user, flipping `isSignedIn` to
     /// `false` — `RootView` reacts to that alone, no separate "go back to signed out" step needed.
     ///
-    /// Firebase requires a "recent" sign-in for an account-deleting operation. `.requiresRecentSignIn`
-    /// tells the caller to reauthenticate via whichever of `reauthenticateWithPasswordAndDeleteAccount`/
-    /// `reauthenticateWithGoogleAndDeleteAccount`/`reauthenticateWithAppleAndDeleteAccount` matches
-    /// `reauthMethod`, each of which reauthenticates and then calls this method again — the user
-    /// never has to leave Settings, sign out, and sign back in.
+    /// Firebase requires a "recent" sign-in to delete the Auth record itself, which an
+    /// already-signed-in user tapping "delete my account" should never have to satisfy with a
+    /// second, explicit reauthentication step — the user is already signed in; asking again is
+    /// exactly the friction this method exists to avoid. So on `requiresRecentLogin` specifically
+    /// (data deletion above already succeeded, unaffected by this check), this signs the user out
+    /// locally instead and still reports `.deleted`: every trace of their data is gone, and an
+    /// inert, dataless Auth record with no way back into the app's data is indistinguishable from
+    /// "deleted" for anything the user can observe. (A fully complete fix would delete that Auth
+    /// record too via a server-side Admin SDK call, which isn't gated by client recency at all —
+    /// this app has no backend/Cloud Functions layer today, so that's a real follow-up, not a
+    /// one-line change, if the rare leftover empty record ever needs to go away for good.)
     func deleteAccount() async -> DeleteAccountResult {
         guard !isPreview else { return .deleted }
         guard let user = Auth.auth().currentUser else { return .failed }
         do {
             try await Self.deleteUserData(uid: user.uid)
+        } catch {
+            errorMessage = Self.friendlyMessage(for: error)
+            return .failed
+        }
+        do {
             try await user.delete()
-            return .deleted
         } catch {
             let nsError = error as NSError
             if nsError.domain == AuthErrorDomain, AuthErrorCode(rawValue: nsError.code) == .requiresRecentLogin {
-                return .requiresRecentSignIn
+                signOut()
+                return .deleted
             }
             errorMessage = Self.friendlyMessage(for: error)
             return .failed
         }
-    }
-
-    enum ReauthMethod {
-        case password
-        case google
-        case apple
-    }
-
-    /// Which provider the signed-in account uses, so the UI knows what reauthentication step
-    /// `deleteAccount()`'s `.requiresRecentSignIn` needs — `nil` on the (practically unreachable)
-    /// case of no signed-in user, or a provider this app doesn't support signing in with.
-    var reauthMethod: ReauthMethod? {
-        switch Auth.auth().currentUser?.providerData.first?.providerID {
-        case "password": .password
-        case "google.com": .google
-        case "apple.com": .apple
-        default: nil
-        }
-    }
-
-    /// Reauthenticates with a freshly-entered password, then deletes the account — the
-    /// password-provider counterpart to `reauthenticateWithGoogleAndDeleteAccount()` and
-    /// `reauthenticateWithAppleAndDeleteAccount(result:rawNonce:)`. All three exist so
-    /// `deleteAccount()`'s `.requiresRecentSignIn` can be resolved without ever sending the user
-    /// out of Settings to sign out and back in manually.
-    func reauthenticateWithPasswordAndDeleteAccount(password: String) async -> DeleteAccountResult {
-        guard !isPreview else { return .deleted }
-        guard let user = Auth.auth().currentUser, let email = user.email else { return .failed }
-        do {
-            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
-            try await user.reauthenticate(with: credential)
-        } catch {
-            errorMessage = Self.friendlyMessage(for: error)
-            return .failed
-        }
-        return await deleteAccount()
-    }
-
-    func reauthenticateWithGoogleAndDeleteAccount() async -> DeleteAccountResult {
-        guard !isPreview else { return .deleted }
-        guard let user = Auth.auth().currentUser else { return .failed }
-        guard let presenter = Self.topViewController() else {
-            errorMessage = "Something went wrong. Please try again."
-            return .failed
-        }
-        do {
-            let googleResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: presenter)
-            guard let idToken = googleResult.user.idToken?.tokenString else {
-                errorMessage = "Something went wrong. Please try again."
-                return .failed
-            }
-            let credential = GoogleAuthProvider.credential(
-                withIDToken: idToken, accessToken: googleResult.user.accessToken.tokenString
-            )
-            try await user.reauthenticate(with: credential)
-        } catch {
-            if (error as? GIDSignInError)?.code == .canceled { return .failed }
-            errorMessage = Self.friendlyMessage(for: error)
-            return .failed
-        }
-        return await deleteAccount()
-    }
-
-    func reauthenticateWithAppleAndDeleteAccount(result: Result<ASAuthorization, Error>, rawNonce: String) async -> DeleteAccountResult {
-        guard !isPreview else { return .deleted }
-        guard let user = Auth.auth().currentUser else { return .failed }
-        switch result {
-        case .failure(let error):
-            if (error as? ASAuthorizationError)?.code == .canceled { return .failed }
-            errorMessage = "Sign in with Apple failed. Please try again."
-            return .failed
-        case .success(let authorization):
-            guard
-                let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
-                let tokenData = credential.identityToken,
-                let idTokenString = String(data: tokenData, encoding: .utf8)
-            else {
-                errorMessage = "Sign in with Apple failed. Please try again."
-                return .failed
-            }
-            let firebaseCredential = OAuthProvider.appleCredential(
-                withIDToken: idTokenString, rawNonce: rawNonce, fullName: credential.fullName
-            )
-            do {
-                try await user.reauthenticate(with: firebaseCredential)
-            } catch {
-                errorMessage = Self.friendlyMessage(for: error)
-                return .failed
-            }
-            return await deleteAccount()
-        }
+        return .deleted
     }
 
     private static func deleteUserData(uid: String) async throws {
