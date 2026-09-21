@@ -9,6 +9,7 @@ struct PathWheelView: View {
     @Environment(ProfileRepository.self) private var profileRepo
     @Environment(AuthRepository.self) private var authRepo
     let onEarnXP: () -> Void
+    var adPresenter: RewardedAdPresenting = NoOpAdPresenter()
 
     var body: some View {
         Group {
@@ -85,7 +86,7 @@ struct PathWheelView: View {
             .padding(24)
         }
         .navigationDestination(item: $selectedTrack) { track in
-            TrackLadderView(track: track)
+            TrackLadderView(track: track, adPresenter: adPresenter)
         }
     }
 

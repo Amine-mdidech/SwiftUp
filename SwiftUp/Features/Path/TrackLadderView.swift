@@ -9,9 +9,11 @@ struct TrackLadderView: View {
     @Environment(PathRepository.self) private var pathRepo
     @Environment(AuthRepository.self) private var authRepo
     let track: PathTrack
+    var adPresenter: RewardedAdPresenting = NoOpAdPresenter()
 
     @State private var activeAttempt: StageAttempt?
     @State private var spendAlert: SpendAlert?
+    @State private var adUnlockOffer: PathStage?
 
     var body: some View {
         ScrollView {
@@ -122,6 +124,13 @@ struct TrackLadderView: View {
         .alert(item: $spendAlert) { alert in
             Alert(title: Text("Can't start this stage"), message: Text(alert.message))
         }
+        .sheet(item: $adUnlockOffer) { stage in
+            AdUnlockSheet(
+                stage: stage, balance: profileRepo.profile.xpBalance,
+                canWatchAd: pathRepo.hasAdUnlockAvailableToday,
+                onWatchAd: { watchAdToUnlock(stage) }
+            )
+        }
     }
 
     private var xpBalanceChip: some View {
@@ -160,10 +169,21 @@ struct TrackLadderView: View {
                 await openContent(for: stage)
             case .alreadyStarted:
                 await openContent(for: stage)
-            case .insufficientXP(let balance):
-                spendAlert = .insufficientXP(balance: balance, cost: stage.xpCost)
+            case .insufficientXP:
+                adUnlockOffer = stage
             case .failed:
                 spendAlert = .writeFailed
+            }
+        }
+    }
+
+    private func watchAdToUnlock(_ stage: PathStage) {
+        guard let uid = authRepo.currentUser?.uid else { return }
+        adPresenter.presentAd { completed in
+            guard completed else { return }
+            Task {
+                guard await pathRepo.unlockStageViaAd(stage, for: uid) else { return }
+                await openContent(for: stage)
             }
         }
     }
@@ -238,13 +258,11 @@ private struct StageAttempt: Identifiable, Hashable {
 }
 
 private enum SpendAlert: Identifiable {
-    case insufficientXP(balance: Int, cost: Int)
     case contentUnavailable
     case writeFailed
 
     var id: String {
         switch self {
-        case .insufficientXP: "insufficientXP"
         case .contentUnavailable: "contentUnavailable"
         case .writeFailed: "writeFailed"
         }
@@ -252,7 +270,6 @@ private enum SpendAlert: Identifiable {
 
     var message: String {
         switch self {
-        case .insufficientXP(let balance, let cost): "You have \(balance) xp — this stage costs \(cost)."
         case .contentUnavailable: "This stage's content isn't available right now. Try again in a moment."
         case .writeFailed: "Couldn't reach the server. Try again."
         }

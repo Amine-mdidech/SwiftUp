@@ -17,7 +17,7 @@ struct MainTabView: View {
                 NavigationStack { InterviewBankView() }
                     .opacity(selectedTab == .prep ? 1 : 0)
                     .allowsHitTesting(selectedTab == .prep)
-                NavigationStack { PathWheelView(onEarnXP: { selectedTab = .today }) }
+                NavigationStack { PathWheelView(onEarnXP: { selectedTab = .today }, adPresenter: adPresenter) }
                     .opacity(selectedTab == .path ? 1 : 0)
                     .allowsHitTesting(selectedTab == .path)
                 NavigationStack { ProfileHomeView() }

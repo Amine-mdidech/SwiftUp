@@ -377,6 +377,14 @@ struct RepositoryTests {
         #expect(repo.grade == .junior)
     }
 
+    @Test func pathRepositoryAdUnlockIsAvailableOnAFreshRepository() {
+        // `lastAdUnlockDate` starts `nil`, and `nil` never equals today's date string, so the
+        // once-a-day unlock reads as available before any load — the one branch of this logic
+        // testable without live Firestore state.
+        let repo = PathRepository()
+        #expect(repo.hasAdUnlockAvailableToday == true)
+    }
+
     @Test func pathQuizSessionScorePercentAndPassedBoundary() {
         func question(_ id: String) -> PathQuizQuestion {
             PathQuizQuestion(

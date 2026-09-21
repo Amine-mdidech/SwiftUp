@@ -9,6 +9,7 @@ final class PathRepository {
     private(set) var isLoading = false
     private(set) var usedBundledFallback = false
     private(set) var grade: SkillLevel = .junior
+    private(set) var lastAdUnlockDate: String?
     private var loadedUID: String?
 
     init() {}
@@ -58,6 +59,7 @@ final class PathRepository {
         completedStageIDs = Self.completedStageIDs(from: userDoc)
         startedStageIDs = Self.startedStageIDs(from: userDoc)
         grade = Self.grade(from: userDoc)
+        lastAdUnlockDate = userDoc?.get("lastPathAdUnlockDate") as? String
         loadedUID = uid
     }
 
@@ -177,6 +179,46 @@ final class PathRepository {
         } catch {
             return .failed
         }
+    }
+
+    /// Whether the once-a-day ad unlock is still available today — `true` on a user who has
+    /// never used it, or whose last use was on an earlier calendar day than today.
+    var hasAdUnlockAvailableToday: Bool {
+        lastAdUnlockDate != Self.todayString()
+    }
+
+    /// Unlocks `stage` for free after a watched rewarded ad — no xp is spent or credited, this is
+    /// a pure unlock, matching how this app's existing ad gate elsewhere (Daily Quiz's practice
+    /// redo, the Support page) is a pass/fail gate rather than an xp grant. Limited to once per
+    /// calendar day: returns `false` without writing anything if today's unlock was already used,
+    /// or if `stage` is already started/completed (checked before any Firestore access, same
+    /// guard order as `startStage`).
+    func unlockStageViaAd(_ stage: PathStage, for uid: String) async -> Bool {
+        guard hasAdUnlockAvailableToday else { return false }
+        guard !completedStageIDs.contains(stage.id), !startedStageIDs.contains(stage.id) else { return false }
+
+        let today = Self.todayString()
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        do {
+            try await userRef.setData(
+                ["startedPathStageIDs": [stage.id: FieldValue.serverTimestamp()], "lastPathAdUnlockDate": today],
+                merge: true
+            )
+            startedStageIDs.insert(stage.id)
+            lastAdUnlockDate = today
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    private static func todayString(_ date: Date = Date()) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 
     /// Marks `stage` as completed after a passing quiz attempt. No XP is written here — passing
