@@ -114,9 +114,7 @@ struct SettingsView: View {
                 NavigationLink("Notifications") { NotificationSettingsView() }
             }
         }
-        .confirmationDialog(
-            "Delete your account?", isPresented: $showDeleteConfirmation, titleVisibility: .visible
-        ) {
+        .alert("Delete your account?", isPresented: $showDeleteConfirmation) {
             Button("Delete account", role: .destructive) { deleteAccount() }
             Button("Cancel", role: .cancel) {}
         } message: {
