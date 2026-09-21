@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct RootView: View {
-    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showSplash = true
 
     @State private var questionRepository = QuestionRepository()
@@ -15,10 +14,15 @@ struct RootView: View {
             if showSplash {
                 SplashView(onFinished: { showSplash = false })
             } else if authRepository.isSignedIn {
-                if hasCompletedOnboarding {
+                switch authRepository.hasCompletedOnboarding {
+                case true:
                     MainTabView()
-                } else {
-                    OnboardingFlowView(onComplete: { hasCompletedOnboarding = true })
+                case false:
+                    OnboardingFlowView(onComplete: { authRepository.markOnboardingCompleted() })
+                case nil:
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Theme.Colors.bg)
                 }
             } else {
                 NavigationStack {

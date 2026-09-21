@@ -12,6 +12,14 @@ final class AuthRepository {
     private(set) var isSignedIn: Bool
     private(set) var currentUser: AuthUser?
     private(set) var errorMessage: String?
+    /// Whether the signed-in account has ever completed onboarding — `nil` while that's still
+    /// being checked (see `refreshOnboardingStatus`). Deliberately per-*account* (read from
+    /// `users/{uid}.skillLevel`'s presence in Firestore, the field `saveInitialSkillLevel` writes
+    /// the moment onboarding finishes) rather than a device-local flag: a device-wide flag meant
+    /// that once any account had finished onboarding once, a brand-new account signing in on the
+    /// same device — including a fresh account created right after deleting a previous one —
+    /// skipped onboarding entirely and silently defaulted to Junior, never asking.
+    private(set) var hasCompletedOnboarding: Bool?
 
     private let isPreview: Bool
     // Read in `deinit`, which is nonisolated even for a @MainActor class; this
@@ -26,6 +34,7 @@ final class AuthRepository {
         self.currentUser = (isPreview && signedIn)
             ? AuthUser(uid: "preview-user", email: "preview@example.com", displayName: "Preview User")
             : nil
+        self.hasCompletedOnboarding = isPreview ? signedIn : nil
 
         guard !isPreview else { return }
 
@@ -39,7 +48,31 @@ final class AuthRepository {
             self.currentUser = user.map {
                 AuthUser(uid: $0.uid, email: $0.email, displayName: $0.displayName)
             }
+            self.hasCompletedOnboarding = nil
+            if let uid = user?.uid {
+                Task { await self.refreshOnboardingStatus(uid: uid) }
+            }
         }
+    }
+
+    /// Reads whether `uid`'s user document already has a `skillLevel` — the field
+    /// `saveInitialSkillLevel` writes the moment onboarding finishes, so its presence is the
+    /// authoritative "has this account ever finished onboarding" signal. A failed read (offline,
+    /// first launch before the doc exists) reads as "needs onboarding" — the same safe-default
+    /// posture this project uses elsewhere for a missing/unreachable user doc.
+    private func refreshOnboardingStatus(uid: String) async {
+        guard let snapshot = try? await Firestore.firestore().collection("users").document(uid).getDocument() else {
+            hasCompletedOnboarding = false
+            return
+        }
+        hasCompletedOnboarding = (snapshot.get("skillLevel") as? String) != nil
+    }
+
+    /// Called by `RootView` the moment `OnboardingFlowView` finishes, so the just-completed
+    /// account is immediately treated as onboarded without waiting on (or re-triggering) a fresh
+    /// Firestore read — `saveInitialSkillLevel` already wrote the field this local flip mirrors.
+    func markOnboardingCompleted() {
+        hasCompletedOnboarding = true
     }
 
     deinit {
