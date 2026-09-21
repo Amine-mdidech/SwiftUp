@@ -103,7 +103,7 @@ struct ProfileHomeView: View {
                     ForEach(repo.earnedAchievements.prefix(4)) { a in
                         AchievementSeal(kind: a.sealKind, filled: true, size: 46)
                     }
-                    LockedSeal(remainingCount: max(0, repo.earnedAchievements.count - 4), size: 46)
+                    LockedSeal(remainingCount: repo.lockedAchievements.count, size: 46)
                 }
                 .padding(.top, 14)
 

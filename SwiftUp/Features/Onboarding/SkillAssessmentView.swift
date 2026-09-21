@@ -2,26 +2,12 @@ import SwiftUI
 
 struct SkillAssessmentView: View {
     @State private var selection: SkillLevel = .mid
-    @State private var preparingForInterviews = "Yes"
     let onContinue: (SkillLevel) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text("Step 1 of 2")
-                Spacer()
-            }
-            .font(.system(size: 10)).foregroundStyle(Theme.Colors.neutral700)
-
-            HStack(spacing: 4) {
-                Rectangle().fill(Theme.Colors.text).frame(height: 4)
-                Rectangle().fill(Theme.Colors.neutral300).frame(height: 4)
-            }
-            .padding(.top, 6)
-
             Text("Where are you\nright now?")
                 .font(Theme.Fonts.heading(30))
-                .padding(.top, 24)
             Text("This only sets your first week. The quiz adapts from your actual answers after that.")
                 .font(Theme.Fonts.body(14.5))
                 .foregroundStyle(Theme.Colors.neutral800)
@@ -48,19 +34,12 @@ struct SkillAssessmentView: View {
             }
             .padding(.top, 20)
 
-            HStack {
-                EyebrowLabel("Preparing for interviews?")
-                Spacer()
-                SegmentedPicker(options: ["Yes", "Not yet"], selection: $preparingForInterviews)
-            }
-            .padding(.top, 20)
-
             Spacer()
 
             Button {
                 onContinue(selection)
             } label: {
-                Text("Choose topics")
+                Text("Start day one")
                     .font(Theme.Fonts.heading(17))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 15)

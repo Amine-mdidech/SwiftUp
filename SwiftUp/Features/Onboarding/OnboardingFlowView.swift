@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OnboardingFlowView: View {
-    enum Step { case welcome, skill, topics }
+    enum Step { case welcome, skill }
 
     @Environment(QuestionRepository.self) private var questionRepository
     @Environment(AuthRepository.self) private var authRepository
@@ -17,10 +17,8 @@ struct OnboardingFlowView: View {
                 if let uid = authRepository.currentUser?.uid {
                     Task { await questionRepository.saveInitialSkillLevel(level, for: uid) }
                 }
-                step = .topics
+                onComplete()
             })
-        case .topics:
-            TopicInterestsView(onFinish: onComplete)
         }
     }
 }

@@ -33,22 +33,13 @@ struct WelcomeView: View {
 
             VStack(spacing: 10) {
                 Button(action: onContinue) {
-                    Text("Sign in with Apple")
+                    Text("Continue")
                         .font(Theme.Fonts.heading(16))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 15)
                 }
                 .background(Theme.Colors.accent)
                 .foregroundStyle(Theme.Colors.bg)
-
-                Button(action: onContinue) {
-                    Text("Use email instead")
-                        .font(Theme.Fonts.body(15))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 15)
-                }
-                .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider))
-                .foregroundStyle(Theme.Colors.text)
 
                 Text("Your answers stay on your device unless you join a leaderboard.")
                     .font(.system(size: 11.5))

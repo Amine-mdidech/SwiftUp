@@ -101,7 +101,19 @@ struct AchievementSeal: View {
             }
         }
         .frame(width: size, height: size)
-        .accessibilityHidden(false)
+        .accessibilityElement()
+        .accessibilityLabel("\(kind.accessibilityName) seal, \(filled ? "earned" : "not yet earned")")
+    }
+}
+
+private extension AchievementSealKind {
+    var accessibilityName: String {
+        switch self {
+        case .perfectWeek: return "Perfect week"
+        case .streakMilestone: return "Streak milestone"
+        case .topicMastery: return "Topic mastery"
+        case .firstSession: return "First session"
+        }
     }
 }
 
