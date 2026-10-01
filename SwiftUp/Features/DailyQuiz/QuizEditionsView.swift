@@ -1,16 +1,18 @@
 import SwiftUI
 
 /// Shown after `QuizSummaryView`'s "Done"/"Review misses" — the landing page for the rest of the
-/// day. There is no way back to `DailyQuizEntryView` from here (see `TodayFlowView`'s `Stage` doc
-/// comment); the only action this screen offers is picking one of the last 7 days — today included
-/// — to redo for practice. A redo picked here never touches XP, accuracy, or streak (see
-/// `QuizSession.isPractice`'s doc comment for why that's structurally true, not just a convention
-/// followed here).
+/// day. Two ways back into a quiz from here: picking one of the last 7 days — today included — to
+/// redo it at the grade already sat, or "Replay today at another difficulty" to reopen the entry
+/// screen's grade switcher and sit today's shared quiz again at a *different* grade (see
+/// `TodayFlowView`'s `Stage` doc comment). Either way it's a redo, and never touches XP, accuracy,
+/// or streak (see `QuizSession.isPractice`'s doc comment for why that's structurally true, not just
+/// a convention followed here).
 struct QuizEditionsView: View {
     @Environment(ProfileRepository.self) private var profileRepo
     @Environment(QuestionRepository.self) private var questionRepo
     let todayXPEarned: Int
     let onSelectDay: (String) -> Void
+    let onReplayAtAnotherDifficulty: () -> Void
     @State private var selectedDate: String?
 
     var body: some View {
@@ -82,22 +84,59 @@ struct QuizEditionsView: View {
                         .foregroundStyle(Theme.Colors.neutral700)
                 }
                 .padding(.top, 26)
-
-                if let selectedDate {
-                    Button(action: { onSelectDay(selectedDate) }) {
-                        Text("\(actionVerb(for: selectedDate)) \(DailyEdition.weekdayName(for: selectedDate))'s")
-                            .font(.system(size: 16))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                    }
-                    .background(Theme.Colors.accent)
-                    .foregroundStyle(Theme.Colors.bg)
-                    .padding(.top, 30)
-                }
+                .padding(.bottom, 24)
             }
-            .padding(24)
+            .padding(.horizontal, 24)
+            .padding(.top, 24)
         }
         .background(Theme.Colors.bg)
+        // Pinned below the scrollable content instead of laid out inline with it: with seven day
+        // blocks, the legend, and both worth-of-a-redo sections above it, an inline "Sit Monday's"
+        // button routinely fell below the fold on anything shorter than a Pro Max, so reaching it
+        // meant scrolling past everything else first. Pinning removes that scroll entirely.
+        .safeAreaInset(edge: .bottom) {
+            actionBar
+        }
+    }
+
+    /// One button at a time, not both stacked: with today selected (or nothing selected yet —
+    /// today is this screen's default focus), the two read as the same offer twice ("redo today"
+    /// and "replay today at another difficulty" are barely distinguishable sitting on top of each
+    /// other), so only the more capable one — the grade switcher — shows. Selecting a *different*
+    /// day swaps to that day's own plain redo, which the switcher can't do (it only ever replays
+    /// today's shared quiz).
+    @ViewBuilder
+    private var actionBar: some View {
+        VStack(spacing: 12) {
+            if isTodaySelected {
+                Button(action: onReplayAtAnotherDifficulty) {
+                    Text("↻ Replay today at another difficulty")
+                        .font(.system(size: 15.5))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 13)
+                }
+                .foregroundStyle(Theme.Colors.accent700)
+                .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.accent, lineWidth: 1))
+            } else if let selectedDate {
+                Button(action: { onSelectDay(selectedDate) }) {
+                    Text("\(actionVerb(for: selectedDate)) \(DailyEdition.weekdayName(for: selectedDate))'s")
+                        .font(.system(size: 16))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                }
+                .background(Theme.Colors.accent)
+                .foregroundStyle(Theme.Colors.bg)
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 14)
+        .padding(.bottom, 10)
+        .background(Theme.Colors.bg)
+        .overlay(Rectangle().fill(Theme.Colors.divider).frame(height: 1), alignment: .top)
+    }
+
+    private var isTodaySelected: Bool {
+        selectedDate == nil || selectedDate == DailyEdition.todayKey()
     }
 
     private var editionLabel: String {
@@ -152,7 +191,7 @@ struct QuizEditionsView: View {
 }
 
 #Preview {
-    QuizEditionsView(todayXPEarned: 95, onSelectDay: { _ in })
+    QuizEditionsView(todayXPEarned: 95, onSelectDay: { _ in }, onReplayAtAnotherDifficulty: {})
         .environment(ProfileRepository.preview())
         .environment(QuestionRepository.preview())
 }

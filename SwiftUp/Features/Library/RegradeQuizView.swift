@@ -1,28 +1,28 @@
 import SwiftUI
 
-/// Thin wrapper around `PathQuizView` for the grade regrade quiz — free to start (closing every
-/// track in the grade is the only unlock condition, design doc §6), fetched on appear rather than
-/// passed in, since `PathWheelView` only knows the *grade*, not its quiz content.
-struct PathRegradeQuizView: View {
-    @Environment(PathRepository.self) private var pathRepo
+/// Thin wrapper around `LibraryQuizView` for the grade regrade quiz — unrelated to Library access
+/// now (grade gates nothing there), a separate status/achievement ladder. Fetched on appear rather
+/// than passed in, since the caller only knows the *grade*, not its quiz content.
+struct RegradeQuizView: View {
+    @Environment(LibraryRepository.self) private var libraryRepo
     @Environment(AuthRepository.self) private var authRepo
     @Environment(\.dismiss) private var dismiss
     let grade: SkillLevel
 
-    @State private var quiz: PathRegradeQuiz?
+    @State private var quiz: RegradeQuiz?
     @State private var isLoading = true
 
     var body: some View {
         Group {
             if let quiz {
-                PathQuizView(
+                LibraryQuizView(
                     title: "Regrade quiz",
                     questions: quiz.questions,
-                    onPassed: {},
+                    onPassed: { _ in },
                     onFinished: {
                         Task {
                             if let uid = authRepo.currentUser?.uid {
-                                await pathRepo.promoteGrade(from: grade, for: uid)
+                                await libraryRepo.promoteGrade(from: grade, for: uid)
                             }
                             dismiss()
                         }
@@ -46,7 +46,7 @@ struct PathRegradeQuizView: View {
             }
         }
         .task {
-            quiz = await pathRepo.fetchRegradeQuiz(for: grade)
+            quiz = await libraryRepo.fetchRegradeQuiz(for: grade)
             isLoading = false
         }
     }
@@ -54,8 +54,8 @@ struct PathRegradeQuizView: View {
 
 #Preview {
     NavigationStack {
-        PathRegradeQuizView(grade: .junior)
+        RegradeQuizView(grade: .junior)
     }
-    .environment(PathRepository.preview())
+    .environment(LibraryRepository.preview())
     .environment(AuthRepository(isPreview: true, signedIn: true))
 }

@@ -1,9 +1,12 @@
 import SwiftUI
 
 struct TodayFlowView: View {
-    /// `.editions` is terminal for the rest of the day: nothing transitions back to `.entry` once
-    /// today's real quiz is finished — the user stays on `QuizEditionsView`, redoing any of the last
-    /// 7 days (today included) for practice, until the app relaunches and this `@State` resets.
+    /// The only way back to `.entry` once today's real quiz is finished is
+    /// `startReplayAtAnotherDifficulty()`, which also sets `isReplayEntry` — so `.entry` is reached
+    /// two different ways, and `startQuiz(level:)` reads that flag to tell them apart: a fresh
+    /// landing (never done today's real quiz yet) versus a return trip to pick a different grade to
+    /// replay. Every other path from `.editions` (redoing a specific past day via `onSelectDay`)
+    /// goes straight to `.question`, bypassing `.entry` entirely.
     enum Stage { case entry, question, summary, editions }
 
     @Environment(QuestionRepository.self) private var questionRepo
@@ -12,6 +15,10 @@ struct TodayFlowView: View {
     @State private var stage: Stage = .entry
     @State private var session: QuizSession?          // today's real quiz — unchanged meaning
     @State private var practiceSession: QuizSession?   // a redo in progress, if any
+    /// Set by `startReplayAtAnotherDifficulty()` right before it sends `stage` back to `.entry` —
+    /// tells `startQuiz(level:)` to build a practice session instead of overwriting today's already
+    /// -completed real one. Consumed (reset to `false`) the moment `startQuiz(level:)` reads it.
+    @State private var isReplayEntry = false
     var adPresenter: RewardedAdPresenting = NoOpAdPresenter()
 
     var body: some View {
@@ -38,7 +45,8 @@ struct TodayFlowView: View {
                     case .editions:
                         QuizEditionsView(
                             todayXPEarned: session?.totalXPEarned ?? 0,
-                            onSelectDay: startReplay
+                            onSelectDay: startReplay,
+                            onReplayAtAnotherDifficulty: startReplayAtAnotherDifficulty
                         )
                     }
                 }
@@ -52,8 +60,23 @@ struct TodayFlowView: View {
         }
     }
 
-    private func startQuiz() {
-        session = QuizSession(questions: questionRepo.todayQuestions)
+    /// Takes the exact grade the entry screen was showing when the user tapped "Begin" — not
+    /// `questionRepo.effectiveLevel`, which only catches up once the background
+    /// `setLevelOverride` write from a same-session tap completes. Reading through `effectiveLevel`
+    /// here would risk starting the *previous* grade's quiz if "Begin" is tapped right after
+    /// switching, before that write resolves.
+    ///
+    /// Branches on `isReplayEntry` rather than on whether `session` is already set: today's real
+    /// quiz can only be started once per calendar day (`.entry` isn't reachable again afterward
+    /// except through a replay), so by the time this runs in the non-replay branch, `session` being
+    /// non-nil already would mean a bug elsewhere, not a case to special-case around here.
+    private func startQuiz(level: SkillLevel) {
+        if isReplayEntry {
+            isReplayEntry = false
+            practiceSession = QuizSession(questions: questionRepo.questions(for: level), isPractice: true)
+        } else {
+            session = QuizSession(questions: questionRepo.questions(for: level))
+        }
         stage = .question
     }
 
@@ -99,6 +122,18 @@ struct TodayFlowView: View {
         if practiceSession?.isFinished == true {
             practiceSession = nil
             stage = .editions
+        }
+    }
+
+    /// Sends the user back to the entry screen's grade switcher to replay *today's* already-shared
+    /// quiz at a different grade than the one they actually sat — gated on the same ad seam as
+    /// `startReplay(for:)`, since it's the same kind of free bonus practice round. A declined ad
+    /// quietly no-ops, same as there.
+    private func startReplayAtAnotherDifficulty() {
+        adPresenter.presentAd { completed in
+            guard completed else { return }
+            isReplayEntry = true
+            stage = .entry
         }
     }
 }

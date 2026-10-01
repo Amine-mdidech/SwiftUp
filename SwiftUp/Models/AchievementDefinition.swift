@@ -10,7 +10,6 @@ import Foundation
 ///   - "perfectWeek": (no fields) — 6 of the last 7 calendar days at >=4/5
 ///   - "perfectMonth": (no fields) — every day so far this calendar month at >=4/5
 ///   - "onboarded": (no fields) — at least one completed daily quiz
-///   - "level": count (target level number)
 ///   - "unbuildable": (no fields) — depends on a subsystem not built yet; always locked
 struct AchievementCriterion: Codable {
     let kind: String

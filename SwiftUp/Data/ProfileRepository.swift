@@ -4,7 +4,6 @@ import FirebaseFirestore
 @Observable
 @MainActor
 final class ProfileRepository {
-    let levels: [LevelInfo]
     private let catalog: [AchievementDefinition]
 
     private(set) var profile: UserProfile
@@ -15,20 +14,17 @@ final class ProfileRepository {
     private var loadedUID: String?
 
     init(bundle: Bundle = .main) {
-        levels = decodeJSONResource([LevelInfo].self, filename: "levels", bundle: bundle) ?? []
         catalog = decodeJSONResource([AchievementDefinition].self, filename: "achievement_catalog", bundle: bundle) ?? []
-        profile = Self.defaultProfile(levels: levels)
+        profile = Self.defaultProfile()
     }
 
     /// The single definition of "the empty profile" — used by `init` (before any user has ever
     /// loaded) and by `resetToSignedOutDefaults()` (when a *different* uid is about to load, see
     /// `load(for:)`) so both produce exactly the same zeroed state rather than two copies that
     /// could silently drift apart.
-    private static func defaultProfile(levels: [LevelInfo]) -> UserProfile {
-        let level = LevelCalculator.level(for: 0, ladder: levels)
-        return UserProfile(
-            name: "", initials: "", level: level.number, levelTitle: level.title,
-            xp: 0, xpBalance: 0, xpForCurrentLevel: level.xpForCurrentLevel, xpForNextLevel: level.xpForNextLevel,
+    private static func defaultProfile() -> UserProfile {
+        UserProfile(
+            name: "", initials: "", xp: 0, xpBalance: 0,
             streakDays: 0, freezesAvailable: 0, freezesTotal: 3,
             answeredCount: 0, accuracyPercent: 0, memberSinceDisplay: ""
         )
@@ -36,10 +32,10 @@ final class ProfileRepository {
 
     /// Resets per-account state to the same empty state `init` produces — called from `load(for:)`
     /// the moment a *different* uid is about to load, so that if the fetch then fails (offline,
-    /// transient error), the previous account's name/XP/level/achievements/streak calendar can't
-    /// keep showing under the new account. A successful fetch overwrites this as normal.
+    /// transient error), the previous account's name/XP/achievements/streak calendar can't keep
+    /// showing under the new account. A successful fetch overwrites this as normal.
     private func resetToSignedOutDefaults() {
-        profile = Self.defaultProfile(levels: levels)
+        profile = Self.defaultProfile()
         topics = []
         achievements = []
         streakDayRecords = [:]
@@ -55,9 +51,8 @@ final class ProfileRepository {
     private func applyBundledFallback(bundle: Bundle) {
         let fallbackProfile = decodeJSONResource(UserProfile.self, filename: "profile", bundle: bundle) ?? profile
         let fallbackTopics = decodeJSONResource([TopicAccuracy].self, filename: "topics", bundle: bundle) ?? []
-        let level = LevelCalculator.level(for: fallbackProfile.xp, ladder: levels)
         let stats = UserStats(
-            totalXP: fallbackProfile.xp, currentLevel: level.number, streakDays: fallbackProfile.streakDays,
+            totalXP: fallbackProfile.xp, streakDays: fallbackProfile.streakDays,
             totalQuestionsAnswered: fallbackProfile.answeredCount, perfectDayCount: 0,
             topicStats: [:], recentCompletions: [], today: DailyEdition.todayKey()
         )
@@ -149,13 +144,12 @@ final class ProfileRepository {
             let newTotalAnswered = ((snapshot.get("totalQuestionsAnswered") as? Int) ?? 0) + session.questions.count
             let isPerfectDay = session.correctCount == session.questions.count
             let newPerfectDayCount = ((snapshot.get("perfectDayCount") as? Int) ?? 0) + (isPerfectDay ? 1 : 0)
-            let level = LevelCalculator.level(for: newTotalXP, ladder: levels)
 
             var recentCompletions = existingRecent.filter { $0.date != today }
             recentCompletions.append((date: today, correctCount: session.correctCount))
 
             let stats = UserStats(
-                totalXP: newTotalXP, currentLevel: level.number, streakDays: streakResult.streakDays,
+                totalXP: newTotalXP, streakDays: streakResult.streakDays,
                 totalQuestionsAnswered: newTotalAnswered, perfectDayCount: newPerfectDayCount,
                 topicStats: topicStats, recentCompletions: recentCompletions, today: today
             )
@@ -208,7 +202,7 @@ final class ProfileRepository {
             profile = Self.buildProfile(
                 displayName: displayName,
                 createdAt: snapshot.get("createdAt") as? Timestamp,
-                freezesAvailable: freezesAvailable, xpBalance: newXPBalance, stats: stats, level: level
+                freezesAvailable: freezesAvailable, xpBalance: newXPBalance, stats: stats
             )
             topics = topicStats.map { TopicAccuracy(name: $0.key, accuracyPercent: Self.accuracy($0.value)) }.sorted { $0.name < $1.name }
             achievements = AchievementEngine.evaluate(catalog: catalog, stats: stats, earnedAt: earnedAt)
@@ -221,13 +215,29 @@ final class ProfileRepository {
         }
     }
 
-    /// Updates only the in-memory `xpBalance` mirror after `PathRepository.startStage` has
-    /// already written the real decrement to Firestore — avoids a full `load(for:)` round trip
-    /// just to reflect a balance this repository didn't itself compute (design doc §3).
+    /// Updates only the in-memory `xpBalance` mirror after some other repository has already
+    /// written a real *debit* to Firestore — avoids a full `load(for:)` round trip just to reflect
+    /// a balance this repository didn't itself compute. A debit never changes lifetime `xp`, only
+    /// what's spendable — `applyExternalXPEarn` below is the counterpart for a credit, which
+    /// changes both.
     func applyExternalXPBalance(_ newBalance: Int) {
         profile = UserProfile(
-            name: profile.name, initials: profile.initials, level: profile.level, levelTitle: profile.levelTitle,
-            xp: profile.xp, xpBalance: newBalance, xpForCurrentLevel: profile.xpForCurrentLevel, xpForNextLevel: profile.xpForNextLevel,
+            name: profile.name, initials: profile.initials,
+            xp: profile.xp, xpBalance: newBalance,
+            streakDays: profile.streakDays, freezesAvailable: profile.freezesAvailable, freezesTotal: profile.freezesTotal,
+            answeredCount: profile.answeredCount, accuracyPercent: profile.accuracyPercent, memberSinceDisplay: profile.memberSinceDisplay
+        )
+    }
+
+    /// Updates the in-memory `xp`/`xpBalance` mirrors after `LibraryRepository.completeClass` has
+    /// already written the real increment to Firestore — the earn-side counterpart to
+    /// `applyExternalXPBalance` above. An earn increases both lifetime xp and the spendable
+    /// balance by the same amount, unlike a debit which only ever touches the balance.
+    func applyExternalXPEarn(_ amount: Int) {
+        guard amount > 0 else { return }
+        profile = UserProfile(
+            name: profile.name, initials: profile.initials,
+            xp: profile.xp + amount, xpBalance: profile.xpBalance + amount,
             streakDays: profile.streakDays, freezesAvailable: profile.freezesAvailable, freezesTotal: profile.freezesTotal,
             answeredCount: profile.answeredCount, accuracyPercent: profile.accuracyPercent, memberSinceDisplay: profile.memberSinceDisplay
         )
@@ -252,10 +262,9 @@ final class ProfileRepository {
         )
         let topicStats = Self.decodeTopicStats(snapshot)
         let earnedAt = Self.decodeEarnedAt(snapshot)
-        let level = LevelCalculator.level(for: totalXP, ladder: levels)
 
         let stats = UserStats(
-            totalXP: totalXP, currentLevel: level.number, streakDays: streakDays,
+            totalXP: totalXP, streakDays: streakDays,
             totalQuestionsAnswered: totalQuestionsAnswered, perfectDayCount: perfectDayCount,
             topicStats: topicStats, recentCompletions: recentCompletions, today: DailyEdition.todayKey()
         )
@@ -263,20 +272,19 @@ final class ProfileRepository {
         profile = Self.buildProfile(
             displayName: snapshot.get("displayName") as? String,
             createdAt: snapshot.get("createdAt") as? Timestamp,
-            freezesAvailable: freezesAvailable, xpBalance: xpBalance, stats: stats, level: level
+            freezesAvailable: freezesAvailable, xpBalance: xpBalance, stats: stats
         )
         topics = topicStats.map { TopicAccuracy(name: $0.key, accuracyPercent: Self.accuracy($0.value)) }.sorted { $0.name < $1.name }
         achievements = AchievementEngine.evaluate(catalog: catalog, stats: stats, earnedAt: earnedAt)
     }
 
     private static func buildProfile(
-        displayName: String?, createdAt: Timestamp?, freezesAvailable: Int, xpBalance: Int, stats: UserStats,
-        level: (number: Int, title: String, xpForCurrentLevel: Int, xpForNextLevel: Int)
+        displayName: String?, createdAt: Timestamp?, freezesAvailable: Int, xpBalance: Int, stats: UserStats
     ) -> UserProfile {
         let name = (displayName?.isEmpty == false) ? displayName! : "SwiftUp user"
         return UserProfile(
-            name: name, initials: initials(from: name), level: level.number, levelTitle: level.title,
-            xp: stats.totalXP, xpBalance: xpBalance, xpForCurrentLevel: level.xpForCurrentLevel, xpForNextLevel: level.xpForNextLevel,
+            name: name, initials: initials(from: name),
+            xp: stats.totalXP, xpBalance: xpBalance,
             streakDays: stats.streakDays, freezesAvailable: freezesAvailable, freezesTotal: 3,
             answeredCount: stats.totalQuestionsAnswered, accuracyPercent: overallAccuracy(stats.topicStats),
             memberSinceDisplay: memberSinceDisplay(createdAt)

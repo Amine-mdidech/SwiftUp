@@ -1,25 +1,25 @@
 import SwiftUI
 
-/// The shared quiz UI for a lesson stage's quiz, a track-assessment stage's quiz, and the grade
-/// regrade quiz (`PathRegradeQuizView`). `title` labels the header (a stage/track title, or
-/// "Regrade quiz"). `onPassed` fires once, the moment a passing score is reached, to record
-/// progress (`PathRepository.completeStage`/`.promoteGrade` — the caller decides which).
-/// `onFinished` fires only when the user taps "Back to <title>" after passing, popping back to
-/// wherever this view was pushed from.
-struct PathQuizView: View {
+/// The shared quiz UI for a class's quiz, a path-assessment class's quiz, and the grade regrade
+/// quiz (`RegradeQuizView`). `title` labels the header (a class/path title, or "Regrade quiz").
+/// `onPassed` fires once, the moment a passing score is reached, with whether it was a perfect
+/// score — to record progress (`LibraryRepository.completeClass`/`.promoteGrade` — the caller
+/// decides which). `onFinished` fires only when the user taps "Back to <title>" after passing,
+/// popping back to wherever this view was pushed from.
+struct LibraryQuizView: View {
     let title: String
-    let onPassed: () async -> Void
+    let onPassed: (Bool) async -> Void
     let onFinished: () -> Void
     let onAbandon: () -> Void
 
-    @State private var session: PathQuizSession
+    @State private var session: LibraryQuizSession
 
-    init(title: String, questions: [PathQuizQuestion], onPassed: @escaping () async -> Void, onFinished: @escaping () -> Void, onAbandon: @escaping () -> Void) {
+    init(title: String, questions: [LibraryQuizQuestion], onPassed: @escaping (Bool) async -> Void, onFinished: @escaping () -> Void, onAbandon: @escaping () -> Void) {
         self.title = title
         self.onPassed = onPassed
         self.onFinished = onFinished
         self.onAbandon = onAbandon
-        _session = State(initialValue: PathQuizSession(questions: questions))
+        _session = State(initialValue: LibraryQuizSession(questions: questions))
     }
 
     var body: some View {
@@ -36,7 +36,7 @@ struct PathQuizView: View {
     }
 
     @ViewBuilder
-    private func questionContent(_ question: PathQuizQuestion) -> some View {
+    private func questionContent(_ question: LibraryQuizQuestion) -> some View {
         let answered = session.isAnswered(question)
         let selected = session.selectedOptionID(for: question)
         let isCorrect = selected == question.correctOptionID
@@ -116,7 +116,7 @@ struct PathQuizView: View {
     }
 
     @ViewBuilder
-    private func optionRow(_ option: QuestionOption, question: PathQuizQuestion, answered: Bool, selected: String?) -> some View {
+    private func optionRow(_ option: QuestionOption, question: LibraryQuizQuestion, answered: Bool, selected: String?) -> some View {
         let isSelected = selected == option.id
         let isCorrectOption = option.id == question.correctOptionID
         let showAsCorrect = answered && isCorrectOption
@@ -155,7 +155,7 @@ struct PathQuizView: View {
                 .padding(.top, 12)
 
             if session.passed {
-                Text("80% or higher passes.")
+                Text(session.isPerfect ? "Perfect score." : "80% or higher passes.")
                     .font(Theme.Fonts.body(13))
                     .foregroundStyle(Theme.Colors.neutral700)
                     .padding(.top, 6)
@@ -196,14 +196,14 @@ struct PathQuizView: View {
         // per session lifetime before a possible future retry resets it.
         .task(id: session.passed) {
             guard session.isFinished, session.passed else { return }
-            await onPassed()
+            await onPassed(session.isPerfect)
         }
     }
 }
 
 #Preview("Unanswered") {
     let questions = [
-        PathQuizQuestion(
+        LibraryQuizQuestion(
             id: "q1", prompt: "Which of these is correct?",
             options: [
                 QuestionOption(id: "A", text: "Correct answer"),
@@ -215,5 +215,5 @@ struct PathQuizView: View {
             explanation: "This is a placeholder explanation shown after answering."
         )
     ]
-    return PathQuizView(title: "Preview stage", questions: questions, onPassed: {}, onFinished: {}, onAbandon: {})
+    return LibraryQuizView(title: "Preview class", questions: questions, onPassed: { _ in }, onFinished: {}, onAbandon: {})
 }

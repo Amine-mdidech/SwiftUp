@@ -4,7 +4,6 @@ import Foundation
 /// from stored Firestore fields (or bundled fallback data) — never persisted in this shape itself.
 struct UserStats {
     let totalXP: Int
-    let currentLevel: Int
     let streakDays: Int
     let totalQuestionsAnswered: Int
     let perfectDayCount: Int
@@ -77,14 +76,6 @@ enum AchievementEngine {
 
         case "onboarded":
             return (stats.totalQuestionsAnswered > 0, nil)
-
-        case "level":
-            let target = criterion.count ?? 0
-            // Every user starts at level 1, so reporting raw currentLevel as "progress" would make
-            // this criterion read as .inReach (never .locked) from the very first launch — level 1
-            // isn't "zero progress toward level N," it's the baseline everyone starts from. Shift
-            // both values down by that baseline so "no progress yet" genuinely reads as 0.
-            return (stats.currentLevel >= target, (max(0, stats.currentLevel - 1), max(0, target - 1)))
 
         default: // "unbuildable" and any unrecognized kind
             return (false, nil)

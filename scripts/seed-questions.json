@@ -46,12 +46,12 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "Force-unwrapping nil traps immediately — there's no recoverable error, the process terminates.",
+    "explanation": "Force-unwrapping nil traps immediately \u2014 there's no recoverable error, the process terminates.",
     "xp": 15
   },
   {
     "id": "jr03",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Junior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -162,12 +162,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "init() on the App struct runs once at launch, before any Scene/View is built — the standard place for app-wide setup like Firebase configuration.",
+    "explanation": "init() on the App struct runs once at launch, before any Scene/View is built \u2014 the standard place for app-wide setup like Firebase configuration.",
     "xp": 15
   },
   {
     "id": "jr07",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Junior",
     "format": "spotTheBug",
     "codeSnippet": "final class ImageLoader {\n    var onComplete: (() -> Void)?\n    func start() {\n        network.fetch { result in\n            self.image = result\n            self.onComplete?()\n        }\n    }\n}",
@@ -175,15 +175,15 @@
     "options": [
       {
         "id": "A",
-        "text": "Line 2 — the closure property declaration"
+        "text": "Line 2 \u2014 the closure property declaration"
       },
       {
         "id": "B",
-        "text": "Line 4 — the escaping closure capturing self strongly"
+        "text": "Line 4 \u2014 the escaping closure capturing self strongly"
       },
       {
         "id": "C",
-        "text": "Line 5 — assigning to self.image"
+        "text": "Line 5 \u2014 assigning to self.image"
       }
     ],
     "correctOptionID": "B",
@@ -237,12 +237,12 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "Swift Testing (unlike XCTest) uses the @Test macro to identify tests — naming conventions aren't required.",
+    "explanation": "Swift Testing (unlike XCTest) uses the @Test macro to identify tests \u2014 naming conventions aren't required.",
     "xp": 15
   },
   {
     "id": "jr10",
-    "topic": "Xcode · tooling",
+    "topic": "Xcode \u00b7 tooling",
     "level": "Junior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -279,7 +279,7 @@
     "options": [
       {
         "id": "A",
-        "text": "Both Encodable and Decodable — the ability to convert to/from formats like JSON"
+        "text": "Both Encodable and Decodable \u2014 the ability to convert to/from formats like JSON"
       },
       {
         "id": "B",
@@ -295,7 +295,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Codable is a type alias for Encodable & Decodable — it doesn't imply equality, thread-safety, or a specific initializer.",
+    "explanation": "Codable is a type alias for Encodable & Decodable \u2014 it doesn't imply equality, thread-safety, or a specific initializer.",
     "xp": 15
   },
   {
@@ -308,7 +308,7 @@
     "options": [
       {
         "id": "A",
-        "text": "Nothing — structs are value types, the original is unaffected"
+        "text": "Nothing \u2014 structs are value types, the original is unaffected"
       },
       {
         "id": "B",
@@ -324,7 +324,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Structs are value types — assignment copies the value, so mutating the copy never affects the original. Classes (reference types) would behave differently.",
+    "explanation": "Structs are value types \u2014 assignment copies the value, so mutating the copy never affects the original. Classes (reference types) would behave differently.",
     "xp": 15
   },
   {
@@ -382,7 +382,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "The ViewModel adapts model/domain data into view-friendly state and exposes it (often via @Observable) — the View stays a thin renderer of that state.",
+    "explanation": "The ViewModel adapts model/domain data into view-friendly state and exposes it (often via @Observable) \u2014 the View stays a thin renderer of that state.",
     "xp": 20
   },
   {
@@ -403,12 +403,12 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "The @Observable macro (Observation framework) tracks property access directly — no @Published wrapper is needed, unlike the older ObservableObject approach.",
+    "explanation": "The @Observable macro (Observation framework) tracks property access directly \u2014 no @Published wrapper is needed, unlike the older ObservableObject approach.",
     "xp": 20
   },
   {
     "id": "mid04",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -420,7 +420,7 @@
       },
       {
         "id": "B",
-        "text": "Always — unowned is strictly safer than weak"
+        "text": "Always \u2014 unowned is strictly safer than weak"
       },
       {
         "id": "C",
@@ -428,16 +428,16 @@
       },
       {
         "id": "D",
-        "text": "Never — unowned is deprecated"
+        "text": "Never \u2014 unowned is deprecated"
       }
     ],
     "correctOptionID": "A",
-    "explanation": "unowned avoids the Optional wrapper weak requires, but crashes if accessed after deallocation — only safe when the captured object's lifetime is guaranteed to exceed the closure's.",
+    "explanation": "unowned avoids the Optional wrapper weak requires, but crashes if accessed after deallocation \u2014 only safe when the captured object's lifetime is guaranteed to exceed the closure's.",
     "xp": 20
   },
   {
     "id": "mid05",
-    "topic": "Core Data · SwiftData",
+    "topic": "Core Data \u00b7 SwiftData",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -474,7 +474,7 @@
     "options": [
       {
         "id": "A",
-        "text": "Nothing — this is correct as written"
+        "text": "Nothing \u2014 this is correct as written"
       },
       {
         "id": "B",
@@ -490,7 +490,7 @@
       }
     ],
     "correctOptionID": "B",
-    "explanation": "data(from:) doesn't throw on HTTP error statuses (404, 500) — it only throws on transport failures. Without checking the response's status code, a server error page could be decoded as if it were valid JSON.",
+    "explanation": "data(from:) doesn't throw on HTTP error statuses (404, 500) \u2014 it only throws on transport failures. Without checking the response's status code, a server error page could be decoded as if it were valid JSON.",
     "xp": 20
   },
   {
@@ -519,7 +519,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Depending on an abstraction (protocol) rather than a concrete singleton is what makes substituting a test double possible — the core enabler of unit-testable networking code.",
+    "explanation": "Depending on an abstraction (protocol) rather than a concrete singleton is what makes substituting a test double possible \u2014 the core enabler of unit-testable networking code.",
     "xp": 20
   },
   {
@@ -540,7 +540,7 @@
       }
     ],
     "correctOptionID": "false",
-    "explanation": "POP favors composition via protocols (and protocol extensions) over class inheritance hierarchies where it fits better, but it doesn't mean classes are forbidden — they're still the right tool for reference-semantics and identity.",
+    "explanation": "POP favors composition via protocols (and protocol extensions) over class inheritance hierarchies where it fits better, but it doesn't mean classes are forbidden \u2014 they're still the right tool for reference-semantics and identity.",
     "xp": 20
   },
   {
@@ -553,7 +553,7 @@
     "options": [
       {
         "id": "A",
-        "text": "Type safety is preserved at compile time — no runtime casting needed"
+        "text": "Type safety is preserved at compile time \u2014 no runtime casting needed"
       },
       {
         "id": "B",
@@ -603,7 +603,7 @@
   },
   {
     "id": "mid11",
-    "topic": "UIKit · SwiftUI interop",
+    "topic": "UIKit \u00b7 SwiftUI interop",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -640,7 +640,7 @@
     "options": [
       {
         "id": "A",
-        "text": "Compile error — an async function can only be called from an async context or inside Task { }"
+        "text": "Compile error \u2014 an async function can only be called from an async context or inside Task { }"
       },
       {
         "id": "B",
@@ -656,7 +656,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Swift enforces this at compile time, not runtime — calling an async function from sync code needs an async context, which Task { await ... } provides.",
+    "explanation": "Swift enforces this at compile time, not runtime \u2014 calling an async function from sync code needs an async context, which Task { await ... } provides.",
     "xp": 20
   },
   {
@@ -685,7 +685,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Sendable is a marker protocol the compiler uses to verify a value can cross actor/task boundaries safely — typically because it's a value type, immutable, or internally synchronized.",
+    "explanation": "Sendable is a marker protocol the compiler uses to verify a value can cross actor/task boundaries safely \u2014 typically because it's a value type, immutable, or internally synchronized.",
     "xp": 25
   },
   {
@@ -714,7 +714,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Instruments' SwiftUI instrument shows exactly which views recompute and why — guessing at optimizations without profiling first risks fixing the wrong thing.",
+    "explanation": "Instruments' SwiftUI instrument shows exactly which views recompute and why \u2014 guessing at optimizations without profiling first risks fixing the wrong thing.",
     "xp": 25
   },
   {
@@ -735,12 +735,12 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "Well-drawn module boundaries let the build system skip recompiling packages whose source didn't change — a single monolithic target must often rebuild much more on small edits.",
+    "explanation": "Well-drawn module boundaries let the build system skip recompiling packages whose source didn't change \u2014 a single monolithic target must often rebuild much more on small edits.",
     "xp": 25
   },
   {
     "id": "sr04",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Senior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -835,7 +835,7 @@
     "options": [
       {
         "id": "A",
-        "text": "The Keychain — encrypted, sandboxed, survives app deletion per its accessibility setting"
+        "text": "The Keychain \u2014 encrypted, sandboxed, survives app deletion per its accessibility setting"
       },
       {
         "id": "B",
@@ -856,7 +856,7 @@
   },
   {
     "id": "sr08",
-    "topic": "Core Data · SwiftData",
+    "topic": "Core Data \u00b7 SwiftData",
     "level": "Senior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -868,7 +868,7 @@
       },
       {
         "id": "B",
-        "text": "Just add the property — Core Data infers defaults for existing rows automatically with no configuration"
+        "text": "Just add the property \u2014 Core Data infers defaults for existing rows automatically with no configuration"
       },
       {
         "id": "C",
@@ -880,7 +880,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "A lightweight migration handles simple additive changes with an explicit default value; anything requiring real data transformation needs a custom mapping model — silently doing nothing risks a migration crash.",
+    "explanation": "A lightweight migration handles simple additive changes with an explicit default value; anything requiring real data transformation needs a custom mapping model \u2014 silently doing nothing risks a migration crash.",
     "xp": 25
   },
   {
@@ -930,7 +930,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "withCheckedContinuation/withCheckedThrowingContinuation traps if resumed more than once — a completion handler that was accidentally called twice in the old code becomes a hard crash once wrapped, rather than a silent double-invocation.",
+    "explanation": "withCheckedContinuation/withCheckedThrowingContinuation traps if resumed more than once \u2014 a completion handler that was accidentally called twice in the old code becomes a hard crash once wrapped, rather than a silent double-invocation.",
     "xp": 25
   },
   {
@@ -943,7 +943,7 @@
     "options": [
       {
         "id": "A",
-        "text": "Enforced API boundaries — a package's internals genuinely can't be reached from outside it, unlike folder conventions which are just social agreements"
+        "text": "Enforced API boundaries \u2014 a package's internals genuinely can't be reached from outside it, unlike folder conventions which are just social agreements"
       },
       {
         "id": "B",
@@ -959,7 +959,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Swift's access control is enforced at the module boundary — a local package genuinely can't reach into another package's internal types, whereas a folder split inside one target relies entirely on developer discipline.",
+    "explanation": "Swift's access control is enforced at the module boundary \u2014 a local package genuinely can't reach into another package's internal types, whereas a folder split inside one target relies entirely on developer discipline.",
     "xp": 25
   },
   {
@@ -980,7 +980,7 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "Whole-module optimization changes the compiler's unit of work from per-file to the whole module, which affects incremental compilation granularity — it's not purely a release-only concern, though it's most commonly enabled for Release configurations specifically.",
+    "explanation": "Whole-module optimization changes the compiler's unit of work from per-file to the whole module, which affects incremental compilation granularity \u2014 it's not purely a release-only concern, though it's most commonly enabled for Release configurations specifically.",
     "xp": 25
   },
   {
@@ -1059,7 +1059,7 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "Protocols are first-class types in Swift — you can declare `let x: SomeProtocol` or take one as a parameter, and any conforming type can be used there.",
+    "explanation": "Protocols are first-class types in Swift \u2014 you can declare `let x: SomeProtocol` or take one as a parameter, and any conforming type can be used there.",
     "xp": 15
   },
   {
@@ -1125,7 +1125,7 @@
     "topic": "SwiftUI state",
     "level": "Junior",
     "format": "fillInTheBlank",
-    "codeSnippet": "struct FavoriteButton: View {\n    @____ private var isFavorite = false\n\n    var body: some View {\n        Button(isFavorite ? \"★\" : \"☆\") {\n            isFavorite.toggle()\n        }\n    }\n}",
+    "codeSnippet": "struct FavoriteButton: View {\n    @____ private var isFavorite = false\n\n    var body: some View {\n        Button(isFavorite ? \"\u2605\" : \"\u2606\") {\n            isFavorite.toggle()\n        }\n    }\n}",
     "prompt": "Complete the line. This view owns a single private Bool it toggles itself.",
     "options": [
       {
@@ -1146,7 +1146,7 @@
       }
     ],
     "correctOptionID": "state",
-    "explanation": "@State is exactly for a view's own private, mutable, value-type storage — no parent involved.",
+    "explanation": "@State is exactly for a view's own private, mutable, value-type storage \u2014 no parent involved.",
     "xp": 15
   },
   {
@@ -1175,7 +1175,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "body is a lightweight description of what the view should look like now. SwiftUI diffs it against the previous description and applies a minimal update — the view struct itself is cheap to recreate.",
+    "explanation": "body is a lightweight description of what the view should look like now. SwiftUI diffs it against the previous description and applies a minimal update \u2014 the view struct itself is cheap to recreate.",
     "xp": 15
   },
   {
@@ -1259,7 +1259,7 @@
   },
   {
     "id": "jr23",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Junior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -1267,19 +1267,19 @@
     "options": [
       {
         "id": "A",
-        "text": "Automatic Reference Counting — it tracks how many strong references point to a class instance and deallocates it at zero"
+        "text": "Automatic Reference Counting \u2014 it tracks how many strong references point to a class instance and deallocates it at zero"
       },
       {
         "id": "B",
-        "text": "Advanced Runtime Cache — it speeds up array operations"
+        "text": "Advanced Runtime Cache \u2014 it speeds up array operations"
       },
       {
         "id": "C",
-        "text": "Async Retry Controller — it retries failed network calls"
+        "text": "Async Retry Controller \u2014 it retries failed network calls"
       },
       {
         "id": "D",
-        "text": "Automatic Recompilation Check — it re-checks types at runtime"
+        "text": "Automatic Recompilation Check \u2014 it re-checks types at runtime"
       }
     ],
     "correctOptionID": "A",
@@ -1288,7 +1288,7 @@
   },
   {
     "id": "jr24",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Junior",
     "format": "spotTheBug",
     "codeSnippet": "final class Timer {\n    var onTick: (() -> Void)?\n    let inner = InnerTimer()\n\n    func start() {\n        inner.onFire = {\n            self.onTick?()\n        }\n    }\n}",
@@ -1296,15 +1296,15 @@
     "options": [
       {
         "id": "A",
-        "text": "Line 2 — declaring the onTick property"
+        "text": "Line 2 \u2014 declaring the onTick property"
       },
       {
         "id": "B",
-        "text": "Line 6 — the closure capturing self strongly"
+        "text": "Line 6 \u2014 the closure capturing self strongly"
       },
       {
         "id": "C",
-        "text": "Line 3 — creating the InnerTimer instance"
+        "text": "Line 3 \u2014 creating the InnerTimer instance"
       }
     ],
     "correctOptionID": "B",
@@ -1313,7 +1313,7 @@
   },
   {
     "id": "jr25",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Junior",
     "format": "trueFalse",
     "codeSnippet": null,
@@ -1329,7 +1329,7 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "weak references must be Optional for exactly this reason — the runtime sets them to nil automatically when the referenced instance is deallocated, avoiding a dangling pointer.",
+    "explanation": "weak references must be Optional for exactly this reason \u2014 the runtime sets them to nil automatically when the referenced instance is deallocated, avoiding a dangling pointer.",
     "xp": 15
   },
   {
@@ -1379,7 +1379,7 @@
       }
     ],
     "correctOptionID": "false",
-    "explanation": "404 means \"not found\" — the resource doesn't exist at that URL. A successful response is typically in the 200 range.",
+    "explanation": "404 means \"not found\" \u2014 the resource doesn't exist at that URL. A successful response is typically in the 200 range.",
     "xp": 15
   },
   {
@@ -1442,7 +1442,7 @@
   },
   {
     "id": "jr30",
-    "topic": "Core Data · SwiftData",
+    "topic": "Core Data \u00b7 SwiftData",
     "level": "Junior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -1466,12 +1466,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "@Model turns a plain class into a persisted entity — SwiftData generates the storage and change-tracking for its stored properties automatically.",
+    "explanation": "@Model turns a plain class into a persisted entity \u2014 SwiftData generates the storage and change-tracking for its stored properties automatically.",
     "xp": 15
   },
   {
     "id": "jr31",
-    "topic": "Core Data · SwiftData",
+    "topic": "Core Data \u00b7 SwiftData",
     "level": "Junior",
     "format": "trueFalse",
     "codeSnippet": null,
@@ -1516,7 +1516,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "@main marks the App-conforming struct whose body describes the app's scenes — it's the equivalent of the old AppDelegate/SceneDelegate entry point.",
+    "explanation": "@main marks the App-conforming struct whose body describes the app's scenes \u2014 it's the equivalent of the old AppDelegate/SceneDelegate entry point.",
     "xp": 15
   },
   {
@@ -1545,12 +1545,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "@Environment(\\.scenePhase) exposes .active, .inactive, and .background — the SwiftUI-native replacement for AppDelegate lifecycle callbacks.",
+    "explanation": "@Environment(\\.scenePhase) exposes .active, .inactive, and .background \u2014 the SwiftUI-native replacement for AppDelegate lifecycle callbacks.",
     "xp": 15
   },
   {
     "id": "jr34",
-    "topic": "Xcode · tooling",
+    "topic": "Xcode \u00b7 tooling",
     "level": "Junior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -1574,12 +1574,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "A conditional breakpoint only stops execution when its condition is true — useful when a line runs hundreds of times but you only care about one specific case.",
+    "explanation": "A conditional breakpoint only stops execution when its condition is true \u2014 useful when a line runs hundreds of times but you only care about one specific case.",
     "xp": 15
   },
   {
     "id": "jr35",
-    "topic": "Xcode · tooling",
+    "topic": "Xcode \u00b7 tooling",
     "level": "Junior",
     "format": "trueFalse",
     "codeSnippet": null,
@@ -1595,7 +1595,7 @@
       }
     ],
     "correctOptionID": "false",
-    "explanation": "#Preview content is only used by Xcode's canvas at development time and is stripped from release builds — it isn't part of what ships.",
+    "explanation": "#Preview content is only used by Xcode's canvas at development time and is stripped from release builds \u2014 it isn't part of what ships.",
     "xp": 15
   },
   {
@@ -1620,7 +1620,7 @@
       },
       {
         "id": "D",
-        "text": "Nothing — any function can throw silently"
+        "text": "Nothing \u2014 any function can throw silently"
       }
     ],
     "correctOptionID": "A",
@@ -1658,7 +1658,7 @@
   },
   {
     "id": "jr38",
-    "topic": "UIKit · SwiftUI interop",
+    "topic": "UIKit \u00b7 SwiftUI interop",
     "level": "Junior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -1687,7 +1687,7 @@
   },
   {
     "id": "jr39",
-    "topic": "UIKit · SwiftUI interop",
+    "topic": "UIKit \u00b7 SwiftUI interop",
     "level": "Junior",
     "format": "spotTheBug",
     "codeSnippet": "struct LabelView: UIViewRepresentable {\n    let text: String\n    func makeUIView(context: Context) -> UILabel {\n        UILabel()\n    }\n    func updateUIView(_ uiView: UILabel, context: Context) {\n    }\n}",
@@ -1699,7 +1699,7 @@
       },
       {
         "id": "B",
-        "text": "updateUIView's body is empty — it should set uiView.text = text"
+        "text": "updateUIView's body is empty \u2014 it should set uiView.text = text"
       },
       {
         "id": "C",
@@ -1757,7 +1757,7 @@
       },
       {
         "id": "C",
-        "text": "They are exactly equivalent — detached is a deprecated alias"
+        "text": "They are exactly equivalent \u2014 detached is a deprecated alias"
       },
       {
         "id": "D",
@@ -1819,7 +1819,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "A task group launches its children concurrently rather than one after another, and you iterate over results as each finishes — genuinely parallel work, not just async syntax.",
+    "explanation": "A task group launches its children concurrently rather than one after another, and you iterate over results as each finishes \u2014 genuinely parallel work, not just async syntax.",
     "xp": 20
   },
   {
@@ -1869,12 +1869,12 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "SwiftUI diffs collections by identity, not index. If an item's id changes (even if its content is similar), SwiftUI treats it as a different item — removed and inserted, not updated in place.",
+    "explanation": "SwiftUI diffs collections by identity, not index. If an item's id changes (even if its content is similar), SwiftUI treats it as a different item \u2014 removed and inserted, not updated in place.",
     "xp": 20
   },
   {
     "id": "mid18",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -1898,12 +1898,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "unowned is non-optional and cheaper, but crashes if accessed after deallocation — appropriate only when the referenced object is guaranteed to outlive the reference (e.g. a child that can't outlive its parent).",
+    "explanation": "unowned is non-optional and cheaper, but crashes if accessed after deallocation \u2014 appropriate only when the referenced object is guaranteed to outlive the reference (e.g. a child that can't outlive its parent).",
     "xp": 20
   },
   {
     "id": "mid19",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -1923,7 +1923,7 @@
       },
       {
         "id": "D",
-        "text": "Wrap both properties in Optional — that alone breaks the cycle"
+        "text": "Wrap both properties in Optional \u2014 that alone breaks the cycle"
       }
     ],
     "correctOptionID": "A",
@@ -1948,7 +1948,7 @@
       },
       {
         "id": "C",
-        "text": "Never retry — a single failure should always be shown to the user immediately"
+        "text": "Never retry \u2014 a single failure should always be shown to the user immediately"
       },
       {
         "id": "D",
@@ -1981,12 +1981,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "data(from:) doesn't throw on a non-2xx status — it still gives you whatever body the server sent (often an error payload), which then fails to decode as User in a confusing way, or worse, decodes into garbage. Check response.statusCode first.",
+    "explanation": "data(from:) doesn't throw on a non-2xx status \u2014 it still gives you whatever body the server sent (often an error payload), which then fails to decode as User in a confusing way, or worse, decodes into garbage. Check response.statusCode first.",
     "xp": 20
   },
   {
     "id": "mid22",
-    "topic": "Core Data · SwiftData",
+    "topic": "Core Data \u00b7 SwiftData",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -2039,7 +2039,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "A repository presents one API (e.g. fetchUser(id:)) while internally deciding whether to hit cache, disk, or network — callers and tests don't need to know or care which.",
+    "explanation": "A repository presents one API (e.g. fetchUser(id:)) while internally deciding whether to hit cache, disk, or network \u2014 callers and tests don't need to know or care which.",
     "xp": 20
   },
   {
@@ -2123,7 +2123,7 @@
   },
   {
     "id": "mid27",
-    "topic": "UIKit · SwiftUI interop",
+    "topic": "UIKit \u00b7 SwiftUI interop",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -2152,7 +2152,7 @@
   },
   {
     "id": "mid28",
-    "topic": "Xcode · tooling",
+    "topic": "Xcode \u00b7 tooling",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -2205,7 +2205,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "body is a computed property SwiftUI calls whenever it needs to know what to render — expensive work belongs in a cached property, a view model, or behind memoization, not recomputed on every call.",
+    "explanation": "body is a computed property SwiftUI calls whenever it needs to know what to render \u2014 expensive work belongs in a cached property, a view model, or behind memoization, not recomputed on every call.",
     "xp": 20
   },
   {
@@ -2293,7 +2293,7 @@
     "options": [
       {
         "id": "A",
-        "text": "It's a compile error — crossing actor isolation requires await"
+        "text": "It's a compile error \u2014 crossing actor isolation requires await"
       },
       {
         "id": "B",
@@ -2326,7 +2326,7 @@
       },
       {
         "id": "B",
-        "text": "There is no risk — @State never causes extra work"
+        "text": "There is no risk \u2014 @State never causes extra work"
       },
       {
         "id": "C",
@@ -2338,12 +2338,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Broad, coarse-grained state at a high level in the view tree can cause wider invalidation than necessary — scoping state closer to where it's used, or using @Observable's per-property tracking, limits the blast radius.",
+    "explanation": "Broad, coarse-grained state at a high level in the view tree can cause wider invalidation than necessary \u2014 scoping state closer to where it's used, or using @Observable's per-property tracking, limits the blast radius.",
     "xp": 20
   },
   {
     "id": "mid35",
-    "topic": "Xcode · tooling",
+    "topic": "Xcode \u00b7 tooling",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -2367,7 +2367,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Signposts let you mark the start/end of an operation you care about, so Instruments can show exactly how long it took and correlate it with CPU/memory activity — far more precise than print debugging.",
+    "explanation": "Signposts let you mark the start/end of an operation you care about, so Instruments can show exactly how long it took and correlate it with CPU/memory activity \u2014 far more precise than print debugging.",
     "xp": 20
   },
   {
@@ -2425,12 +2425,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Naming the real cost — more files and indirection for a simple screen — is what a senior-leaning answer does; VIPER's testability benefits are real but come with genuine overhead.",
+    "explanation": "Naming the real cost \u2014 more files and indirection for a simple screen \u2014 is what a senior-leaning answer does; VIPER's testability benefits are real but come with genuine overhead.",
     "xp": 20
   },
   {
     "id": "mid38",
-    "topic": "Core Data · SwiftData",
+    "topic": "Core Data \u00b7 SwiftData",
     "level": "Mid",
     "format": "trueFalse",
     "codeSnippet": null,
@@ -2446,7 +2446,7 @@
       }
     ],
     "correctOptionID": "true",
-    "explanation": "@Query is a live, observed fetch — the view automatically re-renders when matching data is inserted, updated, or deleted, without manual refresh logic.",
+    "explanation": "@Query is a live, observed fetch \u2014 the view automatically re-renders when matching data is inserted, updated, or deleted, without manual refresh logic.",
     "xp": 20
   },
   {
@@ -2475,12 +2475,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "try? is convenient when you only care whether something succeeded, but you lose the specific error — appropriate for some cases, wrong when the user or logs need to know why something failed.",
+    "explanation": "try? is convenient when you only care whether something succeeded, but you lose the specific error \u2014 appropriate for some cases, wrong when the user or logs need to know why something failed.",
     "xp": 20
   },
   {
     "id": "mid40",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Mid",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -2504,7 +2504,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Since weak doesn't keep the object alive, self may already be nil by the time the closure executes — hence guard let self else { return } or optional chaining is needed.",
+    "explanation": "Since weak doesn't keep the object alive, self may already be nil by the time the closure executes \u2014 hence guard let self else { return } or optional chaining is needed.",
     "xp": 20
   },
   {
@@ -2533,7 +2533,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "An actor only serializes access at await boundaries — during a suspension, other work can run and mutate the actor's state, so invariants that hold before an await aren't guaranteed to hold after it.",
+    "explanation": "An actor only serializes access at await boundaries \u2014 during a suspension, other work can run and mutate the actor's state, so invariants that hold before an await aren't guaranteed to hold after it.",
     "xp": 25
   },
   {
@@ -2558,7 +2558,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Because fetch suspends, a second caller can reach the miss-check before the first caller has stored its result — reentrancy allows the interleaving even though storage itself is safely isolated. Fixing it needs an in-flight-request cache keyed by key.",
+    "explanation": "Because fetch suspends, a second caller can reach the miss-check before the first caller has stored its result \u2014 reentrancy allows the interleaving even though storage itself is safely isolated. Fixing it needs an in-flight-request cache keyed by key.",
     "xp": 25
   },
   {
@@ -2575,7 +2575,7 @@
       },
       {
         "id": "B",
-        "text": "It can't — the compiler always rejects this at compile time with no way around it"
+        "text": "It can't \u2014 the compiler always rejects this at compile time with no way around it"
       },
       {
         "id": "C",
@@ -2587,12 +2587,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "A struct holding a reference to a mutable class doesn't make that class's state immutable — @unchecked Sendable is sometimes used here, but it's a manual promise the compiler can't verify, and it's on you to actually guarantee safety.",
+    "explanation": "A struct holding a reference to a mutable class doesn't make that class's state immutable \u2014 @unchecked Sendable is sometimes used here, but it's a manual promise the compiler can't verify, and it's on you to actually guarantee safety.",
     "xp": 25
   },
   {
     "id": "sr16",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Senior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -2621,7 +2621,7 @@
   },
   {
     "id": "sr17",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Senior",
     "format": "trueFalse",
     "codeSnippet": null,
@@ -2637,7 +2637,7 @@
       }
     ],
     "correctOptionID": "false",
-    "explanation": "ARC has no cycle-detecting garbage collector — a true reference cycle leaks for the lifetime of the process, regardless of memory pressure, unless a weak/unowned reference breaks it.",
+    "explanation": "ARC has no cycle-detecting garbage collector \u2014 a true reference cycle leaks for the lifetime of the process, regardless of memory pressure, unless a weak/unowned reference breaks it.",
     "xp": 25
   },
   {
@@ -2695,7 +2695,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "At scale, the architectural problem shifts from \"which pattern\" to \"how do teams avoid stepping on each other\" — well-defined module boundaries and APIs let teams iterate independently.",
+    "explanation": "At scale, the architectural problem shifts from \"which pattern\" to \"how do teams avoid stepping on each other\" \u2014 well-defined module boundaries and APIs let teams iterate independently.",
     "xp": 25
   },
   {
@@ -2724,7 +2724,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Time Profiler on a cold launch shows exactly what's consuming CPU before first frame — often dylib loading, static initializers, or eager work that could be deferred — rather than guessing at a cause.",
+    "explanation": "Time Profiler on a cold launch shows exactly what's consuming CPU before first frame \u2014 often dylib loading, static initializers, or eager work that could be deferred \u2014 rather than guessing at a cause.",
     "xp": 25
   },
   {
@@ -2753,7 +2753,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Every dynamic framework the OS has to locate, load, and link at launch adds real, measurable overhead — a reason large apps often consolidate into fewer frameworks or use static linking for internal modules.",
+    "explanation": "Every dynamic framework the OS has to locate, load, and link at launch adds real, measurable overhead \u2014 a reason large apps often consolidate into fewer frameworks or use static linking for internal modules.",
     "xp": 25
   },
   {
@@ -2862,7 +2862,7 @@
   },
   {
     "id": "sr26",
-    "topic": "Core Data · SwiftData",
+    "topic": "Core Data \u00b7 SwiftData",
     "level": "Senior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -2932,7 +2932,7 @@
       },
       {
         "id": "B",
-        "text": "There's no such thing as too many modules — more is always strictly better"
+        "text": "There's no such thing as too many modules \u2014 more is always strictly better"
       },
       {
         "id": "C",
@@ -2944,7 +2944,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Every module boundary has a real cost — more public API to maintain, more indirection to navigate — so the right granularity balances team/ownership boundaries and build parallelism against that overhead.",
+    "explanation": "Every module boundary has a real cost \u2014 more public API to maintain, more indirection to navigate \u2014 so the right granularity balances team/ownership boundaries and build parallelism against that overhead.",
     "xp": 25
   },
   {
@@ -2973,7 +2973,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "If a low-level, widely-depended-upon module changes often, every module downstream of it must rebuild — a dependency-graph shape problem, not just a \"how many modules\" problem.",
+    "explanation": "If a low-level, widely-depended-upon module changes often, every module downstream of it must rebuild \u2014 a dependency-graph shape problem, not just a \"how many modules\" problem.",
     "xp": 25
   },
   {
@@ -2986,7 +2986,7 @@
     "options": [
       {
         "id": "A",
-        "text": "Two overlapping accesses to the same mutable variable, one of which writes, happening at the same time — a source of undefined behavior"
+        "text": "Two overlapping accesses to the same mutable variable, one of which writes, happening at the same time \u2014 a source of undefined behavior"
       },
       {
         "id": "B",
@@ -3031,7 +3031,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "A performance regression can slip through a green test suite entirely, since \"still correct\" and \"still fast\" are different properties — a dedicated gate (e.g. tracking key metrics per build) catches the latter.",
+    "explanation": "A performance regression can slip through a green test suite entirely, since \"still correct\" and \"still fast\" are different properties \u2014 a dedicated gate (e.g. tracking key metrics per build) catches the latter.",
     "xp": 25
   },
   {
@@ -3052,7 +3052,7 @@
       }
     ],
     "correctOptionID": "false",
-    "explanation": "At an org level, migration cost, team buy-in, incremental adoptability, and training are often the deciding factors — a technically superior pattern that nobody can migrate to safely isn't a win.",
+    "explanation": "At an org level, migration cost, team buy-in, incremental adoptability, and training are often the deciding factors \u2014 a technically superior pattern that nobody can migrate to safely isn't a win.",
     "xp": 25
   },
   {
@@ -3086,7 +3086,7 @@
   },
   {
     "id": "sr34",
-    "topic": "Memory · ARC",
+    "topic": "Memory \u00b7 ARC",
     "level": "Senior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -3110,7 +3110,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "The compiler must reserve enough inline storage for the largest possible case, so one oversized case can bloat every instance of the enum, even ones holding a tiny case — worth knowing when memory layout matters.",
+    "explanation": "The compiler must reserve enough inline storage for the largest possible case, so one oversized case can bloat every instance of the enum, even ones holding a tiny case \u2014 worth knowing when memory layout matters.",
     "xp": 25
   },
   {
@@ -3127,7 +3127,7 @@
       },
       {
         "id": "B",
-        "text": "There is no tension — collecting maximal data has no downside"
+        "text": "There is no tension \u2014 collecting maximal data has no downside"
       },
       {
         "id": "C",
@@ -3193,7 +3193,7 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "A heisenbug's symptom (the crash) often occurs downstream of the actual race, and its timing-dependence makes it resistant to straightforward local reproduction — you often need to reason from invariants rather than a debugger session.",
+    "explanation": "A heisenbug's symptom (the crash) often occurs downstream of the actual race, and its timing-dependence makes it resistant to straightforward local reproduction \u2014 you often need to reason from invariants rather than a debugger session.",
     "xp": 25
   },
   {
@@ -3210,7 +3210,7 @@
       },
       {
         "id": "B",
-        "text": "Memory can only grow due to reference cycles — no other cause exists"
+        "text": "Memory can only grow due to reference cycles \u2014 no other cause exists"
       },
       {
         "id": "C",
@@ -3222,12 +3222,12 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Not every growth pattern is a leak in the ARC sense — an ever-growing cache, log buffer, or undo history that's technically still reachable (so not \"leaked\") can still be the real cause of memory growth over time.",
+    "explanation": "Not every growth pattern is a leak in the ARC sense \u2014 an ever-growing cache, log buffer, or undo history that's technically still reachable (so not \"leaked\") can still be the real cause of memory growth over time.",
     "xp": 25
   },
   {
     "id": "sr39",
-    "topic": "Core Data · SwiftData",
+    "topic": "Core Data \u00b7 SwiftData",
     "level": "Senior",
     "format": "multipleChoice",
     "codeSnippet": null,
@@ -3280,7 +3280,1119 @@
       }
     ],
     "correctOptionID": "A",
-    "explanation": "Extensions run under tight, type-specific memory limits — pulling in the whole app's dependency graph risks getting killed. Shared code should be deliberately lean and only include what the extension truly needs.",
+    "explanation": "Extensions run under tight, type-specific memory limits \u2014 pulling in the whole app's dependency graph risks getting killed. Shared code should be deliberately lean and only include what the extension truly needs.",
     "xp": 25
+  },
+  {
+    "id": "ds01",
+    "topic": "Platform architecture",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Swift's ABI has been stable on Apple platforms since Swift 5. What does that concretely guarantee?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A binary compiled with an older Swift compiler can call into, and be called by, a binary built with a newer one, without recompiling"
+      },
+      {
+        "id": "B",
+        "text": "Source code written in Swift 5 syntax will compile unmodified in any future Swift version"
+      },
+      {
+        "id": "C",
+        "text": "App Store binaries no longer need to embed the Swift runtime"
+      },
+      {
+        "id": "D",
+        "text": "Struct memory layouts are guaranteed identical across all Apple platforms"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "ABI stability is about binary compatibility \u2014 calling conventions and runtime metadata layout staying fixed across compiler versions. Source compatibility (old syntax still compiling) is a separate, weaker guarantee Swift does not fully make across major versions.",
+    "xp": 30
+  },
+  {
+    "id": "ds02",
+    "topic": "API evolution",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does enabling Library Evolution mode (-enable-library-evolution) let a framework do?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Add new public properties or methods to existing public types across releases without breaking binary compatibility for clients built against an older version"
+      },
+      {
+        "id": "B",
+        "text": "Automatically generate Objective-C headers for every public Swift type"
+      },
+      {
+        "id": "C",
+        "text": "Compile the framework faster by skipping whole-module optimization"
+      },
+      {
+        "id": "D",
+        "text": "Allow force-unwrapping optionals across module boundaries"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Library Evolution makes public types 'resilient': the compiler emits indirect accessors instead of baking in exact memory layout, so a precompiled framework can change its implementation across releases while binaries built against an older version keep working.",
+    "xp": 30
+  },
+  {
+    "id": "ds03",
+    "topic": "Build systems",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why does Apple require binary third-party dependencies to ship as XCFrameworks rather than plain .framework bundles?",
+    "options": [
+      {
+        "id": "A",
+        "text": "An XCFramework bundles separate slices per platform/architecture (iOS device, iOS simulator, macOS, etc.) so Xcode can pick the right one, instead of one fat binary mixing simulator and device code"
+      },
+      {
+        "id": "B",
+        "text": "XCFrameworks are always smaller because they strip debug symbols"
+      },
+      {
+        "id": "C",
+        "text": "Only XCFrameworks support Swift \u2014 .framework bundles are Objective-C only"
+      },
+      {
+        "id": "D",
+        "text": "XCFrameworks eliminate the need for code signing"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A single .framework can't cleanly hold both device and simulator slices for modern architectures at once. XCFramework is a container of per-platform/architecture framework slices, with Xcode selecting the right one at build time.",
+    "xp": 30
+  },
+  {
+    "id": "ds04",
+    "topic": "Modularization",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A large app is split into many local Swift Package Manager modules along clear boundaries. What kind of build benefits from that split the most?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Incremental builds after a small change \u2014 recompiling only the modules whose source or dependencies actually changed"
+      },
+      {
+        "id": "B",
+        "text": "The very first clean build after checking out the repository"
+      },
+      {
+        "id": "C",
+        "text": "App Store binary size, independent of any other optimization"
+      },
+      {
+        "id": "D",
+        "text": "Launch time, independent of any code executed at launch"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Module boundaries let the build system skip recompiling modules that didn't change. A clean build still has to build everything from scratch \u2014 and can even be slower than a well-tuned monolith, given extra per-module interface work.",
+    "xp": 30
+  },
+  {
+    "id": "ds05",
+    "topic": "Build systems",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A large app is split into a dozen internal Swift modules. What's the main trade-off of enabling cross-module optimization across them?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It can meaningfully improve runtime performance by inlining across module boundaries, at the cost of weakening the incremental-build isolation those boundaries were meant to provide"
+      },
+      {
+        "id": "B",
+        "text": "It disables ABI stability entirely for the app"
+      },
+      {
+        "id": "C",
+        "text": "It forces every module to adopt library evolution mode"
+      },
+      {
+        "id": "D",
+        "text": "It only affects Objective-C bridging headers"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Cross-module optimization lets the compiler see across module boundaries to inline and specialize, which is good for runtime speed but means a change in one module can now force recompiling more of what depends on it.",
+    "xp": 30
+  },
+  {
+    "id": "ds06",
+    "topic": "API evolution",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What is @_spi(SomeSPI) used for in a Swift framework's public API surface?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Exposing a symbol to specific client modules that explicitly import it with @_spi, while keeping it hidden from the framework's regular public API"
+      },
+      {
+        "id": "B",
+        "text": "Marking a symbol as available only inside SwiftUI previews"
+      },
+      {
+        "id": "C",
+        "text": "Declaring a symbol thread-safe for concurrent access"
+      },
+      {
+        "id": "D",
+        "text": "Opting a type into automatic Codable synthesis"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "@_spi (System Programming Interface) lets a library share an API with trusted internal or partner clients without committing to it as fully public/stable \u2014 a middle ground between private and public.",
+    "xp": 30
+  },
+  {
+    "id": "ds07",
+    "topic": "Performance at scale",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A team sets an App Store binary size budget across a dozen feature teams. Which of these does App Thinning NOT do on its own to help meet that budget?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Strip unused Swift/Objective-C classes and methods that no code path can reach"
+      },
+      {
+        "id": "B",
+        "text": "Deliver only the image and asset variants matching the installing device's screen and architecture"
+      },
+      {
+        "id": "C",
+        "text": "Defer non-essential resources via On-Demand Resources so they download only when needed"
+      },
+      {
+        "id": "D",
+        "text": "Build a separate optimized binary variant per device/architecture via App Slicing"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "App Thinning (slicing, on-demand resources) tailors what's delivered per device \u2014 it doesn't perform dead-code elimination of unreachable symbols; that's a separate linker/optimizer concern.",
+    "xp": 30
+  },
+  {
+    "id": "ds08",
+    "topic": "Performance at scale",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "MetricKit is best suited for which of these engineering problems at scale?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Aggregating real-world performance and diagnostic data \u2014 hangs, crashes, launch time, memory \u2014 from the installed user base in production, without attaching a debugger"
+      },
+      {
+        "id": "B",
+        "text": "Profiling CPU and memory usage live while debugging in Xcode"
+      },
+      {
+        "id": "C",
+        "text": "Replacing XCTest for unit testing performance-sensitive code"
+      },
+      {
+        "id": "D",
+        "text": "Generating flame graphs during a single Instruments trace session"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "MetricKit reports aggregated, privacy-preserving metrics from real devices in the field \u2014 the only practical way to see how the app actually performs across the installed base, not just on a developer's machine.",
+    "xp": 30
+  },
+  {
+    "id": "ds09",
+    "topic": "Performance at scale",
+    "level": "Distinguished",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "MetricKit's hang-rate metric and Xcode's Main Thread Checker diagnose the same problem: both measure how long the main thread was blocked during a session.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "They're different tools. MetricKit's hang metric reports how often and how long the main thread went unresponsive to user input in real-world usage. Main Thread Checker instead flags UIKit/AppKit API calls made from a background thread \u2014 a correctness check, not a duration measurement.",
+    "xp": 30
+  },
+  {
+    "id": "ds10",
+    "topic": "Background execution",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "An app schedules a BGProcessingTask for a nightly maintenance job. Which of these does iOS NOT guarantee about when it will actually run?",
+    "options": [
+      {
+        "id": "A",
+        "text": "That it will run at an exact, user-requested wall-clock time"
+      },
+      {
+        "id": "B",
+        "text": "That the system may decline to run it at all under severe resource constraints"
+      },
+      {
+        "id": "C",
+        "text": "That it will typically only run when the device is idle, has ample battery, and is on a suitable network"
+      },
+      {
+        "id": "D",
+        "text": "That the task can be preempted or terminated if it overruns its allotted execution time"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "BGProcessingTask scheduling is opportunistic: the app can request a preferred timing, but the system decides when (or whether) to actually run it based on device state \u2014 it never guarantees an exact time.",
+    "xp": 30
+  },
+  {
+    "id": "ds11",
+    "topic": "Push infrastructure",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "At fleet scale, why do teams send some remote push notifications as silent (content-available: 1) background pushes rather than user-visible alerts?",
+    "options": [
+      {
+        "id": "A",
+        "text": "To briefly wake the app in the background to refresh local state or content, without necessarily interrupting the user with a visible notification"
+      },
+      {
+        "id": "B",
+        "text": "Silent pushes bypass App Store review"
+      },
+      {
+        "id": "C",
+        "text": "Silent pushes guarantee delivery even when the device is powered off"
+      },
+      {
+        "id": "D",
+        "text": "Silent pushes don't count against Apple Push Notification service rate limits"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Background pushes are a lightweight way to prompt a data refresh (e.g. new content, updated badge count) without necessarily showing the user anything \u2014 useful for keeping state fresh ahead of the next open.",
+    "xp": 30
+  },
+  {
+    "id": "ds12",
+    "topic": "Privacy",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Under Apple's privacy manifest requirements, what must a third-party SDK do if it uses a 'required reason' API like file-creation-date timestamps?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Declare an approved reason for that API usage in its own PrivacyInfo.xcprivacy manifest, which App Store Connect can check at submission time"
+      },
+      {
+        "id": "B",
+        "text": "Nothing \u2014 required reason APIs are exempt from privacy manifests entirely"
+      },
+      {
+        "id": "C",
+        "text": "Obtain a one-time user permission prompt the first time the SDK is initialized"
+      },
+      {
+        "id": "D",
+        "text": "Submit the SDK's full source code to Apple for manual review before every release"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Required-reason API categories (certain UserDefaults, file timestamp, disk space, and system boot time APIs, among others) need a declared, approved reason in a privacy manifest \u2014 undeclared usage by a bundled SDK can block App Store submission.",
+    "xp": 30
+  },
+  {
+    "id": "ds13",
+    "topic": "Security",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Two apps from the same organization need to securely share a user's auth token on device. What's the standard mechanism?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A shared Keychain Access Group, configured via an App Group / keychain-access-groups entitlement"
+      },
+      {
+        "id": "B",
+        "text": "Writing the token to a shared UserDefaults suite"
+      },
+      {
+        "id": "C",
+        "text": "Passing the token through a custom URL scheme every time either app launches"
+      },
+      {
+        "id": "D",
+        "text": "Storing the token in each app's own Documents directory and syncing via iCloud Drive"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Keychain access groups are the supported way for sibling apps (or an app and its extensions) from the same team to share sensitive credentials securely on device.",
+    "xp": 30
+  },
+  {
+    "id": "ds14",
+    "topic": "Security",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "An app needs to talk to one legacy internal server that can't yet meet App Transport Security's default requirements. What's the recommended fix?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Add a narrowly-scoped ATS exception for just that domain in Info.plist, with justification, rather than disabling ATS globally"
+      },
+      {
+        "id": "B",
+        "text": "Disable ATS entirely for the whole app, since partial exceptions aren't supported"
+      },
+      {
+        "id": "C",
+        "text": "There is no way to make a request that doesn't meet ATS's default requirements"
+      },
+      {
+        "id": "D",
+        "text": "Switch every server the app talks to off HTTPS, to match the legacy one"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "ATS exceptions can be scoped per-domain (NSExceptionDomains), letting an app keep ATS's protections everywhere except the one legacy endpoint that genuinely needs an exception \u2014 App Review expects that narrow scoping, not a blanket opt-out.",
+    "xp": 30
+  },
+  {
+    "id": "ds15",
+    "topic": "Concurrency at scale",
+    "level": "Distinguished",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "In Swift's structured concurrency, cancelling a parent Task automatically cancels every child task created inside it with async let or a TaskGroup \u2014 but cancellation is cooperative, so each task must itself check Task.isCancelled or call a cancellation-aware throwing API to actually stop.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Structured concurrency propagates cancellation down the task tree automatically, but Swift doesn't forcibly kill a running task \u2014 code has to check for cancellation (or let a cancellation-aware API throw CancellationError) to actually respond to it.",
+    "xp": 30
+  },
+  {
+    "id": "ds16",
+    "topic": "Dependency governance",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What's the main practical risk a platform team is guarding against by pinning exact versions (not ranges) of third-party Swift packages in a large, multi-team codebase?",
+    "options": [
+      {
+        "id": "A",
+        "text": "An upstream dependency publishing a new version with a breaking change, or a supply-chain compromise, could get silently pulled into every team's build on the next resolve"
+      },
+      {
+        "id": "B",
+        "text": "Exact pinning makes Swift Package Manager resolve dependencies faster"
+      },
+      {
+        "id": "C",
+        "text": "Version ranges are not supported by Swift Package Manager at all"
+      },
+      {
+        "id": "D",
+        "text": "Pinning exact versions is a hard requirement for App Store submission"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A version range means the next `swift package update` (or a fresh CI checkout) can pull in code nobody on the team has reviewed yet. Exact pins make every dependency change an explicit, reviewable commit.",
+    "xp": 30
+  },
+  {
+    "id": "ds17",
+    "topic": "Concurrency at scale",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Migrating a large existing codebase to strict concurrency checking (Sendable / data-race safety) \u2014 which strategy is generally recommended over enabling full strict checking everywhere at once?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Enable it incrementally, module by module (or with targeted @preconcurrency imports at the boundary), so each team can fix their own violations at a manageable pace"
+      },
+      {
+        "id": "B",
+        "text": "Convert every class to a struct first, since only structs can conform to Sendable"
+      },
+      {
+        "id": "C",
+        "text": "Mark every type @unchecked Sendable permanently to silence the compiler"
+      },
+      {
+        "id": "D",
+        "text": "Disable concurrency checking permanently and rely on manual code review instead"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A big-bang flip to strict checking across a large codebase tends to surface an overwhelming number of warnings/errors at once. Migrating module by module, using @preconcurrency at unmigrated boundaries, lets teams tackle their own code incrementally.",
+    "xp": 30
+  },
+  {
+    "id": "ds18",
+    "topic": "Concurrency at scale",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A shared cache is implemented as an actor. A hot code path calls await cache.value(for:) from inside a tight loop processing thousands of items concurrently. What downside would a reviewer likely flag?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Each call hops onto the actor's serial executor, which can serialize work that was previously running in parallel and add per-call suspension overhead at this call volume"
+      },
+      {
+        "id": "B",
+        "text": "Actors cannot be called from a background thread at all"
+      },
+      {
+        "id": "C",
+        "text": "Actor methods execute out of call order regardless of how they're invoked"
+      },
+      {
+        "id": "D",
+        "text": "The await keyword is not permitted inside a loop"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "An actor serializes access to its own state \u2014 calling into it from many concurrent tasks funnels that work through one executor, which is exactly right for protecting shared state but can become a bottleneck at high call volume.",
+    "xp": 30
+  },
+  {
+    "id": "ds19",
+    "topic": "Feature delivery",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A platform team rolls out a risky architecture change behind a remote feature flag, ramping from 1% to 100% of users over two weeks. What's the primary engineering reason for the gradual ramp?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It limits blast radius \u2014 a regression is caught and can be rolled back for a small fraction of users before affecting everyone, validated against real production conditions staging can't fully replicate"
+      },
+      {
+        "id": "B",
+        "text": "App Store review requires all major changes to ship gradually"
+      },
+      {
+        "id": "C",
+        "text": "Feature flags are only technically capable of targeting a percentage of users, never 100%"
+      },
+      {
+        "id": "D",
+        "text": "A gradual ramp is required to keep binary size under Apple's OTA update limit"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A staged ramp trades a slower rollout for a much smaller worst case: if something's wrong, a tiny fraction of users saw it, and it's caught before the flag reaches everyone.",
+    "xp": 30
+  },
+  {
+    "id": "ds20",
+    "topic": "Feature delivery",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A team runs five simultaneous, independent A/B experiments on the same onboarding screen, all measuring the same conversion metric. Why does that make 'multiple comparisons' a concern?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Testing many variants against the same metric increases the chance that at least one shows a statistically significant win purely by chance, so the analysis needs to account for that"
+      },
+      {
+        "id": "B",
+        "text": "Running more than one experiment at once is technically impossible on most experimentation platforms"
+      },
+      {
+        "id": "C",
+        "text": "Multiple comparisons only matter for experiments that run longer than a year"
+      },
+      {
+        "id": "D",
+        "text": "It only matters if all five experiments produce the exact same result"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Each additional independent test against the same metric adds another chance for a false positive. Without correcting for that (e.g. a stricter significance threshold), teams risk shipping a 'winning' variant that wasn't actually better.",
+    "xp": 30
+  },
+  {
+    "id": "ds21",
+    "topic": "Build systems",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "What does remote or distributed build caching across CI agents and developer machines primarily save?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Recompiling identical inputs \u2014 same source, same compiler flags, same dependency versions \u2014 that another machine already compiled, by fetching the cached output instead"
+      },
+      {
+        "id": "B",
+        "text": "The need for code signing on CI"
+      },
+      {
+        "id": "C",
+        "text": "The need for a package manager entirely"
+      },
+      {
+        "id": "D",
+        "text": "Guaranteed deterministic ordering of test execution"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A shared build cache means the first machine to compile a given set of inputs does the work once, and every other machine with the same inputs can just fetch that output instead of recompiling from scratch.",
+    "xp": 30
+  },
+  {
+    "id": "ds22",
+    "topic": "Platform architecture",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "For an organization with a dozen semi-independent iOS teams, what's a commonly cited downside of one shared monorepo versus per-team repos with versioned shared packages?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A repo-wide build or CI outage, or a broken shared module, can block every team at once, and sheer repo size can slow tooling like search, checkout, or blame"
+      },
+      {
+        "id": "B",
+        "text": "Monorepos make Swift Package Manager unusable"
+      },
+      {
+        "id": "C",
+        "text": "Monorepos cannot be version-controlled with Git"
+      },
+      {
+        "id": "D",
+        "text": "Monorepos prevent code review entirely"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Shared-everything repos trade per-team isolation for simpler dependency management \u2014 a break in a widely-used shared module (or the build itself) has a much larger blast radius than in a per-repo setup.",
+    "xp": 30
+  },
+  {
+    "id": "ds23",
+    "topic": "API evolution",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A platform team wants to remove a widely-used internal API used by a dozen feature teams. What's the standard staged approach, instead of deleting it outright?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Mark it @available(*, deprecated, message:) with migration guidance, give teams a deprecation window to migrate, then remove it in a later release once usage is confirmed gone"
+      },
+      {
+        "id": "B",
+        "text": "Rename the API silently so old call sites fail to compile with no warning"
+      },
+      {
+        "id": "C",
+        "text": "Leave the API forever, since Swift has no deprecation mechanism"
+      },
+      {
+        "id": "D",
+        "text": "Immediately mark it unavailable with no deprecation period"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A deprecation window with a clear warning and migration path lets consumers move off an API on their own schedule, with visibility into who's still using it, before it's actually removed.",
+    "xp": 30
+  },
+  {
+    "id": "ds24",
+    "topic": "API evolution",
+    "level": "Distinguished",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Adding a new case to a public, non-frozen Swift enum exposed from a library-evolution framework is a source-breaking change for every client that switches over it exhaustively.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "The opposite is the point of non-frozen enums: the compiler already forces clients to handle them with @unknown default (or default), so a new case added later is caught by that fallback at runtime rather than failing to compile. @frozen is the attribute for enums the compiler can assume will never gain new cases.",
+    "xp": 30
+  },
+  {
+    "id": "ds25",
+    "topic": "Platform architecture",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why might a platform team discourage exposing large, generic Swift types directly to Objective-C call sites in a mixed codebase?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Objective-C has no concept of generics the way Swift does, so a generic Swift type generally can't be represented in an Objective-C-visible interface without type erasure or non-generic wrapper types"
+      },
+      {
+        "id": "B",
+        "text": "Objective-C cannot call any Swift code whatsoever"
+      },
+      {
+        "id": "C",
+        "text": "Generic Swift types are always slower at runtime than non-generic ones"
+      },
+      {
+        "id": "D",
+        "text": "Bridging headers are deprecated and non-functional in current Xcode versions"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Swift-to-Objective-C bridging requires the exposed interface to be representable in Objective-C's type system, which has no generics \u2014 a generic type needs a concrete, non-generic wrapper to be usable from Objective-C at all.",
+    "xp": 30
+  },
+  {
+    "id": "ds26",
+    "topic": "Dependency governance",
+    "level": "Distinguished",
+    "format": "spotTheBug",
+    "codeSnippet": "// Package.swift\ndependencies: [\n    .package(url: \"https://github.com/example/AnalyticsSDK\", branch: \"main\")\n]",
+    "prompt": "Spot the issue. A production app's Package.swift pins a third-party dependency like this:",
+    "options": [
+      {
+        "id": "A",
+        "text": "Pinning to a branch rather than an exact version or tag means every build can silently pull in new, unreviewed upstream commits \u2014 including breaking changes or a compromised release \u2014 with no version bump to review"
+      },
+      {
+        "id": "B",
+        "text": "Package.swift cannot reference GitHub URLs, only local paths"
+      },
+      {
+        "id": "C",
+        "text": "branch: is not a valid parameter for .package(url:)"
+      },
+      {
+        "id": "D",
+        "text": "This syntax only works for Objective-C packages"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A branch reference tracks whatever's on that branch right now, and can change under you on every resolve \u2014 the opposite of the reviewable, explicit version bumps an exact tag or version pin gives you.",
+    "xp": 30
+  },
+  {
+    "id": "ds27",
+    "topic": "Concurrency at scale",
+    "level": "Distinguished",
+    "format": "spotTheBug",
+    "codeSnippet": "final class Cache {\n    private var storage: [String: Data] = [:]\n\n    func set(_ data: Data, for key: String) {\n        storage[key] = data\n    }\n\n    func get(_ key: String) -> Data? {\n        storage[key]\n    }\n}",
+    "prompt": "Spot the issue. A shared mutable cache is accessed from multiple concurrent Tasks:",
+    "options": [
+      {
+        "id": "A",
+        "text": "storage is unsynchronized mutable state on a plain class accessed from multiple threads \u2014 a data race. Cache should be an actor (or otherwise synchronized) to make concurrent access safe"
+      },
+      {
+        "id": "B",
+        "text": "Dictionary cannot store Data values"
+      },
+      {
+        "id": "C",
+        "text": "The functions should be marked async even though they do no asynchronous work"
+      },
+      {
+        "id": "D",
+        "text": "storage should be declared with var instead of using a Dictionary"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Swift's Dictionary isn't safe for concurrent mutation from multiple threads. A plain class with mutable stored state reached from multiple Tasks is a classic data race; making Cache an actor serializes access to storage automatically.",
+    "xp": 30
+  },
+  {
+    "id": "ds28",
+    "topic": "API evolution",
+    "level": "Distinguished",
+    "format": "spotTheBug",
+    "codeSnippet": "@frozen\npublic enum NetworkState {\n    case idle\n    case loading\n    case loaded(Data)\n}",
+    "prompt": "Spot the issue. A public framework meant to evolve over time, shipped as a precompiled XCFramework to external clients, declares this:",
+    "options": [
+      {
+        "id": "A",
+        "text": "@frozen commits to never adding a new case in a future version without breaking binary compatibility for already-compiled clients \u2014 a poor fit for a type expected to grow (e.g. a future .failed(Error) case)"
+      },
+      {
+        "id": "B",
+        "text": "@frozen enums cannot have cases with associated values like .loaded(Data)"
+      },
+      {
+        "id": "C",
+        "text": "public and @frozen cannot be combined on the same declaration"
+      },
+      {
+        "id": "D",
+        "text": "Enums can never be resilient, regardless of any attribute applied to them"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "@frozen tells the compiler it can assume the enum's case set is fixed forever, enabling certain optimizations \u2014 but it also means adding a case later is a binary-breaking change for precompiled clients, which is exactly wrong for a type still expected to evolve.",
+    "xp": 30
+  },
+  {
+    "id": "ds29",
+    "topic": "Background execution",
+    "level": "Distinguished",
+    "format": "spotTheBug",
+    "codeSnippet": "func handle(_ task: BGProcessingTask) {\n    performExpensiveDatabaseCleanup()\n    task.setTaskCompleted(success: true)\n}",
+    "prompt": "Spot the issue. A nightly BGProcessingTask handler does this:",
+    "options": [
+      {
+        "id": "A",
+        "text": "There's no task.expirationHandler set, and no handling for the task being interrupted mid-cleanup \u2014 if the system revokes the task's time before the cleanup finishes, the work is killed with no chance to save partial progress"
+      },
+      {
+        "id": "B",
+        "text": "BGProcessingTask cannot call setTaskCompleted at all"
+      },
+      {
+        "id": "C",
+        "text": "The function name performExpensiveDatabaseCleanup is too long to compile"
+      },
+      {
+        "id": "D",
+        "text": "task.setTaskCompleted must always be called with success: false"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Background tasks can be cut off before they finish if the system needs the time back. Without an expirationHandler to react to that (cancel gracefully, save progress, or at least call setTaskCompleted(success: false)), a long operation can be killed mid-work with no cleanup.",
+    "xp": 30
+  },
+  {
+    "id": "ds30",
+    "topic": "Accessibility",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A platform team wants to catch accessibility regressions \u2014 like missing VoiceOver labels \u2014 automatically before merge, across dozens of feature teams. What scales better than relying solely on manual QA passes?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Automated accessibility audits in UI tests (e.g. Xcode's accessibility audit APIs) run in CI on every pull request"
+      },
+      {
+        "id": "B",
+        "text": "Requiring every engineer to personally test with VoiceOver enabled for their entire workday"
+      },
+      {
+        "id": "C",
+        "text": "Accepting that accessibility issues cannot be detected by any automated tooling"
+      },
+      {
+        "id": "D",
+        "text": "Disabling Dynamic Type support so text size never changes"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Automated accessibility auditing in CI catches many common issues (missing labels, insufficient contrast, small tap targets) on every PR, well before a manual pass would \u2014 manual testing still matters, but doesn't scale to every change on its own.",
+    "xp": 30
+  },
+  {
+    "id": "ds31",
+    "topic": "Localization",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Xcode's String Catalog (.xcstrings) format can flag a translated string as 'stale.' What does that mean?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Xcode detected that the source code reference for that string appears to have disappeared, suggesting it may no longer be used and is a candidate for cleanup"
+      },
+      {
+        "id": "B",
+        "text": "The string's translation is more than a year old and needs re-translation"
+      },
+      {
+        "id": "C",
+        "text": "The string contains a typo detected by spell-check"
+      },
+      {
+        "id": "D",
+        "text": "The string exceeds the maximum character length for its UI element"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "String Catalogs track where each string is referenced from source. When Xcode can no longer find a reference to a string, it marks the entry stale \u2014 a signal it may be dead content worth removing, across a codebase too large to audit by hand.",
+    "xp": 30
+  },
+  {
+    "id": "ds32",
+    "topic": "Multiplatform",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A team is bringing an existing iPad-optimized SwiftUI app to visionOS. What's a common architecture adjustment planned beyond simply recompiling?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Auditing fixed pixel-based layout assumptions and hard-coded 2D interaction patterns, since visionOS adds depth, window-based multitasking by default, and different default view styles the iPad layout doesn't anticipate"
+      },
+      {
+        "id": "B",
+        "text": "visionOS cannot run any code written in SwiftUI"
+      },
+      {
+        "id": "C",
+        "text": "visionOS requires the entire app to be rewritten in RealityKit with no UIKit or SwiftUI involvement"
+      },
+      {
+        "id": "D",
+        "text": "visionOS apps cannot share any code with the iPad target"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A SwiftUI app can often run on visionOS with real code sharing, but layout and interaction assumptions tuned for a flat iPad screen (fixed sizes, 2D-only gestures) usually need real auditing for a spatial, windowed environment.",
+    "xp": 30
+  },
+  {
+    "id": "ds33",
+    "topic": "Multiplatform",
+    "level": "Distinguished",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "A WidgetKit widget and its containing app can share mutable state directly in memory, the same way two view controllers in the same app process can.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "A widget extension runs in its own separate process from the host app \u2014 they don't share memory. State has to go through an out-of-process mechanism, like an App Group's shared UserDefaults or files, and the widget's timeline must be explicitly reloaded (e.g. WidgetCenter.shared.reloadTimelines) to reflect the change.",
+    "xp": 30
+  },
+  {
+    "id": "ds34",
+    "topic": "Persistence migrations",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A persistence layer used by millions of installed users needs a breaking schema change. What's the standard approach to avoid data loss or crashes on upgrade?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Ship a versioned, staged migration \u2014 such as a Core Data/SwiftData migration mapping model, or an equivalent manual step \u2014 that transforms the on-disk store the first time the updated app launches"
+      },
+      {
+        "id": "B",
+        "text": "Ship the new schema and instruct users to delete and reinstall the app"
+      },
+      {
+        "id": "C",
+        "text": "Schema changes are not possible once an app has shipped to the App Store"
+      },
+      {
+        "id": "D",
+        "text": "Rely on iCloud to automatically rewrite the on-disk format for every user simultaneously"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A versioned migration path lets each user's device transform its own existing data to the new schema on next launch, without any data loss or requiring a fresh install.",
+    "xp": 30
+  },
+  {
+    "id": "ds35",
+    "topic": "Persistence migrations",
+    "level": "Distinguished",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Core Data's lightweight migration can automatically infer a migration mapping for many common schema changes, but a sufficiently complex transformation \u2014 like splitting one entity into two, or transforming stored values \u2014 generally requires a custom, heavyweight mapping model.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "true",
+    "explanation": "Lightweight migration covers straightforward cases Core Data can infer on its own, like adding an attribute or a hinted rename. Structural changes that aren't a simple one-to-one mapping need an explicit mapping model with custom migration policies.",
+    "xp": 30
+  },
+  {
+    "id": "ds36",
+    "topic": "Privacy",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A platform team designs an analytics pipeline under strict data-minimization requirements. Which practice best reflects 'privacy by design' for that pipeline?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Collecting and transmitting only the specific fields needed for a defined analytics purpose decided at design time, rather than logging broad raw data and filtering later"
+      },
+      {
+        "id": "B",
+        "text": "Collecting every available device signal up front in case it's useful for a future feature"
+      },
+      {
+        "id": "C",
+        "text": "Storing analytics data indefinitely by default to avoid ever needing to reprocess it"
+      },
+      {
+        "id": "D",
+        "text": "Sending analytics data unencrypted to reduce CPU overhead"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Privacy by design means deciding what's actually needed before collecting anything, not hoovering up everything available and figuring out the privacy implications afterward.",
+    "xp": 30
+  },
+  {
+    "id": "ds37",
+    "topic": "Performance at scale",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "A platform team sets a 99.7% crash-free-sessions SLO as a release-blocking gate. What typically happens when a release candidate exceeds that threshold (worse than 99.7%)?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The release is held back from wider rollout \u2014 or an active rollout is paused or rolled back \u2014 until the regression causing the extra crashes is found and fixed"
+      },
+      {
+        "id": "B",
+        "text": "The SLO is purely informational and has no effect on ship decisions"
+      },
+      {
+        "id": "C",
+        "text": "It automatically extends the App Store review time"
+      },
+      {
+        "id": "D",
+        "text": "Crash reporting is disabled for the next release to hide the metric"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "A release-blocking SLO exists precisely to stop a regression from reaching the full user base \u2014 exceeding it triggers holding or rolling back the release until the cause is addressed.",
+    "xp": 30
+  },
+  {
+    "id": "ds38",
+    "topic": "Push infrastructure",
+    "level": "Distinguished",
+    "format": "trueFalse",
+    "codeSnippet": null,
+    "prompt": "Apple Push Notification service (APNs) guarantees that a notification sent while a device is offline will always be delivered the instant the device reconnects, with no possibility of coalescing or dropping.",
+    "options": [
+      {
+        "id": "true",
+        "text": "True"
+      },
+      {
+        "id": "false",
+        "text": "False"
+      }
+    ],
+    "correctOptionID": "false",
+    "explanation": "APNs makes a best-effort delivery attempt, not a strict guarantee \u2014 it can coalesce multiple pending notifications for the same app and can drop ones that go undelivered long enough. Time-sensitive data shouldn't rely solely on push delivery timing.",
+    "xp": 30
+  },
+  {
+    "id": "ds39",
+    "topic": "Background execution",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Why would a platform team migrate an app's background-refresh logic from the legacy UIApplication background fetch API to the BackgroundTasks framework (BGAppRefreshTask / BGProcessingTask)?",
+    "options": [
+      {
+        "id": "A",
+        "text": "BackgroundTasks is the modern, more capable replacement \u2014 it supports longer-running processing tasks with explicit constraints like requiring power or network, and the older fetch API is effectively legacy for new work"
+      },
+      {
+        "id": "B",
+        "text": "The legacy API was removed entirely and no longer exists in any SDK"
+      },
+      {
+        "id": "C",
+        "text": "BackgroundTasks is only available to App Clips, not full apps"
+      },
+      {
+        "id": "D",
+        "text": "The legacy API runs tasks on the main thread with no possibility of doing work in the background"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "BackgroundTasks gives finer-grained control \u2014 separate request types for quick refreshes versus longer processing work, with explicit constraints the system can use to schedule more intelligently \u2014 than the older fetch-interval API.",
+    "xp": 30
+  },
+  {
+    "id": "ds40",
+    "topic": "API evolution",
+    "level": "Distinguished",
+    "format": "multipleChoice",
+    "codeSnippet": null,
+    "prompt": "Two internal teams communicate through a shared internal Swift Package's public API. What's a practical CI safeguard against an accidental breaking change to that API?",
+    "options": [
+      {
+        "id": "A",
+        "text": "An API-diffing or binary-compatibility check that compares the current public interface against the previous release and fails the build if a breaking change is introduced without an intentional version bump"
+      },
+      {
+        "id": "B",
+        "text": "Trusting that engineers will remember to manually check every consumer before changing anything"
+      },
+      {
+        "id": "C",
+        "text": "Making every symbol in the package public and open by default so nothing can technically 'break'"
+      },
+      {
+        "id": "D",
+        "text": "Removing all documentation so consumers can't depend on documented behavior"
+      }
+    ],
+    "correctOptionID": "A",
+    "explanation": "Automated interface-diffing catches an accidental breaking change (a removed method, a changed signature) at the moment it's introduced, rather than relying on every engineer to remember every downstream consumer by hand.",
+    "xp": 30
   }
 ]

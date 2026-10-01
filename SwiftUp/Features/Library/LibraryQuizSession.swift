@@ -1,20 +1,19 @@
 import Foundation
 
-/// The shared pass/fail quiz engine reused by a lesson stage's quiz (after its slides), a
-/// track-assessment stage's quiz (no slides), and the grade regrade quiz — only the `questions`
-/// array, and the title/callbacks `PathQuizView` is constructed with, differ per use. Unlike
-/// `QuizSession` (Daily Quiz), this grants no XP: passing is its own reward (design doc §0/§3).
+/// The shared pass/fail quiz engine reused by a class's quiz, a path-assessment class's quiz (no
+/// article, straight to the quiz), and the grade regrade quiz — only the `questions` array, and
+/// the title/callbacks `LibraryQuizView` is constructed with, differ per use.
 @Observable
-final class PathQuizSession {
-    let questions: [PathQuizQuestion]
+final class LibraryQuizSession {
+    let questions: [LibraryQuizQuestion]
     private(set) var currentIndex = 0
     private var answers: [String: String] = [:]
 
-    init(questions: [PathQuizQuestion]) {
+    init(questions: [LibraryQuizQuestion]) {
         self.questions = questions
     }
 
-    var currentQuestion: PathQuizQuestion? {
+    var currentQuestion: LibraryQuizQuestion? {
         guard currentIndex < questions.count else { return nil }
         return questions[currentIndex]
     }
@@ -30,12 +29,13 @@ final class PathQuizSession {
     }
 
     var passed: Bool { scorePercent >= 80 }
+    var isPerfect: Bool { scorePercent == 100 }
 
-    func selectedOptionID(for question: PathQuizQuestion) -> String? {
+    func selectedOptionID(for question: LibraryQuizQuestion) -> String? {
         answers[question.id]
     }
 
-    func isAnswered(_ question: PathQuizQuestion) -> Bool {
+    func isAnswered(_ question: LibraryQuizQuestion) -> Bool {
         answers[question.id] != nil
     }
 
@@ -49,7 +49,7 @@ final class PathQuizSession {
     }
 
     /// Resets to the first question with every answer cleared, keeping the same `questions`
-    /// array — a free retry, never a re-fetch (design doc §0: retries never re-charge XP).
+    /// array — a free retry, never a re-fetch.
     func retry() {
         currentIndex = 0
         answers = [:]

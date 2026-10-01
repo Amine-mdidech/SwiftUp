@@ -21,6 +21,5 @@
   {"id": "a20", "title": "Testing, mastered", "detail": "90% across 25 questions in one topic", "sealKind": "topicMastery", "xpReward": 200, "criterion": {"kind": "topicMastery", "topic": "Testing", "minAccuracy": 90, "minAnswered": 25, "count": null, "days": null}},
   {"id": "a21", "title": "Two hundred in a row", "detail": "A 200-day streak", "sealKind": "streakMilestone", "xpReward": 600, "criterion": {"kind": "streak", "topic": null, "minAccuracy": null, "minAnswered": null, "count": null, "days": 200}},
   {"id": "a22", "title": "Second session", "detail": "Completed two timed prep sessions", "sealKind": "firstSession", "xpReward": 100, "criterion": {"kind": "unbuildable", "topic": null, "minAccuracy": null, "minAnswered": null, "count": null, "days": null}},
-  {"id": "a23", "title": "Level ten", "detail": "Reach Systems Designer", "sealKind": "perfectWeek", "xpReward": 400, "criterion": {"kind": "level", "topic": null, "minAccuracy": null, "minAnswered": null, "count": 10, "days": null}},
   {"id": "a24", "title": "Top of the board", "detail": "Finish first on the weekly leaderboard", "sealKind": "streakMilestone", "xpReward": 350, "criterion": {"kind": "unbuildable", "topic": null, "minAccuracy": null, "minAnswered": null, "count": null, "days": null}}
 ]

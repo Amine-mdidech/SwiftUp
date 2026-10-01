@@ -55,19 +55,19 @@ struct SettingsView: View {
 
                 EyebrowLabel("Difficulty").padding(.top, 22)
                 SegmentedPicker(
-                    options: ["Adaptive", "Junior", "Mid", "Senior"],
+                    options: ["Adaptive"] + SkillLevel.allCases.map(\.displayName),
                     selection: Binding(
                         get: { difficulty },
                         set: { newValue in
                             difficulty = newValue
                             guard let uid = authRepository.currentUser?.uid else { return }
-                            let level = SkillLevel(rawValue: newValue)
+                            let level = SkillLevel.allCases.first { $0.displayName == newValue }
                             Task { await questionRepository.setLevelOverride(level, for: uid) }
                         }
                     )
                 )
                     .padding(.top, 10)
-                Text("Adaptive uses the level you set at onboarding. Junior/Mid/Senior overrides it for tomorrow's five.")
+                Text("Adaptive uses the level you set at onboarding. Any other choice overrides it for tomorrow's five.")
                     .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral700)
                     .padding(.top, 8)
 
@@ -106,7 +106,7 @@ struct SettingsView: View {
         }
         .background(Theme.Colors.bg)
         .onAppear {
-            difficulty = questionRepository.levelOverride?.rawValue ?? "Adaptive"
+            difficulty = questionRepository.levelOverride?.displayName ?? "Adaptive"
         }
         .task { await adPresenter.preload() }
         .toolbar {

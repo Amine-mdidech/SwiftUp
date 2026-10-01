@@ -2,7 +2,8 @@
 """
 Seeds the `dailyQuizzes` collection in Firestore: one document per calendar
 date, each holding that day's shared edition number and a 5-question set per
-skill level (Junior/Mid/Senior), drawn from scripts/seed-questions.json.
+skill level (Junior/Mid/Senior/Distinguished), drawn from
+scripts/seed-questions.json.
 
 Every user at a given level sees the same edition, same questions, same day —
 the app reads today's document and does no selection of its own.
@@ -39,7 +40,7 @@ SEED_PATH = SCRIPT_DIR / "seed-questions.json"
 # already shown to users; it's otherwise an arbitrary anchor.
 EPOCH_DATE = date(2026, 9, 7)
 
-LEVELS = ["Junior", "Mid", "Senior"]
+LEVELS = ["Junior", "Mid", "Senior", "Distinguished"]
 QUESTIONS_PER_LEVEL = 5
 
 

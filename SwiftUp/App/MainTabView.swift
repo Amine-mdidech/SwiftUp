@@ -17,9 +17,9 @@ struct MainTabView: View {
                 NavigationStack { InterviewBankView() }
                     .opacity(selectedTab == .prep ? 1 : 0)
                     .allowsHitTesting(selectedTab == .prep)
-                NavigationStack { PathWheelView(onEarnXP: { selectedTab = .today }, adPresenter: adPresenter) }
-                    .opacity(selectedTab == .path ? 1 : 0)
-                    .allowsHitTesting(selectedTab == .path)
+                NavigationStack { LibraryView() }
+                    .opacity(selectedTab == .library ? 1 : 0)
+                    .allowsHitTesting(selectedTab == .library)
                 NavigationStack { ProfileHomeView() }
                     .opacity(selectedTab == .record ? 1 : 0)
                     .allowsHitTesting(selectedTab == .record)
@@ -36,6 +36,6 @@ struct MainTabView: View {
         .environment(QuestionRepository.preview())
         .environment(ProfileRepository.preview())
         .environment(InterviewRepository.preview())
-        .environment(PathRepository.preview())
+        .environment(LibraryRepository.preview())
         .environment(AuthRepository(isPreview: true, signedIn: true))
 }

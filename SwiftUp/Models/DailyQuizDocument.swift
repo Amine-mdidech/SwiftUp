@@ -9,12 +9,19 @@ struct DailyQuizDocument: Codable {
     let junior: [Question]
     let mid: [Question]
     let senior: [Question]
+    /// Optional, not `[Question]`: older already-seeded dates predate Distinguished getting its
+    /// own question set and have no `distinguished` key at all. Decoding must not fail for those —
+    /// `questions(for:)` falls back to `senior` exactly as it unconditionally did before this field
+    /// existed, so a past-day redo into an unmigrated date still works for every level, not just
+    /// Distinguished.
+    let distinguished: [Question]?
 
     func questions(for level: SkillLevel) -> [Question] {
         switch level {
         case .junior: junior
         case .mid: mid
-        case .senior, .distinguished: senior
+        case .senior: senior
+        case .distinguished: distinguished ?? senior
         }
     }
 }

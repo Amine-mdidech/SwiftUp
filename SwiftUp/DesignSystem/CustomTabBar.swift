@@ -3,7 +3,7 @@ import SwiftUI
 enum AppTab: String, CaseIterable {
     case today = "Today"
     case prep = "Prep"
-    case path = "Path"
+    case library = "Library"
     case record = "Record"
 }
 
@@ -63,7 +63,7 @@ private struct TabBarIcon: View {
         switch tab {
         case .today: TodayIcon()
         case .prep: PrepIcon()
-        case .path: PathIcon()
+        case .library: LibraryIcon()
         case .record: RecordIcon()
         }
     }
@@ -106,38 +106,27 @@ private struct PrepIcon: View {
     }
 }
 
-private struct PathIcon: View {
+/// An open book — two pages meeting at a spine, traced from the canvas's Library tab SVG.
+private struct LibraryIcon: View {
     var body: some View {
         Canvas { context, _ in
-            var stem = Path()
-            stem.move(to: CGPoint(x: 9, y: 15.5))
-            stem.addLine(to: CGPoint(x: 9, y: 10.5))
-            context.stroke(stem, with: .foreground, lineWidth: 1.5)
+            var left = Path()
+            left.move(to: CGPoint(x: 2.5, y: 3.5))
+            left.addLine(to: CGPoint(x: 7.3, y: 3.5))
+            left.addQuadCurve(to: CGPoint(x: 9, y: 5.2), control: CGPoint(x: 9, y: 3.5))
+            left.addLine(to: CGPoint(x: 9, y: 15.2))
+            left.addQuadCurve(to: CGPoint(x: 7.3, y: 13.5), control: CGPoint(x: 9, y: 13.5))
+            left.addLine(to: CGPoint(x: 2.5, y: 13.5))
+            context.stroke(left, with: .foreground, lineWidth: 1.5)
 
-            var leftBranch = Path()
-            leftBranch.move(to: CGPoint(x: 9, y: 10.5))
-            leftBranch.addLine(to: CGPoint(x: 3.5, y: 10.5))
-            leftBranch.addLine(to: CGPoint(x: 3.5, y: 6))
-            context.stroke(leftBranch, with: .foreground, lineWidth: 1.5)
-
-            var rightBranch = Path()
-            rightBranch.move(to: CGPoint(x: 9, y: 10.5))
-            rightBranch.addLine(to: CGPoint(x: 14.5, y: 10.5))
-            rightBranch.addLine(to: CGPoint(x: 14.5, y: 6))
-            context.stroke(rightBranch, with: .foreground, lineWidth: 1.5)
-
-            var bottomNode = Path()
-            bottomNode.addEllipse(in: CGRect(x: 7.2, y: 14.2, width: 3.6, height: 3.6))
-            context.fill(bottomNode, with: .foreground)
-
-            context.opacity = 0.45
-            var leftNode = Path()
-            leftNode.addEllipse(in: CGRect(x: 1.3, y: 2.2, width: 4.4, height: 4.4))
-            context.fill(leftNode, with: .foreground)
-
-            var rightNode = Path()
-            rightNode.addEllipse(in: CGRect(x: 12.3, y: 2.2, width: 4.4, height: 4.4))
-            context.fill(rightNode, with: .foreground)
+            var right = Path()
+            right.move(to: CGPoint(x: 15.5, y: 3.5))
+            right.addLine(to: CGPoint(x: 10.7, y: 3.5))
+            right.addQuadCurve(to: CGPoint(x: 9, y: 5.2), control: CGPoint(x: 9, y: 3.5))
+            right.addLine(to: CGPoint(x: 9, y: 15.2))
+            right.addQuadCurve(to: CGPoint(x: 10.7, y: 13.5), control: CGPoint(x: 9, y: 13.5))
+            right.addLine(to: CGPoint(x: 15.5, y: 13.5))
+            context.stroke(right, with: .foreground, lineWidth: 1.5)
         }
     }
 }

@@ -6,7 +6,7 @@ struct RootView: View {
     @State private var questionRepository = QuestionRepository()
     @State private var profileRepository = ProfileRepository()
     @State private var interviewRepository = InterviewRepository()
-    @State private var pathRepository = PathRepository()
+    @State private var libraryRepository = LibraryRepository()
     @State private var authRepository = AuthRepository()
 
     var body: some View {
@@ -33,7 +33,7 @@ struct RootView: View {
         .environment(questionRepository)
         .environment(profileRepository)
         .environment(interviewRepository)
-        .environment(pathRepository)
+        .environment(libraryRepository)
         .environment(authRepository)
     }
 }

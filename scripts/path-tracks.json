@@ -8,42 +8,42 @@
       {
         "id": "junior-01-s01",
         "order": 1,
-        "title": "Swift fundamentals — lesson 1 of 6",
+        "title": "Constants, variables and type inference",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s02",
         "order": 2,
-        "title": "Swift fundamentals — lesson 2 of 6",
+        "title": "Optionals and unwrapping",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s03",
         "order": 3,
-        "title": "Swift fundamentals — lesson 3 of 6",
+        "title": "Control flow and pattern matching",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s04",
         "order": 4,
-        "title": "Swift fundamentals — lesson 4 of 6",
+        "title": "Functions and closures",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s05",
         "order": 5,
-        "title": "Swift fundamentals — lesson 5 of 6",
+        "title": "Collections and value semantics",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-01-s06",
         "order": 6,
-        "title": "Swift fundamentals — lesson 6 of 6",
+        "title": "Error handling with throws and Result",
         "xpCost": 50,
         "kind": "lesson"
       },
@@ -129,42 +129,42 @@
       {
         "id": "junior-03-s01",
         "order": 1,
-        "title": "Architecture basics — lesson 1 of 6",
+        "title": "MVC and MVVM",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s02",
         "order": 2,
-        "title": "Architecture basics — lesson 2 of 6",
+        "title": "Separation of concerns and layering",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s03",
         "order": 3,
-        "title": "Architecture basics — lesson 3 of 6",
+        "title": "Dependency injection",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s04",
         "order": 4,
-        "title": "Architecture basics — lesson 4 of 6",
+        "title": "View models and one-way data flow",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s05",
         "order": 5,
-        "title": "Architecture basics — lesson 5 of 6",
+        "title": "Navigation patterns",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-03-s06",
         "order": 6,
-        "title": "Architecture basics — lesson 6 of 6",
+        "title": "Organizing a project by feature",
         "xpCost": 50,
         "kind": "lesson"
       },
@@ -186,42 +186,42 @@
       {
         "id": "junior-04-s01",
         "order": 1,
-        "title": "Memory & ARC — lesson 1 of 6",
+        "title": "How ARC counts references",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s02",
         "order": 2,
-        "title": "Memory & ARC — lesson 2 of 6",
+        "title": "Strong, weak and unowned",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s03",
         "order": 3,
-        "title": "Memory & ARC — lesson 3 of 6",
+        "title": "Closures and retain cycles",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s04",
         "order": 4,
-        "title": "Memory & ARC — lesson 4 of 6",
+        "title": "Delegates and weak references",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s05",
         "order": 5,
-        "title": "Memory & ARC — lesson 5 of 6",
+        "title": "Value types and memory",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-04-s06",
         "order": 6,
-        "title": "Memory & ARC — lesson 6 of 6",
+        "title": "Finding leaks with Instruments",
         "xpCost": 50,
         "kind": "lesson"
       },
@@ -243,42 +243,42 @@
       {
         "id": "junior-05-s01",
         "order": 1,
-        "title": "SwiftUI state — lesson 1 of 6",
+        "title": "@State and local view state",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s02",
         "order": 2,
-        "title": "SwiftUI state — lesson 2 of 6",
+        "title": "@Binding and two-way data flow",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s03",
         "order": 3,
-        "title": "SwiftUI state — lesson 3 of 6",
+        "title": "@Observable and @Bindable",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s04",
         "order": 4,
-        "title": "SwiftUI state — lesson 4 of 6",
+        "title": "The SwiftUI environment",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s05",
         "order": 5,
-        "title": "SwiftUI state — lesson 5 of 6",
+        "title": "View identity",
         "xpCost": 50,
         "kind": "lesson"
       },
       {
         "id": "junior-05-s06",
         "order": 6,
-        "title": "SwiftUI state — lesson 6 of 6",
+        "title": "What triggers a re-render",
         "xpCost": 50,
         "kind": "lesson"
       },
@@ -300,42 +300,42 @@
       {
         "id": "mid-01-s01",
         "order": 1,
-        "title": "Concurrency — lesson 1 of 6",
+        "title": "async/await basics",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s02",
         "order": 2,
-        "title": "Concurrency — lesson 2 of 6",
+        "title": "Structured concurrency and async let",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s03",
         "order": 3,
-        "title": "Concurrency — lesson 3 of 6",
+        "title": "Actors and isolation",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s04",
         "order": 4,
-        "title": "Concurrency — lesson 4 of 6",
+        "title": "Task and TaskGroup",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s05",
         "order": 5,
-        "title": "Concurrency — lesson 5 of 6",
+        "title": "@MainActor and UI work",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-01-s06",
         "order": 6,
-        "title": "Concurrency — lesson 6 of 6",
+        "title": "Sendable and strict concurrency",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -357,42 +357,42 @@
       {
         "id": "mid-02-s01",
         "order": 1,
-        "title": "Testing — lesson 1 of 6",
+        "title": "XCTest and Swift Testing",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s02",
         "order": 2,
-        "title": "Testing — lesson 2 of 6",
+        "title": "Arrange, act, assert",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s03",
         "order": 3,
-        "title": "Testing — lesson 3 of 6",
+        "title": "Test doubles and dependency injection",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s04",
         "order": 4,
-        "title": "Testing — lesson 4 of 6",
+        "title": "Testing async code",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s05",
         "order": 5,
-        "title": "Testing — lesson 5 of 6",
+        "title": "UI tests with XCUITest",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-02-s06",
         "order": 6,
-        "title": "Testing — lesson 6 of 6",
+        "title": "Code coverage and what to test",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -414,42 +414,42 @@
       {
         "id": "mid-03-s01",
         "order": 1,
-        "title": "Networking — lesson 1 of 6",
+        "title": "URLSession and URLRequest",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s02",
         "order": 2,
-        "title": "Networking — lesson 2 of 6",
+        "title": "Decoding JSON with Codable",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s03",
         "order": 3,
-        "title": "Networking — lesson 3 of 6",
+        "title": "Async networking",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s04",
         "order": 4,
-        "title": "Networking — lesson 4 of 6",
+        "title": "Error handling, retries and backoff",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s05",
         "order": 5,
-        "title": "Networking — lesson 5 of 6",
+        "title": "Authentication and token refresh",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-03-s06",
         "order": 6,
-        "title": "Networking — lesson 6 of 6",
+        "title": "Caching network responses",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -471,42 +471,42 @@
       {
         "id": "mid-04-s01",
         "order": 1,
-        "title": "Persistence — lesson 1 of 6",
+        "title": "UserDefaults and @AppStorage",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s02",
         "order": 2,
-        "title": "Persistence — lesson 2 of 6",
+        "title": "Saving Codable files to disk",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s03",
         "order": 3,
-        "title": "Persistence — lesson 3 of 6",
+        "title": "Core Data fundamentals",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s04",
         "order": 4,
-        "title": "Persistence — lesson 4 of 6",
+        "title": "SwiftData",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s05",
         "order": 5,
-        "title": "Persistence — lesson 5 of 6",
+        "title": "Keychain for sensitive data",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-04-s06",
         "order": 6,
-        "title": "Persistence — lesson 6 of 6",
+        "title": "Choosing a persistence layer",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -528,42 +528,42 @@
       {
         "id": "mid-05-s01",
         "order": 1,
-        "title": "Performance — lesson 1 of 6",
+        "title": "Profiling with Instruments",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s02",
         "order": 2,
-        "title": "Performance — lesson 2 of 6",
+        "title": "Keeping the main thread free",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s03",
         "order": 3,
-        "title": "Performance — lesson 3 of 6",
+        "title": "SwiftUI rendering performance",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s04",
         "order": 4,
-        "title": "Performance — lesson 4 of 6",
+        "title": "Image loading and downsampling",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s05",
         "order": 5,
-        "title": "Performance — lesson 5 of 6",
+        "title": "Launch time",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-05-s06",
         "order": 6,
-        "title": "Performance — lesson 6 of 6",
+        "title": "Memory leaks and retain cycles",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -585,42 +585,42 @@
       {
         "id": "mid-06-s01",
         "order": 1,
-        "title": "App lifecycle — lesson 1 of 6",
+        "title": "App, Scene and scene phases",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s02",
         "order": 2,
-        "title": "App lifecycle — lesson 2 of 6",
+        "title": "Background tasks",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s03",
         "order": 3,
-        "title": "App lifecycle — lesson 3 of 6",
+        "title": "State restoration",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s04",
         "order": 4,
-        "title": "App lifecycle — lesson 4 of 6",
+        "title": "Push and local notifications",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s05",
         "order": 5,
-        "title": "App lifecycle — lesson 5 of 6",
+        "title": "Suspension and termination",
         "xpCost": 75,
         "kind": "lesson"
       },
       {
         "id": "mid-06-s06",
         "order": 6,
-        "title": "App lifecycle — lesson 6 of 6",
+        "title": "Multiple scenes",
         "xpCost": 75,
         "kind": "lesson"
       },
@@ -642,42 +642,42 @@
       {
         "id": "senior-01-s01",
         "order": 1,
-        "title": "System design — lesson 1 of 6",
+        "title": "Caching, pagination and offline-first",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s02",
         "order": 2,
-        "title": "System design — lesson 2 of 6",
+        "title": "Designing API contracts",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s03",
         "order": 3,
-        "title": "System design — lesson 3 of 6",
+        "title": "Data sync and conflict resolution",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s04",
         "order": 4,
-        "title": "System design — lesson 4 of 6",
+        "title": "Designing for testability",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s05",
         "order": 5,
-        "title": "System design — lesson 5 of 6",
+        "title": "Evaluating third-party dependencies",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-01-s06",
         "order": 6,
-        "title": "System design — lesson 6 of 6",
+        "title": "Approaching a system design question",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -699,42 +699,42 @@
       {
         "id": "senior-02-s01",
         "order": 1,
-        "title": "Module boundaries — lesson 1 of 6",
+        "title": "Why modularize",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s02",
         "order": 2,
-        "title": "Module boundaries — lesson 2 of 6",
+        "title": "Modularizing with Swift Package Manager",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s03",
         "order": 3,
-        "title": "Module boundaries — lesson 3 of 6",
+        "title": "Designing a module's public API",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s04",
         "order": 4,
-        "title": "Module boundaries — lesson 4 of 6",
+        "title": "Avoiding circular dependencies",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s05",
         "order": 5,
-        "title": "Module boundaries — lesson 5 of 6",
+        "title": "Dependency inversion across modules",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-02-s06",
         "order": 6,
-        "title": "Module boundaries — lesson 6 of 6",
+        "title": "Versioning and deprecating internal APIs",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -756,42 +756,42 @@
       {
         "id": "senior-03-s01",
         "order": 1,
-        "title": "Migration strategy — lesson 1 of 6",
+        "title": "Planning a migration",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s02",
         "order": 2,
-        "title": "Migration strategy — lesson 2 of 6",
+        "title": "The strangler-fig pattern",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s03",
         "order": 3,
-        "title": "Migration strategy — lesson 3 of 6",
+        "title": "Feature flags and gradual rollout",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s04",
         "order": 4,
-        "title": "Migration strategy — lesson 4 of 6",
+        "title": "Running old and new code paths",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s05",
         "order": 5,
-        "title": "Migration strategy — lesson 5 of 6",
+        "title": "Managing rollout risk and rollback",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-03-s06",
         "order": 6,
-        "title": "Migration strategy — lesson 6 of 6",
+        "title": "Communicating a migration",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -813,42 +813,42 @@
       {
         "id": "senior-04-s01",
         "order": 1,
-        "title": "Code review — lesson 1 of 6",
+        "title": "What to look for in a review",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s02",
         "order": 2,
-        "title": "Code review — lesson 2 of 6",
+        "title": "Writing actionable review comments",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s03",
         "order": 3,
-        "title": "Code review — lesson 3 of 6",
+        "title": "Architecture issues vs nitpicks",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s04",
         "order": 4,
-        "title": "Code review — lesson 4 of 6",
+        "title": "When to block a change",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s05",
         "order": 5,
-        "title": "Code review — lesson 5 of 6",
+        "title": "Reviewing without full context",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-04-s06",
         "order": 6,
-        "title": "Code review — lesson 6 of 6",
+        "title": "Code review as teaching",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -870,42 +870,42 @@
       {
         "id": "senior-05-s01",
         "order": 1,
-        "title": "Mentoring — lesson 1 of 6",
+        "title": "Onboarding new engineers",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s02",
         "order": 2,
-        "title": "Mentoring — lesson 2 of 6",
+        "title": "Giving effective feedback",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s03",
         "order": 3,
-        "title": "Mentoring — lesson 3 of 6",
+        "title": "Pair programming",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s04",
         "order": 4,
-        "title": "Mentoring — lesson 4 of 6",
+        "title": "Delegating meaningful work",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s05",
         "order": 5,
-        "title": "Mentoring — lesson 5 of 6",
+        "title": "Knowing when to step in",
         "xpCost": 100,
         "kind": "lesson"
       },
       {
         "id": "senior-05-s06",
         "order": 6,
-        "title": "Mentoring — lesson 6 of 6",
+        "title": "Growing engineers toward independence",
         "xpCost": 100,
         "kind": "lesson"
       },
@@ -927,42 +927,42 @@
       {
         "id": "distinguished-01-s01",
         "order": 1,
-        "title": "Platform strategy — lesson 1 of 6",
+        "title": "Build vs buy",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s02",
         "order": 2,
-        "title": "Platform strategy — lesson 2 of 6",
+        "title": "Building a technical roadmap",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s03",
         "order": 3,
-        "title": "Platform strategy — lesson 3 of 6",
+        "title": "Internal platforms as products",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s04",
         "order": 4,
-        "title": "Platform strategy — lesson 4 of 6",
+        "title": "When to adopt new frameworks",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s05",
         "order": 5,
-        "title": "Platform strategy — lesson 5 of 6",
+        "title": "Managing technical debt",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-01-s06",
         "order": 6,
-        "title": "Platform strategy — lesson 6 of 6",
+        "title": "Aligning platform work with business strategy",
         "xpCost": 125,
         "kind": "lesson"
       },
@@ -984,42 +984,42 @@
       {
         "id": "distinguished-02-s01",
         "order": 1,
-        "title": "Cross-team architecture — lesson 1 of 6",
+        "title": "Designing boundaries across teams",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s02",
         "order": 2,
-        "title": "Cross-team architecture — lesson 2 of 6",
+        "title": "Conway's Law",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s03",
         "order": 3,
-        "title": "Cross-team architecture — lesson 3 of 6",
+        "title": "Avoiding the distributed monolith",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s04",
         "order": 4,
-        "title": "Cross-team architecture — lesson 4 of 6",
+        "title": "Centralization vs team autonomy",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s05",
         "order": 5,
-        "title": "Cross-team architecture — lesson 5 of 6",
+        "title": "Driving alignment without authority",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-02-s06",
         "order": 6,
-        "title": "Cross-team architecture — lesson 6 of 6",
+        "title": "Architecture decision records",
         "xpCost": 125,
         "kind": "lesson"
       },
@@ -1041,42 +1041,42 @@
       {
         "id": "distinguished-03-s01",
         "order": 1,
-        "title": "Technical direction — lesson 1 of 6",
+        "title": "Setting a technical vision",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s02",
         "order": 2,
-        "title": "Technical direction — lesson 2 of 6",
+        "title": "Making and managing technical bets",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s03",
         "order": 3,
-        "title": "Technical direction — lesson 3 of 6",
+        "title": "Balancing innovation and stability",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s04",
         "order": 4,
-        "title": "Technical direction — lesson 4 of 6",
+        "title": "Explaining technical decisions to executives",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s05",
         "order": 5,
-        "title": "Technical direction — lesson 5 of 6",
+        "title": "Sunsetting systems",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-03-s06",
         "order": 6,
-        "title": "Technical direction — lesson 6 of 6",
+        "title": "Measuring technical outcomes",
         "xpCost": 125,
         "kind": "lesson"
       },
@@ -1098,42 +1098,42 @@
       {
         "id": "distinguished-04-s01",
         "order": 1,
-        "title": "Engineering culture — lesson 1 of 6",
+        "title": "Building a culture of excellence",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s02",
         "order": 2,
-        "title": "Engineering culture — lesson 2 of 6",
+        "title": "Scaling engineering practices",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s03",
         "order": 3,
-        "title": "Engineering culture — lesson 3 of 6",
+        "title": "Psychological safety and quality",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s04",
         "order": 4,
-        "title": "Engineering culture — lesson 4 of 6",
+        "title": "Blameless postmortems",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s05",
         "order": 5,
-        "title": "Engineering culture — lesson 5 of 6",
+        "title": "Hiring and leveling staff-plus engineers",
         "xpCost": 125,
         "kind": "lesson"
       },
       {
         "id": "distinguished-04-s06",
         "order": 6,
-        "title": "Engineering culture — lesson 6 of 6",
+        "title": "Culture through reorgs",
         "xpCost": 125,
         "kind": "lesson"
       },

@@ -48,23 +48,6 @@ struct MilestonesView: View {
                 }
                 .padding(.top, 12)
 
-                EyebrowLabel("Level ladder").padding(.top, 26)
-                HStack(alignment: .bottom, spacing: 3) {
-                    ForEach(repo.levels) { level in
-                        VStack(spacing: 6) {
-                            Rectangle()
-                                .fill(level.number == repo.profile.level ? Theme.Colors.accent : (level.number < repo.profile.level ? Theme.Colors.text : Theme.Colors.neutral200))
-                                .frame(height: level.number == repo.profile.level ? 16 : 9)
-                            if level.number == 1 || level.number == repo.levels.count || level.number == repo.profile.level {
-                                Text("\(level.number)")
-                                    .font(.system(size: 10, design: .monospaced))
-                                    .foregroundStyle(level.number == repo.profile.level ? Theme.Colors.accent700 : Theme.Colors.neutral600)
-                            }
-                        }
-                    }
-                }
-                .padding(.top, 12)
-
                 Spacer(minLength: 20)
             }
             .padding(24)

@@ -4,10 +4,17 @@ import FirebaseFirestore
 @Observable
 @MainActor
 final class QuestionRepository {
-    private(set) var todayQuestions: [Question] = []
+    /// Today's full shared quiz — every level's 5-question set, not just the caller's own. Kept in
+    /// full (rather than pre-filtering to `effectiveLevel`) so the entry screen's grade switcher can
+    /// show any level's headline/topic breakdown instantly, with no extra fetch per tap.
+    private(set) var todayDocument: DailyQuizDocument?
+    /// Used only when `todayDocument` is `nil` (offline, or today's edition not yet seeded) — a
+    /// flat, level-agnostic set so the app still has something to quiz on. Switching grades has no
+    /// effect while this is in use; there's nothing to switch between.
+    private var bundledFallbackQuestions: [Question] = []
     /// Today's edition number, read straight from `dailyQuizzes/{today}`. `nil` when that
-    /// document couldn't be fetched (offline, not yet seeded) and `todayQuestions` fell back to
-    /// the bundled set — there's no on-device number to show in that case.
+    /// document couldn't be fetched (offline, not yet seeded) and questions fell back to the
+    /// bundled set — there's no on-device number to show in that case.
     private(set) var editionNumber: Int?
     private(set) var isLoading = false
     private(set) var levelOverride: SkillLevel?
@@ -17,10 +24,25 @@ final class QuestionRepository {
 
     init() {}
 
+    /// `level`'s 5 questions from today's document, or the bundled fallback if today's document
+    /// couldn't be fetched. The single source both `todayQuestions` (the caller's own level) and
+    /// the entry screen's grade switcher (any level the user is currently browsing) read from.
+    func questions(for level: SkillLevel) -> [Question] {
+        todayDocument?.questions(for: level) ?? bundledFallbackQuestions
+    }
+
+    var todayQuestions: [Question] { questions(for: effectiveLevel) }
+
     /// Synchronously loads the bundled fallback set — safe for #Preview, never touches Firestore.
+    /// Every level maps to the same 5 questions: the bundled set isn't level-partitioned (it's a
+    /// last-resort flat list), so previews can still exercise the grade switcher without it being a
+    /// true per-level bank.
     static func preview(bundle: Bundle = .main) -> QuestionRepository {
         let repo = QuestionRepository()
-        repo.todayQuestions = loadBundledFallback(bundle: bundle)
+        let questions = loadBundledFallback(bundle: bundle)
+        repo.todayDocument = DailyQuizDocument(
+            edition: 1, junior: questions, mid: questions, senior: questions, distinguished: questions
+        )
         repo.editionNumber = 1
         return repo
     }
@@ -39,7 +61,8 @@ final class QuestionRepository {
         defer { isLoading = false }
 
         if loadedUID != uid {
-            todayQuestions = []
+            todayDocument = nil
+            bundledFallbackQuestions = []
             editionNumber = nil
             levelOverride = nil
             effectiveLevel = .junior
@@ -73,12 +96,13 @@ final class QuestionRepository {
         self.effectiveLevel = effectiveLevel
 
         guard let daily = try? await fetchDailyQuiz() else {
-            todayQuestions = Self.loadBundledFallback()
+            todayDocument = nil
+            bundledFallbackQuestions = Self.loadBundledFallback()
             editionNumber = nil
             return
         }
 
-        todayQuestions = daily.questions(for: effectiveLevel)
+        todayDocument = daily
         editionNumber = daily.edition
     }
 
@@ -117,7 +141,7 @@ final class QuestionRepository {
             effectiveLevel = level ?? storedLevel
         } catch {
             // Local state left untouched on failure — matches the mirror-only-on-success
-            // convention this project uses elsewhere (e.g. PathRepository.startStage), so a
+            // convention this project uses elsewhere (e.g. LibraryRepository.completeClass), so a
             // failed write doesn't show a picker selection that silently reverts next launch.
         }
     }

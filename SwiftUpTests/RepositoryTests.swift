@@ -6,7 +6,7 @@ import SwiftUI
 private final class TestBundleMarker {}
 private let testBundle = Bundle(for: TestBundleMarker.self)
 
-// `@MainActor` on the whole suite: `ProfileRepository`, `PathRepository`, `QuestionRepository`,
+// `@MainActor` on the whole suite: `ProfileRepository`, `LibraryRepository`, `QuestionRepository`,
 // and `InterviewRepository` are all main-actor isolated (their `@Observable` state is read by
 // SwiftUI on the main thread), which makes their initializers/static factories/instance methods
 // isolated too — and the large majority of tests below touch at least one of them.
@@ -17,11 +17,21 @@ struct RepositoryTests {
         #expect(questions.count == 5)
     }
 
+    /// `.preview()` seeds the same 5 bundled questions under every level (see its doc comment —
+    /// the bundled fallback isn't a real per-level bank), so this only checks that `questions(for:)`
+    /// resolves to a non-empty set for all four levels, not that the sets differ.
+    @Test func questionRepositoryQuestionsForReturnsTodaysSetForEveryLevel() {
+        let repo = QuestionRepository.preview(bundle: testBundle)
+        for level in SkillLevel.allCases {
+            #expect(repo.questions(for: level).count == 5)
+        }
+        #expect(repo.todayQuestions.map(\.id) == repo.questions(for: repo.effectiveLevel).map(\.id))
+    }
+
     @Test func profileRepositoryLoadsBundledFallback() {
         let repo = ProfileRepository.preview(bundle: testBundle)
         #expect(repo.profile.name == "Maya Reyes")
-        #expect(repo.levels.count == 12)
-        #expect(repo.achievements.count == 24)
+        #expect(repo.achievements.count == 23)
         #expect(repo.topics.count == 12)
     }
 
@@ -181,14 +191,12 @@ struct RepositoryTests {
     @Test func profileRepositoryApplyExternalXPBalanceUpdatesOnlyXPBalance() {
         let repo = ProfileRepository.preview(bundle: testBundle)
         let originalXP = repo.profile.xp
-        let originalLevel = repo.profile.level
         let originalName = repo.profile.name
 
         repo.applyExternalXPBalance(500)
 
         #expect(repo.profile.xpBalance == 500)
         #expect(repo.profile.xp == originalXP)
-        #expect(repo.profile.level == originalLevel)
         #expect(repo.profile.name == originalName)
     }
 
@@ -216,145 +224,100 @@ struct RepositoryTests {
         #expect(SkillLevel.onboardingChoices == [.junior, .mid, .senior])
     }
 
-    @Test func pathTrackBundledFixtureDecodesTwentyTracksWithJunior02HandAuthored() throws {
-        let tracks = decodeJSONResource([PathTrack].self, filename: "path_tracks", bundle: testBundle) ?? []
-        #expect(tracks.count == 20)
-        let junior02 = try #require(tracks.first { $0.id == "junior-02" })
-        #expect(junior02.grade == .junior)
-        #expect(junior02.title == "Object-oriented Swift")
-        #expect(junior02.stages.count == 8)
-        #expect(junior02.stages.map(\.xpCost) == [45, 45, 45, 200, 200, 200, 200, 400])
-        #expect(junior02.stages.last?.kind == .assessment)
-        #expect(junior02.stages.last?.title == "Track assessment")
+    @Test func skillLevelDisplayNameRenamesOnlyMid() {
+        #expect(SkillLevel.junior.displayName == "Junior")
+        #expect(SkillLevel.mid.displayName == "Intermediate")
+        #expect(SkillLevel.senior.displayName == "Senior")
+        #expect(SkillLevel.distinguished.displayName == "Distinguished")
+        // rawValue stays "Mid" — it's what's persisted to Firestore and used in doc IDs.
+        #expect(SkillLevel.mid.rawValue == "Mid")
     }
 
-    @Test func pathTrackSortsStagesByOrderRegardlessOfSourceOrder() throws {
-        // Every consumer (isTrackClosed, isStageUnlocked, TrackLadderView's ladder/progress
-        // segments) assumes `stages` is already in play order — this must hold even if the
+    @Test func libraryPathBundledFixtureDecodesTwentyPathsWithJunior02HandAuthored() throws {
+        let paths = decodeJSONResource([LibraryPath].self, filename: "path_tracks", bundle: testBundle) ?? []
+        #expect(paths.count == 20)
+        let junior02 = try #require(paths.first { $0.id == "junior-02" })
+        #expect(junior02.grade == .junior)
+        #expect(junior02.title == "Object-oriented Swift")
+        #expect(junior02.classes.count == 8)
+        #expect(junior02.classes.map(\.xpReward) == [45, 45, 45, 200, 200, 200, 200, 400])
+        #expect(junior02.classes.last?.kind == .assessment)
+        #expect(junior02.classes.last?.title == "Track assessment")
+    }
+
+    @Test func libraryPathSortsClassesByOrderRegardlessOfSourceOrder() throws {
+        // Every consumer (isPathSealed, canStartClass, LibraryPathView's class list/progress
+        // segments) assumes `classes` is already in play order — this must hold even if the
         // source data (Firestore array order, or a hand-built fixture) isn't already sorted.
         let outOfOrder = [
-            PathStage(id: "t-s03", order: 3, title: "Three", xpCost: 50, kind: .assessment),
-            PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson),
-            PathStage(id: "t-s02", order: 2, title: "Two", xpCost: 50, kind: .lesson),
+            LibraryClass(id: "t-s03", order: 3, title: "Three", xpReward: 50, kind: .assessment),
+            LibraryClass(id: "t-s01", order: 1, title: "One", xpReward: 50, kind: .lesson),
+            LibraryClass(id: "t-s02", order: 2, title: "Two", xpReward: 50, kind: .lesson),
         ]
-        let track = PathTrack(id: "t", grade: .junior, order: 1, title: "Track", stages: outOfOrder)
-        #expect(track.stages.map(\.order) == [1, 2, 3])
-        #expect(track.stages.map(\.id) == ["t-s01", "t-s02", "t-s03"])
+        let path = LibraryPath(id: "t", grade: .junior, order: 1, title: "Path", summary: "S", classes: outOfOrder)
+        #expect(path.classes.map(\.order) == [1, 2, 3])
+        #expect(path.classes.map(\.id) == ["t-s01", "t-s02", "t-s03"])
 
-        let decoded = try JSONDecoder().decode(PathTrack.self, from: Data("""
-        {"id":"t2","grade":"Junior","order":2,"title":"Track 2","stages":[
+        let decoded = try JSONDecoder().decode(LibraryPath.self, from: Data("""
+        {"id":"t2","grade":"Junior","order":2,"title":"Path 2","summary":"S","stages":[
             {"id":"t2-s02","order":2,"title":"Two","xpCost":50,"kind":"lesson"},
             {"id":"t2-s01","order":1,"title":"One","xpCost":50,"kind":"lesson"}
         ]}
         """.utf8))
-        #expect(decoded.stages.map(\.id) == ["t2-s01", "t2-s02"])
+        #expect(decoded.classes.map(\.id) == ["t2-s01", "t2-s02"])
     }
 
-    @Test func pathRepositoryTrackIsClosedOnlyWhenEveryStageIsCompleted() {
-        let stages = [
-            PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson),
-            PathStage(id: "t-s02", order: 2, title: "Two", xpCost: 50, kind: .lesson),
-            PathStage(id: "t-s03", order: 3, title: "Assessment", xpCost: 400, kind: .assessment),
+    @Test func libraryRepositoryPathIsSealedOnlyWhenEveryClassIsCompleted() {
+        let classes = [
+            LibraryClass(id: "t-s01", order: 1, title: "One", xpReward: 50, kind: .lesson),
+            LibraryClass(id: "t-s02", order: 2, title: "Two", xpReward: 50, kind: .lesson),
+            LibraryClass(id: "t-s03", order: 3, title: "Assessment", xpReward: 400, kind: .assessment),
         ]
-        let track = PathTrack(id: "t", grade: .junior, order: 1, title: "Track", stages: stages)
-        let repo = PathRepository()
+        let path = LibraryPath(id: "t", grade: .junior, order: 1, title: "Path", summary: "S", classes: classes)
+        let repo = LibraryRepository()
 
-        #expect(repo.isTrackClosed(track) == false)
+        #expect(repo.isPathSealed(path) == false)
     }
 
-    @Test func pathRepositoryStageUnlocksOnlyAfterEveryEarlierStageInItsTrackIsDone() {
-        let stages = [
-            PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson),
-            PathStage(id: "t-s02", order: 2, title: "Two", xpCost: 50, kind: .lesson),
-            PathStage(id: "t-s03", order: 3, title: "Assessment", xpCost: 400, kind: .assessment),
+    @Test func libraryRepositoryOnlyTheAssessmentIsGatedOnEveryOtherClassBeingDone() {
+        let classes = [
+            LibraryClass(id: "t-s01", order: 1, title: "One", xpReward: 50, kind: .lesson),
+            LibraryClass(id: "t-s02", order: 2, title: "Two", xpReward: 50, kind: .lesson),
+            LibraryClass(id: "t-s03", order: 3, title: "Assessment", xpReward: 400, kind: .assessment),
         ]
-        let track = PathTrack(id: "t", grade: .junior, order: 1, title: "Track", stages: stages)
-        let repo = PathRepository()
+        let path = LibraryPath(id: "t", grade: .junior, order: 1, title: "Path", summary: "S", classes: classes)
+        let repo = LibraryRepository()
 
-        #expect(repo.isStageUnlocked(stages[0], in: track) == true)
-        #expect(repo.isStageUnlocked(stages[1], in: track) == false)
-        #expect(repo.isStageUnlocked(stages[2], in: track) == false)
+        // Every non-assessment class is freely startable regardless of what's completed —
+        // there's no order gating among them anymore.
+        #expect(repo.canStartClass(classes[0], in: path) == true)
+        #expect(repo.canStartClass(classes[1], in: path) == true)
+        // The assessment is gated until both lesson classes are completed. `completedClassIDs`
+        // is `private(set)` and only populated by `load(for:)` (no test seam, same limitation
+        // this file already accepts elsewhere for Firestore-backed state), so on a fresh repo
+        // it correctly reads as not yet reachable.
+        #expect(repo.canStartClass(classes[2], in: path) == false)
     }
 
-    @Test func pathRepositoryTracksForGradeFiltersAndSortsByOrder() {
-        let repo = PathRepository.preview(bundle: testBundle)
-        let juniorTracks = repo.tracks(for: .junior)
-        #expect(juniorTracks.count == 5)
-        #expect(juniorTracks.map(\.order) == [1, 2, 3, 4, 5])
-        #expect(juniorTracks.allSatisfy { $0.grade == .junior })
+    @Test func libraryRepositoryPathsForGradeFiltersAndSortsByOrder() {
+        let repo = LibraryRepository.preview(bundle: testBundle)
+        let juniorPaths = repo.paths(for: .junior)
+        #expect(juniorPaths.count == 5)
+        #expect(juniorPaths.map(\.order) == [1, 2, 3, 4, 5])
+        #expect(juniorPaths.allSatisfy { $0.grade == .junior })
     }
 
-    @Test func pathRepositoryFirstTrackInAGradeIsAlwaysReachable() {
-        let stages = [PathStage(id: "t1-s01", order: 1, title: "One", xpCost: 50, kind: .lesson)]
-        let track1 = PathTrack(id: "t1", grade: .junior, order: 1, title: "One", stages: stages)
-        let repo = PathRepository()
-        #expect(repo.isTrackReachable(track1) == true)
-    }
+    @Test func libraryContentBundledFixtureDecodesAllClassesWithCorrectQuizSizes() throws {
+        let bundle = try #require(decodeJSONResource(LibraryContentBundle.self, filename: "path_content", bundle: testBundle))
+        #expect(bundle.classContent.count == 141)
 
-    @Test func pathRepositorySecondTrackNotReachableBeforeFirstIsClosed() {
-        // isTrackReachable looks up sibling tracks via `self.tracks(for:)`, which is `private(set)`
-        // and only populated by `load(for:)` — with no test seam (same limitation Sub-project A's
-        // isTrackClosed/isStageUnlocked tests already accepted for completedStageIDs). On a fresh,
-        // never-loaded repo, `tracks(for:)` returns empty, so `track1` is invisible to `track2`'s
-        // reachability check — meaning track2 correctly reads as unreachable, but for the "can't
-        // see any predecessor at all" reason rather than "predecessor exists but isn't closed."
-        // Both reasons produce the same `false`, which is what this test actually verifies.
-        let stage2 = PathStage(id: "t2-s01", order: 1, title: "Two", xpCost: 50, kind: .lesson)
-        let track2 = PathTrack(id: "t2", grade: .junior, order: 2, title: "Two", stages: [stage2])
-        let repo = PathRepository()
-        #expect(repo.isTrackReachable(track2) == false)
-    }
+        let paths = decodeJSONResource([LibraryPath].self, filename: "path_tracks", bundle: testBundle) ?? []
+        let allClasses = paths.flatMap(\.classes)
+        #expect(allClasses.count == 141)
 
-    @Test func pathWheelDiagramNodePositionsAreEvenlySpacedStartingAtTwelveOClock() {
-        // Calls PathWheelDiagram's own (now internal, @testable-visible) nodePosition(at:)
-        // directly rather than maintaining a duplicate copy of the formula, so this test would
-        // actually catch a change to the real formula.
-        let center = CGPoint(x: 150, y: 150)
-        let radius: CGFloat = 110
-        let repo = PathRepository()
-
-        func makeTracks(count: Int) -> [PathTrack] {
-            (1...count).map { order in
-                let stage = PathStage(id: "t\(order)-s01", order: 1, title: "Stage", xpCost: 50, kind: .lesson)
-                return PathTrack(id: "t\(order)", grade: .junior, order: order, title: "Track \(order)", stages: [stage])
-            }
-        }
-        func diagram(count: Int) -> PathWheelDiagram {
-            PathWheelDiagram(tracks: makeTracks(count: count), grade: .junior, pathRepo: repo, onSelectTrack: { _ in })
-        }
-
-        // 5 nodes: node 0 sits directly above center (12 o'clock).
-        let fiveNode0 = diagram(count: 5).nodePosition(at: 0)
-        #expect(abs(fiveNode0.x - center.x) < 0.001)
-        #expect(abs(fiveNode0.y - (center.y - radius)) < 0.001)
-
-        // 4 nodes: node 1 sits 90° clockwise from 12 o'clock, i.e. directly right of center.
-        let fourNode1 = diagram(count: 4).nodePosition(at: 1)
-        #expect(abs(fourNode1.x - (center.x + radius)) < 0.001)
-        #expect(abs(fourNode1.y - center.y) < 0.001)
-
-        // Every node is exactly `radius` from center, for any count.
-        for count in [4, 5, 6] {
-            let d = diagram(count: count)
-            for index in 0..<count {
-                let p = d.nodePosition(at: index)
-                let distance = sqrt(pow(p.x - center.x, 2) + pow(p.y - center.y, 2))
-                #expect(abs(distance - radius) < 0.001)
-            }
-        }
-    }
-
-    @Test func pathStageContentBundledFixtureDecodesAllStagesWithCorrectQuizSizes() throws {
-        let bundle = try #require(decodeJSONResource(PathContentBundle.self, filename: "path_content", bundle: testBundle))
-        #expect(bundle.stageContent.count == 141)
-
-        let tracks = decodeJSONResource([PathTrack].self, filename: "path_tracks", bundle: testBundle) ?? []
-        let allStages = tracks.flatMap(\.stages)
-        #expect(allStages.count == 141)
-
-        for stage in allStages {
-            let content = try #require(bundle.stageContent.first { $0.stageID == stage.id })
-            if stage.kind == .assessment {
+        for libClass in allClasses {
+            let content = try #require(bundle.classContent.first { $0.classID == libClass.id })
+            if libClass.kind == .assessment {
                 #expect(content.slides.isEmpty)
                 #expect(content.quiz.count == 10)
             } else {
@@ -370,9 +333,9 @@ struct RepositoryTests {
         }
     }
 
-    @Test func pathQuizQuestionsAlwaysHaveTheirCorrectOptionIDAmongTheirOwnFourOptions() throws {
-        let bundle = try #require(decodeJSONResource(PathContentBundle.self, filename: "path_content", bundle: testBundle))
-        for content in bundle.stageContent {
+    @Test func libraryQuizQuestionsAlwaysHaveTheirCorrectOptionIDAmongTheirOwnFourOptions() throws {
+        let bundle = try #require(decodeJSONResource(LibraryContentBundle.self, filename: "path_content", bundle: testBundle))
+        for content in bundle.classContent {
             for question in content.quiz {
                 #expect(question.options.count == 4)
                 #expect(question.options.contains { $0.id == question.correctOptionID })
@@ -386,32 +349,31 @@ struct RepositoryTests {
         }
     }
 
-    @Test func pathRepositoryIsStageStartedFalseOnAFreshRepository() {
-        let stage = PathStage(id: "t-s01", order: 1, title: "One", xpCost: 50, kind: .lesson)
-        let repo = PathRepository()
-        #expect(repo.isStageStarted(stage) == false)
+    @Test func libraryRepositoryIsClassStartedFalseOnAFreshRepository() {
+        let libClass = LibraryClass(id: "t-s01", order: 1, title: "One", xpReward: 50, kind: .lesson)
+        let repo = LibraryRepository()
+        #expect(repo.isClassStarted(libClass) == false)
     }
 
-    @Test func pathRepositoryPromoteGradeIsANoOpAtTheTopGrade() async {
+    @Test func libraryRepositoryIsClassPerfectFalseOnAFreshRepository() {
+        let libClass = LibraryClass(id: "t-s01", order: 1, title: "One", xpReward: 50, kind: .lesson)
+        let repo = LibraryRepository()
+        #expect(repo.isClassPerfect(libClass) == false)
+    }
+
+    @Test func libraryRepositoryPromoteGradeIsANoOpAtTheTopGrade() async {
         // `.distinguished.next` is `nil`, so `promoteGrade` returns before touching Firestore —
         // the one branch of this method safely testable without a live network call (same
-        // limitation already accepted for every other Firestore write in this project).
-        let repo = PathRepository()
+        // limitation already accepted for every other Firestore write in this project). Grade
+        // promotion is unrelated to Library access now — it's a separate status ladder.
+        let repo = LibraryRepository()
         await repo.promoteGrade(from: .distinguished, for: "any-uid")
         #expect(repo.grade == .junior)
     }
 
-    @Test func pathRepositoryAdUnlockIsAvailableOnAFreshRepository() {
-        // `lastAdUnlockDate` starts `nil`, and `nil` never equals today's date string, so the
-        // once-a-day unlock reads as available before any load — the one branch of this logic
-        // testable without live Firestore state.
-        let repo = PathRepository()
-        #expect(repo.hasAdUnlockAvailableToday == true)
-    }
-
-    @Test func pathQuizSessionScorePercentAndPassedBoundary() {
-        func question(_ id: String) -> PathQuizQuestion {
-            PathQuizQuestion(
+    @Test func libraryQuizSessionScorePercentAndPassedBoundary() {
+        func question(_ id: String) -> LibraryQuizQuestion {
+            LibraryQuizQuestion(
                 id: id, prompt: "P",
                 options: [QuestionOption(id: "A", text: "Correct answer"), QuestionOption(id: "B", text: "Incorrect answer 1")],
                 correctOptionID: "A",
@@ -419,7 +381,7 @@ struct RepositoryTests {
             )
         }
         let questions = (1...5).map { question("q\($0)") }
-        let session = PathQuizSession(questions: questions)
+        let session = LibraryQuizSession(questions: questions)
 
         for _ in 0..<4 {
             session.selectOption("A")   // correct
@@ -432,11 +394,12 @@ struct RepositoryTests {
         #expect(session.correctCount == 4)
         #expect(session.scorePercent == 80)
         #expect(session.passed == true)
+        #expect(session.isPerfect == false)
     }
 
-    @Test func pathQuizSessionBelowEightyPercentFails() {
-        func question(_ id: String) -> PathQuizQuestion {
-            PathQuizQuestion(
+    @Test func libraryQuizSessionPerfectScoreRequiresEveryQuestionCorrect() {
+        func question(_ id: String) -> LibraryQuizQuestion {
+            LibraryQuizQuestion(
                 id: id, prompt: "P",
                 options: [QuestionOption(id: "A", text: "Correct answer"), QuestionOption(id: "B", text: "Incorrect answer 1")],
                 correctOptionID: "A",
@@ -444,7 +407,29 @@ struct RepositoryTests {
             )
         }
         let questions = (1...5).map { question("q\($0)") }
-        let session = PathQuizSession(questions: questions)
+        let session = LibraryQuizSession(questions: questions)
+
+        for _ in 0..<5 {
+            session.selectOption("A")
+            session.advance()
+        }
+
+        #expect(session.scorePercent == 100)
+        #expect(session.passed == true)
+        #expect(session.isPerfect == true)
+    }
+
+    @Test func libraryQuizSessionBelowEightyPercentFails() {
+        func question(_ id: String) -> LibraryQuizQuestion {
+            LibraryQuizQuestion(
+                id: id, prompt: "P",
+                options: [QuestionOption(id: "A", text: "Correct answer"), QuestionOption(id: "B", text: "Incorrect answer 1")],
+                correctOptionID: "A",
+                explanation: "Explanation."
+            )
+        }
+        let questions = (1...5).map { question("q\($0)") }
+        let session = LibraryQuizSession(questions: questions)
 
         session.selectOption("A"); session.advance()
         session.selectOption("A"); session.advance()
@@ -454,14 +439,15 @@ struct RepositoryTests {
 
         #expect(session.scorePercent == 60)
         #expect(session.passed == false)
+        #expect(session.isPerfect == false)
     }
 
-    @Test func pathQuizSessionRetryResetsAnswersButKeepsTheSameQuestions() {
-        func question(_ id: String) -> PathQuizQuestion {
-            PathQuizQuestion(id: id, prompt: "P", options: [QuestionOption(id: "A", text: "Correct answer")], correctOptionID: "A", explanation: "Explanation.")
+    @Test func libraryQuizSessionRetryResetsAnswersButKeepsTheSameQuestions() {
+        func question(_ id: String) -> LibraryQuizQuestion {
+            LibraryQuizQuestion(id: id, prompt: "P", options: [QuestionOption(id: "A", text: "Correct answer")], correctOptionID: "A", explanation: "Explanation.")
         }
         let questions = [question("q1"), question("q2")]
-        let session = PathQuizSession(questions: questions)
+        let session = LibraryQuizSession(questions: questions)
 
         session.selectOption("A"); session.advance()
         session.selectOption("A"); session.advance()
@@ -473,23 +459,5 @@ struct RepositoryTests {
         #expect(session.currentIndex == 0)
         #expect(session.isAnswered(questions[0]) == false)
         #expect(session.questions.count == 2)
-    }
-
-    @Test func pathLessonSessionAdvanceAndGoBackStayWithinBounds() {
-        let slides = (1...3).map { PathSlide(id: "s\($0)", order: $0, title: "T\($0)", body: "B", example: nil) }
-        let session = PathLessonSession(slides: slides)
-
-        #expect(session.isFirstSlide == true)
-        session.goBack()
-        #expect(session.isFirstSlide == true)   // already at slide 0, goBack is a no-op
-
-        session.advance()
-        session.advance()
-        #expect(session.isLastSlide == true)
-        #expect(session.isFinished == false)
-
-        session.advance()
-        #expect(session.isFinished == true)
-        #expect(session.currentSlide == nil)
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProfileHomeView: View {
     @Environment(ProfileRepository.self) private var repo
-    @Environment(PathRepository.self) private var pathRepo
+    @Environment(LibraryRepository.self) private var libraryRepo
     @Environment(AuthRepository.self) private var authRepo
 
     var body: some View {
@@ -24,11 +24,11 @@ struct ProfileHomeView: View {
         }
         .task {
             guard let uid = authRepo.currentUser?.uid else { return }
-            await pathRepo.load(for: uid)
+            await libraryRepo.load(for: uid)
         }
     }
 
-    private var mastheadRank: String { pathRepo.grade.rawValue }
+    private var mastheadRank: String { libraryRepo.grade.displayName }
 
     private var profileContent: some View {
         ScrollView {
@@ -41,24 +41,14 @@ struct ProfileHomeView: View {
                         .overlay(Text(repo.profile.initials).font(Theme.Fonts.heading(22)).foregroundStyle(Theme.Colors.neutral700))
                     VStack(alignment: .leading, spacing: 5) {
                         Text(repo.profile.name).font(Theme.Fonts.heading(28))
-                        Text("Level \(repo.profile.level) · \(repo.profile.levelTitle)")
+                        Text("\(repo.profile.xp) xp")
                             .font(Theme.Fonts.body(14.5)).foregroundStyle(Theme.Colors.neutral700)
-                        ThinProgressBar(fraction: repo.profile.levelProgressFraction, height: 7)
-                            .frame(width: 170)
                     }
                 }
                 .padding(.top, 24)
 
                 HStack {
-                    EyebrowLabel("\(repo.profile.xpToNextLevel) xp to level \(repo.profile.level + 1)", color: Theme.Colors.accent700)
-                    Spacer()
-                    NavigationLink("All 12 levels →") { AllLevelsView() }
-                        .font(.system(size: 12)).foregroundStyle(Theme.Colors.accent700)
-                }
-                .padding(.top, 10)
-
-                HStack {
-                    EyebrowLabel("Grade: \(pathRepo.grade.rawValue)")
+                    EyebrowLabel("Grade: \(libraryRepo.grade.displayName)")
                     Spacer()
                     NavigationLink("All four grades →") { FourGradesView() }
                         .font(.system(size: 12)).foregroundStyle(Theme.Colors.accent700)
@@ -167,6 +157,6 @@ struct ProfileHomeView: View {
 #Preview {
     NavigationStack { ProfileHomeView() }
         .environment(ProfileRepository.preview())
-        .environment(PathRepository.preview())
+        .environment(LibraryRepository.preview())
         .environment(AuthRepository(isPreview: true, signedIn: true))
 }

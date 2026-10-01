@@ -21,7 +21,7 @@ struct SkillAssessmentView: View {
                             .background(Circle().fill(selection == level ? Theme.Colors.accent : Color.clear))
                             .frame(width: 18, height: 18)
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(level.rawValue).font(Theme.Fonts.heading(17))
+                            Text(level.displayName).font(Theme.Fonts.heading(17))
                             Text(level.blurb).font(Theme.Fonts.body(13)).foregroundStyle(Theme.Colors.neutral700)
                         }
                         Spacer()
