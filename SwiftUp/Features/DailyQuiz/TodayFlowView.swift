@@ -1,13 +1,10 @@
 import SwiftUI
 
 struct TodayFlowView: View {
-    /// The only way back to `.entry` once today's real quiz is finished is
-    /// `startReplayAtAnotherDifficulty()`, which also sets `isReplayEntry` — so `.entry` is reached
-    /// two different ways, and `startQuiz(level:)` reads that flag to tell them apart: a fresh
-    /// landing (never done today's real quiz yet) versus a return trip to pick a different grade to
-    /// replay. Every other path from `.editions` (redoing a specific past day via `onSelectDay`)
-    /// goes straight to `.question`, bypassing `.entry` entirely.
-    enum Stage { case entry, question, summary, editions }
+    /// `.entry` is today's real quiz and is only ever shown before it's been sat. Once finished,
+    /// every redo — today or a past day — goes `.editions` → `.practiceEntry` (pick a grade, or
+    /// just confirm when the day has only one set) → `.question` → back to `.editions`.
+    enum Stage { case entry, question, summary, editions, practiceEntry }
 
     @Environment(QuestionRepository.self) private var questionRepo
     @Environment(ProfileRepository.self) private var profileRepo
@@ -15,10 +12,7 @@ struct TodayFlowView: View {
     @State private var stage: Stage = .entry
     @State private var session: QuizSession?          // today's real quiz — unchanged meaning
     @State private var practiceSession: QuizSession?   // a redo in progress, if any
-    /// Set by `startReplayAtAnotherDifficulty()` right before it sends `stage` back to `.entry` —
-    /// tells `startQuiz(level:)` to build a practice session instead of overwriting today's already
-    /// -completed real one. Consumed (reset to `false`) the moment `startQuiz(level:)` reads it.
-    @State private var isReplayEntry = false
+    @State private var practiceEdition: PracticeEdition? // the day `.practiceEntry` is offering
     var adPresenter: RewardedAdPresenting = NoOpAdPresenter()
 
     var body: some View {
@@ -45,9 +39,19 @@ struct TodayFlowView: View {
                     case .editions:
                         QuizEditionsView(
                             todayXPEarned: session?.totalXPEarned ?? 0,
-                            onSelectDay: startReplay,
-                            onReplayAtAnotherDifficulty: startReplayAtAnotherDifficulty
+                            onSelectDay: openPracticeEntry
                         )
+                    case .practiceEntry:
+                        if let practiceEdition {
+                            DailyQuizEntryView(
+                                practice: practiceEdition,
+                                onBegin: { level in startPractice(practiceEdition, level: level) },
+                                onBack: { stage = .editions }
+                            )
+                            // A fresh entry screen per day, so a grade picked for one day doesn't
+                            // carry over to the next.
+                            .id(practiceEdition.dateKey)
+                        }
                     }
                 }
             }
@@ -65,18 +69,8 @@ struct TodayFlowView: View {
     /// `setLevelOverride` write from a same-session tap completes. Reading through `effectiveLevel`
     /// here would risk starting the *previous* grade's quiz if "Begin" is tapped right after
     /// switching, before that write resolves.
-    ///
-    /// Branches on `isReplayEntry` rather than on whether `session` is already set: today's real
-    /// quiz can only be started once per calendar day (`.entry` isn't reachable again afterward
-    /// except through a replay), so by the time this runs in the non-replay branch, `session` being
-    /// non-nil already would mean a bug elsewhere, not a case to special-case around here.
     private func startQuiz(level: SkillLevel) {
-        if isReplayEntry {
-            isReplayEntry = false
-            practiceSession = QuizSession(questions: questionRepo.questions(for: level), isPractice: true)
-        } else {
-            session = QuizSession(questions: questionRepo.questions(for: level))
-        }
+        session = QuizSession(questions: questionRepo.questions(for: level))
         stage = .question
     }
 
@@ -98,19 +92,31 @@ struct TodayFlowView: View {
         Task { await profileRepo.recordCompletion(session, for: uid) }
     }
 
-    /// Starts a practice redo of `dateKey`, gated on the ad seam. A `nil` past quiz (the date was
-    /// never seeded) or a declined ad both quietly no-op — `stage` stays `.editions`, matching the
-    /// spec's "no error UI for either case" (design §9).
-    private func startReplay(for dateKey: String) {
+    /// Loads `dateKey`'s quiz and shows its entry screen — nothing starts until the user taps
+    /// Begin there. Today comes straight from `questionRepo`; a past day is fetched, and a `nil`
+    /// (the date was never seeded) quietly leaves `stage` on `.editions` (design §9: no error UI).
+    private func openPracticeEntry(for dateKey: String) {
+        if dateKey == DailyEdition.todayKey() {
+            practiceEdition = PracticeEdition(
+                dateKey: dateKey, edition: questionRepo.editionNumber, questions: questionRepo.questions(for:)
+            )
+            stage = .practiceEntry
+            return
+        }
+        Task {
+            guard let doc = await questionRepo.fetchPastQuiz(for: dateKey) else { return }
+            practiceEdition = PracticeEdition(dateKey: dateKey, edition: doc.edition, questions: doc.questions(for:))
+            stage = .practiceEntry
+        }
+    }
+
+    /// Starts the redo, gated on the ad seam. A declined ad quietly leaves the user on the entry
+    /// screen.
+    private func startPractice(_ edition: PracticeEdition, level: SkillLevel) {
         adPresenter.presentAd { completed in
             guard completed else { return }
-            Task {
-                guard let doc = await questionRepo.fetchPastQuiz(for: dateKey) else { return }
-                practiceSession = QuizSession(
-                    questions: doc.questions(for: questionRepo.effectiveLevel), isPractice: true
-                )
-                stage = .question
-            }
+            practiceSession = QuizSession(questions: edition.questions(for: level), isPractice: true)
+            stage = .question
         }
     }
 
@@ -122,18 +128,6 @@ struct TodayFlowView: View {
         if practiceSession?.isFinished == true {
             practiceSession = nil
             stage = .editions
-        }
-    }
-
-    /// Sends the user back to the entry screen's grade switcher to replay *today's* already-shared
-    /// quiz at a different grade than the one they actually sat — gated on the same ad seam as
-    /// `startReplay(for:)`, since it's the same kind of free bonus practice round. A declined ad
-    /// quietly no-ops, same as there.
-    private func startReplayAtAnotherDifficulty() {
-        adPresenter.presentAd { completed in
-            guard completed else { return }
-            isReplayEntry = true
-            stage = .entry
         }
     }
 }

@@ -16,10 +16,10 @@ struct FlashcardSessionView: View {
         Group {
             if let card = session.currentCard {
                 VStack(spacing: 0) {
-                    progressTicks
                     if session.isFlipped {
                         back(for: card)
                     } else {
+                        progressTicks
                         front(for: card)
                     }
                 }
@@ -39,6 +39,9 @@ struct FlashcardSessionView: View {
             }
         }
         .background(Theme.Colors.bg)
+        // The back's own "← Front" is its only way out (design 11b); the front keeps the system
+        // back button for leaving the session.
+        .navigationBarBackButtonHidden(session.isFlipped)
         .navigationDestination(isPresented: $pushSummary) {
             SessionSummaryView(session: session, isSessionActive: isSessionActive)
         }
@@ -57,6 +60,10 @@ struct FlashcardSessionView: View {
                 Rectangle().fill(tickColor(for: rating)).frame(height: 4)
             }
         }
+    }
+
+    private var cardCount: String {
+        "Card \(String(format: "%02d", session.currentIndex + 1)) / \(String(format: "%02d", session.deck.count))"
     }
 
     private func tickColor(for rating: FlashcardRating?) -> Color {
@@ -108,25 +115,73 @@ struct FlashcardSessionView: View {
         }
     }
 
+    /// Design 11b: "← Front" and the card count over the ticks, then a ruled sheet filling the
+    /// space with just the talking points and a link out to the full answer, then the ratings.
     private func back(for card: InterviewQuestion) -> some View {
         VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Button("← Front") { session.unflip() }
+                    .font(Theme.Fonts.body(15))
+                    .foregroundStyle(Theme.Colors.accent700)
+                Spacer()
+                EyebrowLabel(cardCount)
+            }
+            .frame(minHeight: 44)
+
+            progressTicks
+                .padding(.top, 6)
+
             VStack(alignment: .leading, spacing: 0) {
-                EyebrowLabel("Talking points")
-                VStack(spacing: 0) {
-                    ForEach(Array(card.talkingPoints.enumerated()), id: \.offset) { index, point in
-                        RuledRow(showBottomRule: index == card.talkingPoints.count - 1, minHeight: 0, alignment: .top) {
-                            Text(String(format: "%02d", index + 1))
-                                .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                                .foregroundStyle(Theme.Colors.accent700)
-                            Text(point).font(Theme.Fonts.body(14))
+                HStack(alignment: .firstTextBaseline) {
+                    EyebrowLabel("The back", color: Theme.Colors.accent700)
+                    Spacer()
+                    EyebrowLabel(card.category)
+                }
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        EyebrowLabel("Talking points")
+                            .padding(.top, 16)
+
+                        VStack(spacing: 0) {
+                            ForEach(Array(card.talkingPoints.enumerated()), id: \.offset) { index, point in
+                                HStack(alignment: .firstTextBaseline, spacing: 11) {
+                                    Text(String(format: "%02d", index + 1))
+                                        .font(.system(size: 13, weight: .semibold, design: .monospaced))
+                                        .foregroundStyle(Theme.Colors.accent700)
+                                    Text(point)
+                                        .font(Theme.Fonts.body(14.5))
+                                        .lineSpacing(4)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                .padding(.vertical, 8)
+                                .overlay(Rectangle().fill(Theme.Colors.divider).frame(height: 1), alignment: .top)
+                                .overlay(
+                                    index == card.talkingPoints.count - 1
+                                        ? Rectangle().fill(Theme.Colors.divider).frame(height: 1) : nil,
+                                    alignment: .bottom
+                                )
+                            }
                         }
-                        .padding(.vertical, 8)
+                        .padding(.top, 10)
+
+                        NavigationLink {
+                            InterviewQuestionDetailView(question: card)
+                        } label: {
+                            Text("Full answer and follow-ups →")
+                                .font(Theme.Fonts.body(13.5))
+                                .foregroundStyle(Theme.Colors.accent700)
+                        }
+                        .padding(.top, 14)
                     }
                 }
-                .padding(.top, 10)
+                .scrollBounceBehavior(.basedOnSize)
             }
-            .padding(20)
-            .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.text))
+            .padding(.vertical, 22)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(Theme.Colors.bg)
+            .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.text, lineWidth: 1))
             .padding(.top, 22)
 
             EyebrowLabel("How did that go?").padding(.top, 20)
@@ -142,7 +197,7 @@ struct FlashcardSessionView: View {
     private func ratingButton(_ title: String, fill: Color, foreground: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title).font(.system(size: 15))
-                .frame(maxWidth: .infinity).padding(.vertical, 15)
+                .frame(maxWidth: .infinity, minHeight: 50)
         }
         .background(fill).foregroundStyle(foreground)
     }

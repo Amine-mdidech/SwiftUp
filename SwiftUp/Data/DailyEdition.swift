@@ -37,6 +37,13 @@ enum DailyEdition {
         return formatter.date(from: dateKey)
     }
 
+    /// `dateLabel(for:)`'s "Friday, October 2" format for a `yyyy-MM-dd` key — the masthead of a
+    /// past day's practice entry screen. Empty string for a malformed key.
+    static func dateLabel(forKey dateKey: String, timeZone: TimeZone = .current) -> String {
+        guard let parsed = date(from: dateKey, timeZone: timeZone) else { return "" }
+        return dateLabel(for: parsed, timeZone: timeZone)
+    }
+
     /// Full weekday name ("Friday") for a `yyyy-MM-dd` key — e.g. the past-editions redo button's
     /// "Sit Friday's" copy. Empty string for a malformed key (never reachable from real streak-day
     /// data, but keeps this a total function for callers).

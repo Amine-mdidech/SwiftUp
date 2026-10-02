@@ -9,12 +9,25 @@ struct SegmentedPicker: View {
     var selectedForeground: Color = Theme.Colors.bg
 
     var body: some View {
+        // Natural-width segments when they fit; otherwise tighter padding (and slight text
+        // scaling) so a long option list never forces the picker — and the screen around it —
+        // wider than the available space.
+        ViewThatFits(in: .horizontal) {
+            segments(horizontalPadding: 12)
+                .fixedSize(horizontal: true, vertical: false)
+            segments(horizontalPadding: 4)
+        }
+    }
+
+    private func segments(horizontalPadding: CGFloat) -> some View {
         HStack(spacing: 0) {
             ForEach(options, id: \.self) { option in
                 Text(option)
                     .font(.system(size: 13))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                     .padding(.vertical, 7)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, horizontalPadding)
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .background(selection == option ? selectedFill : Color.clear)
                     .foregroundStyle(selection == option ? selectedForeground : Theme.Colors.text)
@@ -30,7 +43,6 @@ struct SegmentedPicker: View {
         }
         .overlay(RoundedRectangle(cornerRadius: 2).stroke(Theme.Colors.divider, lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 2))
-        .fixedSize(horizontal: true, vertical: false)
     }
 }
 

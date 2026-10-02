@@ -31,6 +31,9 @@ final class FlashcardSession {
 
     func flip() { isFlipped = true }
 
+    /// The back's "← Front" — returns to the question without rating or advancing.
+    func unflip() { isFlipped = false }
+
     /// Records a rating for the current card and advances. No-op past the end of the deck.
     func rate(_ rating: FlashcardRating) {
         guard let card = currentCard else { return }
