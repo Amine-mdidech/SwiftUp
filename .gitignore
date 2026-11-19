@@ -7,3 +7,9 @@ DerivedData/
 Generated/
 scripts/serviceAccountKey.json
 __pycache__/
+build/
+.claude/
+
+# Firebase project config — each developer supplies their own (see README / the .example file)
+SwiftUp/GoogleService-Info.plist
+.firebaserc
