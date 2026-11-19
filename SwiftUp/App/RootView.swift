@@ -35,6 +35,9 @@ struct RootView: View {
         .environment(interviewRepository)
         .environment(libraryRepository)
         .environment(authRepository)
+        .onChange(of: authRepository.isSignedIn) { _, isSignedIn in
+            if !isSignedIn { ReminderScheduler.cancelAll() }
+        }
     }
 }
 

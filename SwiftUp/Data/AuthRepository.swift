@@ -40,14 +40,12 @@ final class AuthRepository {
 
         let restored = Auth.auth().currentUser
         self.isSignedIn = restored != nil
-        self.currentUser = restored.map { AuthUser(uid: $0.uid, email: $0.email, displayName: $0.displayName) }
+        self.currentUser = restored.map(Self.authUser(from:))
 
         authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             guard let self else { return }
             self.isSignedIn = user != nil
-            self.currentUser = user.map {
-                AuthUser(uid: $0.uid, email: $0.email, displayName: $0.displayName)
-            }
+            self.currentUser = user.map(Self.authUser(from:))
             self.hasCompletedOnboarding = nil
             if let uid = user?.uid {
                 Task { await self.refreshOnboardingStatus(uid: uid) }
@@ -260,6 +258,16 @@ final class AuthRepository {
         } catch {
             errorMessage = Self.friendlyMessage(for: error)
         }
+    }
+
+    private static func authUser(from user: User) -> AuthUser {
+        let method: String? = switch user.providerData.first?.providerID {
+        case "apple.com": "Apple"
+        case "google.com": "Google"
+        case "password": "email"
+        default: nil
+        }
+        return AuthUser(uid: user.uid, email: user.email, displayName: user.displayName, signInMethod: method)
     }
 
     // MARK: - Sign in with Apple

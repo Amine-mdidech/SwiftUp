@@ -4,7 +4,7 @@ enum AppTab: String, CaseIterable {
     case today = "Today"
     case prep = "Prep"
     case library = "Library"
-    case record = "Record"
+    case record = "Profile"
 }
 
 /// Recreates the canvas's shared footer — a hairline rule, four icon+label

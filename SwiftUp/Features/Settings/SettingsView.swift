@@ -1,10 +1,14 @@
 import SwiftUI
 
+/// Design 4a: account, notifications, and privacy on one ruled index (the separate notifications
+/// screen is folded in here). The notification switches are read back by `MainTabView`, which
+/// re-plans the pending local notifications through `ReminderScheduler` whenever one changes.
 struct SettingsView: View {
-    @State private var difficulty = "Adaptive"
-    @State private var cacheOffline = true
-    @State private var showOnLeaderboards = true
-    @State private var shareStats = false
+    @AppStorage(NotificationPreferences.Keys.dailyReminder) private var dailyReminderOn = true
+    @AppStorage(NotificationPreferences.Keys.streakAtRisk) private var streakAtRiskOn = true
+    @AppStorage(NotificationPreferences.Keys.weeklyEdition) private var weeklyEditionOn = true
+    @AppStorage(NotificationPreferences.Keys.quietHours) private var quietHoursOn = true
+    @AppStorage("settings.privacy.shareGradeAndStreak") private var shareGradeAndStreak = true
     // `@State`, not constructed inline in the NavigationLink closure below: that closure isn't
     // guaranteed to run only once, and a fresh `AdMobRewardedAdPresenter()` each time would never
     // have had time to preload an ad before the user taps "Watch one now" (see MainTabView's
@@ -12,108 +16,85 @@ struct SettingsView: View {
     @State private var adPresenter = AdMobRewardedAdPresenter()
     @State private var showDeleteConfirmation = false
     @State private var isDeletingAccount = false
+    @State private var notificationsDenied = false
     @State private var deleteAccountAlert: DeleteAccountAlert?
     @Environment(AuthRepository.self) private var authRepository
-    @Environment(QuestionRepository.self) private var questionRepository
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Settings").font(Theme.Fonts.heading(30))
+                Button("← Profile") { dismiss() }
+                    .font(Theme.Fonts.body(15))
+                    .foregroundStyle(Theme.Colors.accent700)
+                    .frame(minHeight: 44)
 
-                EyebrowLabel("Account").padding(.top, 24)
+                Text("Settings").font(Theme.Fonts.heading(32)).padding(.top, 10)
+
+                EyebrowLabel("Account").padding(.top, 26)
                 VStack(spacing: 0) {
                     RuledRow(minHeight: 46) {
-                        Text("Signed in as").font(Theme.Fonts.body(15))
+                        Text(signedInLabel).font(Theme.Fonts.body(15))
                         Spacer()
                         Text(authRepository.currentUser?.email ?? authRepository.currentUser?.displayName ?? "—")
-                            .font(.system(size: 13.5)).foregroundStyle(Theme.Colors.neutral700)
+                            .font(Theme.Fonts.body(13.5)).foregroundStyle(Theme.Colors.neutral700)
                     }
                     RuledRow(showBottomRule: true, minHeight: 46) {
                         Text("Support SwiftUp").font(Theme.Fonts.body(15))
                         Spacer()
                         NavigationLink("Donate →") { SupportView(adPresenter: adPresenter) }
-                            .font(.system(size: 13.5)).foregroundStyle(Theme.Colors.accent700)
+                            .font(Theme.Fonts.body(13.5)).foregroundStyle(Theme.Colors.accent700)
                     }
                 }
-                .padding(.top, 8)
+                .padding(.top, 10)
 
-                EyebrowLabel("Daily quiz").padding(.top, 22)
+                EyebrowLabel("Notifications").padding(.top, 24)
                 VStack(spacing: 0) {
-                    RuledRow(minHeight: 46) {
-                        Text("Reminder").font(Theme.Fonts.body(15))
-                        Spacer()
-                        Text("07:30 →").font(.system(size: 14)).foregroundStyle(Theme.Colors.accent700)
-                    }
-                    RuledRow(showBottomRule: true, minHeight: 46) {
-                        Text("Cache for offline").font(Theme.Fonts.body(15))
-                        Spacer()
-                        SquareToggle(isOn: $cacheOffline)
-                    }
+                    toggleRow("Daily quiz reminder", detail: "07:30", isOn: $dailyReminderOn)
+                    toggleRow("Streak at risk", detail: "21:00", isOn: $streakAtRiskOn)
+                    toggleRow("Weekly edition", detail: "Sun", isOn: $weeklyEditionOn)
+                    toggleRow("Quiet hours", detail: "22:00–07:00", isOn: $quietHoursOn, isLast: true)
                 }
-                .padding(.top, 8)
-
-                EyebrowLabel("Difficulty").padding(.top, 22)
-                SegmentedPicker(
-                    options: ["Adaptive"] + SkillLevel.allCases.map(\.displayName),
-                    selection: Binding(
-                        get: { difficulty },
-                        set: { newValue in
-                            difficulty = newValue
-                            guard let uid = authRepository.currentUser?.uid else { return }
-                            let level = SkillLevel.allCases.first { $0.displayName == newValue }
-                            Task { await questionRepository.setLevelOverride(level, for: uid) }
+                .padding(.top, 10)
+                if notificationsDenied {
+                    HStack(alignment: .firstTextBaseline) {
+                        Text("Notifications are off for SwiftUp in iOS Settings.")
+                            .font(Theme.Fonts.body(12.5)).foregroundStyle(Theme.Colors.neutral700)
+                        Spacer()
+                        Button("Open →") {
+                            if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
                         }
-                    )
-                )
-                    .padding(.top, 10)
-                Text("Adaptive uses the level you set at onboarding. Any other choice overrides it for tomorrow's five.")
-                    .font(.system(size: 12.5)).foregroundStyle(Theme.Colors.neutral700)
+                        .font(Theme.Fonts.body(13.5)).foregroundStyle(Theme.Colors.accent700)
+                    }
                     .padding(.top, 8)
-
-                EyebrowLabel("Privacy & appearance").padding(.top, 22)
-                VStack(spacing: 0) {
-                    RuledRow(minHeight: 46) {
-                        Text("Show me on leaderboards").font(Theme.Fonts.body(15))
-                        Spacer()
-                        SquareToggle(isOn: $showOnLeaderboards)
-                    }
-                    RuledRow(minHeight: 46) {
-                        Text("Share stats with friends").font(Theme.Fonts.body(15))
-                        Spacer()
-                        SquareToggle(isOn: $shareStats)
-                    }
-                    RuledRow(showBottomRule: true, minHeight: 46) {
-                        Text("Appearance").font(Theme.Fonts.body(15))
-                        Spacer()
-                        Text("System →").font(.system(size: 13.5)).foregroundStyle(Theme.Colors.neutral700)
-                    }
                 }
-                .padding(.top, 8)
+
+                EyebrowLabel("Privacy").padding(.top, 24)
+                VStack(spacing: 0) {
+                    toggleRow("Share my grade and streak", isOn: $shareGradeAndStreak, isLast: true)
+                }
+                .padding(.top, 10)
 
                 HStack(spacing: 18) {
                     Button("Sign out") { authRepository.signOut() }
-                        .font(.system(size: 14)).foregroundStyle(Theme.Colors.accent700)
+                        .font(Theme.Fonts.body(14)).foregroundStyle(Theme.Colors.accent700)
                     Button("Delete account") { showDeleteConfirmation = true }
-                        .font(.system(size: 14)).foregroundStyle(Theme.Colors.accent2800)
+                        .font(Theme.Fonts.body(14)).foregroundStyle(Theme.Colors.accent2800)
                         .disabled(isDeletingAccount)
                 }
-                .padding(.top, 20)
-
-                Spacer(minLength: 20)
+                .padding(.top, 22)
             }
-            .padding(24)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 16)
         }
         .background(Theme.Colors.bg)
-        .onAppear {
-            difficulty = questionRepository.levelOverride?.displayName ?? "Adaptive"
-        }
+        .navigationBarBackButtonHidden()
         .task { await adPresenter.preload() }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink("Notifications") { NotificationSettingsView() }
-            }
-        }
+        // Keyed on scene phase so the hint clears on return from iOS Settings.
+        .task(id: scenePhase) { notificationsDenied = await ReminderScheduler.authorizationStatus() == .denied }
         .alert("Delete your account?", isPresented: $showDeleteConfirmation) {
             Button("Delete account", role: .destructive) { deleteAccount() }
             Button("Cancel", role: .cancel) {}
@@ -122,6 +103,21 @@ struct SettingsView: View {
         }
         .alert(item: $deleteAccountAlert) { alert in
             Alert(title: Text(alert.title), message: Text(alert.message))
+        }
+    }
+
+    private var signedInLabel: String {
+        authRepository.currentUser?.signInMethod.map { "Signed in with \($0)" } ?? "Signed in as"
+    }
+
+    private func toggleRow(_ title: String, detail: String? = nil, isOn: Binding<Bool>, isLast: Bool = false) -> some View {
+        RuledRow(showBottomRule: isLast, minHeight: 46) {
+            Text(title).font(Theme.Fonts.body(15))
+            Spacer()
+            if let detail {
+                Text(detail).font(Theme.Fonts.body(13.5)).foregroundStyle(Theme.Colors.neutral700)
+            }
+            SquareToggle(isOn: isOn)
         }
     }
 
@@ -155,5 +151,4 @@ private enum DeleteAccountAlert: Identifiable {
 #Preview {
     NavigationStack { SettingsView() }
         .environment(AuthRepository(isPreview: true, signedIn: true))
-        .environment(QuestionRepository.preview())
 }

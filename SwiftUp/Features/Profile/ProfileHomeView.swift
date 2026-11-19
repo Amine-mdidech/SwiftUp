@@ -107,7 +107,10 @@ struct ProfileHomeView: View {
 
                 VStack(spacing: 14) {
                     ForEach(repo.inReachAchievements.prefix(2)) { a in
-                        milestoneRow(a)
+                        NavigationLink { MilestonesView() } label: {
+                            milestoneRow(a).contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .padding(.top, 12)
